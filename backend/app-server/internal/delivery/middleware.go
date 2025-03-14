@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -40,7 +39,6 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 			})
 
 			if err != nil || !token.Valid {
-				log.Print(err)
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Invalid token"))
 				return
