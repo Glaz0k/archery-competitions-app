@@ -1,13 +1,23 @@
 package logger
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"go.uber.org/zap"
 )
 
-var Logger, _ = zap.NewProduction()
+var Logger *zap.Logger
+
+func New() error {
+	var err error
+	Logger, err = zap.NewProduction()
+	if err != nil {
+		return fmt.Errorf("failed to create logger: %w", err)
+	}
+	return nil
+}
 
 type loggingResponseWriter struct {
 	http.ResponseWriter

@@ -1,22 +1,17 @@
 package main
 
 import (
-	"app-server/internal/api"
 	"app-server/internal/config"
-	"app-server/internal/functions"
+	"app-server/internal/server"
+	"app-server/internal/server/handlers"
+	"app-server/pkg/logger"
 	"app-server/pkg/postgres"
-	"bytes"
 	"context"
-	"fmt"
-	"log"
-	"net/http"
 	"os"
 	"os/signal"
-	"time"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -24,70 +19,49 @@ func main() {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt)
 	defer stop()
 
-	cfg, err := config.New()
+	err := logger.New()
 	if err != nil {
 		panic(err)
 	}
+	cfg, err := config.New()
+	if err != nil {
+		logger.Logger.Fatal("failed to read config", zap.Error(err))
+	}
+
 	conn, err := postgres.New(cfg.Postgres)
+	if err != nil {
+		logger.Logger.Fatal("failed to connect to database", zap.Error(err))
+	}
+
 	defer func(conn *pgx.Conn, ctx context.Context) {
 		err := conn.Close(ctx)
 		if err != nil {
-			panic(err)
+			logger.Logger.Fatal("failed to close connection", zap.Error(err))
 		}
 	}(conn, context.Background())
 
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(conn.Ping(ctx))
+	handlers.InitDB(conn)
 
-	functions.InitDB(conn)
-	router := mux.NewRouter()
-	api.Create(router)
+	srv := server.New(*cfg, logger.Logger)
 
-	headers := handlers.AllowedHeaders([]string{"Content-Type"})
-	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
-	origins := handlers.AllowedOrigins([]string{"*"})
-	logs := handlers.CORS(headers, methods, origins)(router)
-
-	log.Printf("Server started on localhost:%d\n", cfg.Port)
 	go func() {
-		log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", cfg.Port), logs))
+		logger.Logger.Fatal("server listen and serve:", zap.Error(srv.Run()))
 	}()
-	time.Sleep(1 * time.Second)
-
-	testRequest()
+	// //TESTING
+	//time.Sleep(1 * time.Second)
+	//
+	//_, err = test.AddCupRequest("localhost:8080", "test cup", "test address", "test")
+	//if err != nil {
+	//	logger.Logger.Fatal("failed to add cup", zap.Error(err))
+	//}
+	//eventDate := time.Date(2023, time.July, 4, 0, 0, 0, 0, time.UTC)
+	//_, err = test.AddCompetitionRequest(1, "localhost:8080", "I", eventDate.Format("2006-01-02"), eventDate.Format("2006-01-02"), true)
+	//if err != nil {
+	//	logger.Logger.Fatal("failed to add competition", zap.Error(err))
+	//}
 
 	select {
 	case <-ctx.Done():
-		//server.Stop()
-		// Message to logger
+		logger.Logger.Info("Server stopped")
 	}
-}
-
-func testRequest() {
-	jsonBody := []byte(`{"title": "World Cup", "address": "St. Petersburg", "season": "2022/2023"}`)
-	bodyReader := bytes.NewReader(jsonBody)
-
-	req, err := http.NewRequest("POST", "http://localhost:8082/cup/register", bodyReader)
-	if err != nil {
-		log.Fatalf("Could not create request: %v\n", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	client := http.DefaultClient
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalf("Could not send request: %v\n", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Expected status OK, got %v\n", resp.Status)
-	}
-
-	var responseBody bytes.Buffer
-	responseBody.ReadFrom(resp.Body)
-	fmt.Println("Response:", responseBody.String())
 }

@@ -1,10 +1,5 @@
 package models
 
-import (
-	"app-server/internal/enums"
-	"time"
-)
-
 type Shot struct {
 	RangeId    int    `json:"range_id"`
 	ShotNumber int    `json:"shot_number"`
@@ -52,12 +47,12 @@ type IndividualGroups struct {
 }
 
 type Competition struct {
-	ID        int         `json:"id"`
-	CupID     int         `json:"cup_id"`
-	Stage     enums.Stage `json:"stage"`
-	StartDate time.Time   `json:"start_date"`
-	EndDate   time.Time   `json:"end_date"`
-	IsEnded   bool        `json:"is_ended"`
+	ID        int    `json:"id"`
+	CupID     int    `json:"cup_id"`
+	Stage     string `json:"stage"` // TODO: enum
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"` // TODO: date
+	IsEnded   bool   `json:"is_ended"`
 }
 
 type Cup struct {
