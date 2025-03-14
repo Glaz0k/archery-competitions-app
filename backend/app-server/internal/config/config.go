@@ -1,13 +1,14 @@
 package config
 
 import (
-	"app-server/postgres"
+	"app-server/pkg/postgres"
+
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Port     int `yaml:"PORT"`
-	Postgres postgres.Config
+	Port     int             `yaml:"PORT"`
+	Postgres postgres.Config `yaml:"POSTGRES"`
 }
 
 func New() (*Config, error) {

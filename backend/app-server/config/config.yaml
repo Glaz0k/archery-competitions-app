@@ -1,7 +1,7 @@
-PORT: 8080
+PORT: 8082
 POSTGRES:
   POSTGRES_USER: root
   POSTGRES_PASSWORD: root_password
-  POSTGRES_DB: postgres
+  POSTGRES_DB: BowCompetitions
   POSTGRES_HOST: localhost
   POSTGRES_PORT: 5432
