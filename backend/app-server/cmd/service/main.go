@@ -1,14 +1,15 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
+
 	"app-server/internal/config"
 	"app-server/internal/server"
 	"app-server/internal/server/handlers"
 	"app-server/pkg/logger"
 	"app-server/pkg/postgres"
-	"context"
-	"os"
-	"os/signal"
 
 	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"

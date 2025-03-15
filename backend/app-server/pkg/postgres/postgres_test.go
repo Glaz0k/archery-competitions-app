@@ -11,11 +11,9 @@ func TestNew(t *testing.T) {
 	config := Config{
 		Host:     "localhost",
 		Port:     5432,
-		User:     "postgres",
-		Password: "postgres",
+		User:     "root",
+		Password: "root_password",
 		Database: "postgres",
-		//PoolMaxConns: 10,
-		//PoolMinConns: 1,
 	}
 
 	conn, err := New(config)
@@ -31,6 +29,7 @@ func TestNew(t *testing.T) {
 	`).Scan(&tableExists)
 	require.NoError(t, err, "Failed to check if table exists")
 	require.False(t, tableExists, "Table 'cups' should exist")
+
 	err = conn.QueryRow(context.Background(), `
 		SELECT EXISTS (
 			SELECT FROM information_schema.tables 
@@ -39,4 +38,13 @@ func TestNew(t *testing.T) {
 	`).Scan(&tableExists)
 	require.NoError(t, err, "Failed to check if table exists")
 	require.False(t, tableExists, "Table 'users' should not exist")
+
+	err = conn.QueryRow(context.Background(), `
+		SELECT EXISTS (
+			SELECT FROM information_schema.tables 
+			WHERE table_name = 'shots'
+		);
+	`).Scan(&tableExists)
+	require.NoError(t, err, "Failed to check if table exists")
+	require.False(t, tableExists, "Table 'shots' should exist")
 }
