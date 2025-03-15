@@ -1,4 +1,4 @@
-package router
+package delivery_test
 
 import (
 	"app-server/internal/delivery"
