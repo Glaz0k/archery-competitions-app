@@ -13,7 +13,7 @@ type Range struct {
 	IsCompleted bool `json:"is_completed"`
 }
 
-type Group struct {
+type RangeGroup struct {
 	ID          int `json:"id"`
 	RangesCount int `json:"ranges_count"`
 	RangeSize   int `json:"range_size"`
@@ -32,13 +32,13 @@ type QualificationSection struct {
 	Place              int   `json:"place"`
 }
 
-type Qualifications struct {
+type Qualification struct {
 	IndividualGroupID int    `json:"group_id"`
 	Distance          string `json:"distance"` // String?
 	RoundCount        int    `json:"round_count"`
 }
 
-type IndividualGroups struct {
+type IndividualGroup struct {
 	ID            int    `json:"id"`
 	CompetitionID int    `json:"competition_id"`
 	Bow           string `json:"bow"`
@@ -56,8 +56,9 @@ type Competition struct {
 }
 
 type Cup struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	Address string `json:"address"`
-	Season  string `json:"season"`
+	ID           int           `json:"id"`
+	Title        string        `json:"title"`
+	Address      string        `json:"address"`
+	Season       string        `json:"season"`
+	Competitions []Competition `json:"competitions"`
 }
