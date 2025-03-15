@@ -1,6 +1,6 @@
 ## Создание соревнования
 
-### `POST /competition/create`
+### `POST /competition`
 
 _Уровень доступа:_ `[admin]`\
 _Тело запроса:_
