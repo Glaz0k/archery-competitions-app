@@ -9,7 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtKey = []byte("my_secret_key") // where to get
+var jwtKey = []byte("my_secret_key_my_secret_key_my_secret_key") // where to get
 
 func generateTestToken(role string) string {
 	claims := &delivery.Claims{
