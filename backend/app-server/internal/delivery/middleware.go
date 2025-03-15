@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -24,8 +23,7 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 
 			tokenString := r.Header.Get("Authorization")
 			if tokenString == "" {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Missing authorization token"))
+				http.Error(w, "Missing authorization token", http.StatusUnauthorized)
 				return
 			}
 
@@ -39,8 +37,7 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 			})
 
 			if err != nil || !token.Valid {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Invalid token"))
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
@@ -53,35 +50,4 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		})
 	}
-}
-
-// for local use
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	username := r.URL.Query().Get("username")
-	role := r.URL.Query().Get("role")
-
-	if username == "" || (role != "user" && role != "admin") {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Invalid username or role"))
-		return
-	}
-
-	expirationTime := time.Now().Add(15 * time.Minute)
-	claims := &Claims{
-		Username: username,
-		Role:     role,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error generating token"))
-		return
-	}
-
-	w.Write([]byte(tokenString))
 }

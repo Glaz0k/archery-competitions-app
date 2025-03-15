@@ -27,6 +27,10 @@ type loggingResponseWriter struct {
 }
 
 func (r *loggingResponseWriter) Write(b []byte) (int, error) {
+	if r.status >= 400 { // Сохраняем тело только для ошибок
+		r.body = make([]byte, len(b))
+		copy(r.body, b)
+	}
 	size, err := r.ResponseWriter.Write(b)
 	r.size += size
 	return size, err
