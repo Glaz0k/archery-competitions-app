@@ -1,29 +1,20 @@
 package router
 
-// Individual Groups
-
 const (
-	CreateIndividualGroup = "api/individual_group"
-)
+	IndividualGroupEndpoint = "/api/individual-groups/{individual_group_id}"
 
-// Competitions
-const (
-	EndCompetition    = "api/competitions/{competition_id}/end"
-	CreateCompetition = "api/competition"
-	EditCompetition   = "api/competitions/{competition_id}"
-)
+	EndCompetition        = "/api/competitions/{competition_id}/end"
+	CompetitionEndpoint   = "/api/competitions/{competition_id}"
+	CreateIndividualGroup = "/api/competitions/{competition_id}/individual-group"
 
-// Cups
-const (
-	CreateCup = "api/cups"
-	Cup       = "api/cups/{cup_id}"
-)
+	CreateCup         = "/api/cups"
+	CupEndpoint       = "/api/cups/{cup_id}"
+	CreateCompetition = "/api/cups/{cup_id}/competitions"
 
-const (
-	CreateRangeGroup           = "api/range_group"
-	CreateQualification        = "api/qualification"
-	CreateQualificationRound   = "api/qualification_round"
-	CreateQualificationSection = "api/qualification_section"
-	CreateRange                = "api/range"
-	CreateShot                 = "api/shot"
+	CreateRangeGroup           = "/api/range-group"
+	CreateQualification        = "/api/qualification"
+	CreateQualificationRound   = "/api/qualification-round"
+	CreateQualificationSection = "/api/qualification-section"
+	CreateRange                = "/api/range"
+	CreateShot                 = "/api/shot"
 )

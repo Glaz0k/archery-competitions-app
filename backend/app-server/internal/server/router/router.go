@@ -44,6 +44,14 @@ func CreateShotRoutes(router *mux.Router) {
 	router.HandleFunc(CreateShot, handlers.CreateShot).Methods("POST")
 }
 
+func EditCompetitionRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitionEndpoint, handlers.EditCompetition).Methods("PUT")
+}
+
+func GetCupRoutes(router *mux.Router) {
+	router.HandleFunc(CupEndpoint, handlers.GetCup).Methods("GET")
+}
+
 func Create() *mux.Router {
 	router := mux.NewRouter()
 	router.Use(logger.LogMiddleware)
@@ -60,10 +68,15 @@ func Create() *mux.Router {
 	CreateQualificationSectionRoutes(adminRouter)
 	CreateRangeRoutes(adminRouter)
 
+	EditCompetitionRoutes(adminRouter)
+
 	userRouter := router.NewRoute().Subrouter()
 	userRouter.Use(delivery.JWTRoleMiddleware("user"))
 	CreateShotRoutes(userRouter)
 	CreateShotRoutes(adminRouter)
+
+	GetCupRoutes(userRouter)
+	GetCupRoutes(adminRouter)
 
 	return router
 }
