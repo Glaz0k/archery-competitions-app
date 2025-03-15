@@ -3,6 +3,7 @@ package router
 import (
 	"app-server/internal/delivery"
 	"app-server/internal/server/handlers"
+	"app-server/pkg/logger"
 
 	"github.com/gorilla/mux"
 )
@@ -45,6 +46,8 @@ func CreateShotRoutes(router *mux.Router) {
 
 func Create() *mux.Router {
 	router := mux.NewRouter()
+	router.Use(logger.LogMiddleware)
+
 	adminRouter := router.NewRoute().Subrouter()
 	adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
 
