@@ -1,5 +1,12 @@
 package router
 
+// Individual Groups
+
+const (
+	CreateIndividualGroup = "api/individual_group"
+)
+
+// Competitions
 const (
 	EndCompetition    = "api/competitions/{competition_id}/end"
 	CreateCompetition = "api/competition"
