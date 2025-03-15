@@ -56,6 +56,10 @@ func Create() *mux.Router {
 	CreateQualificationRoundRoutes(adminRouter)
 	CreateQualificationSectionRoutes(adminRouter)
 	CreateRangeRoutes(adminRouter)
+
+	userRouter := router.NewRoute().Subrouter()
+	userRouter.Use(delivery.JWTRoleMiddleware("user"))
+	CreateShotRoutes(userRouter)
 	CreateShotRoutes(adminRouter)
 
 	return router
