@@ -23,6 +23,7 @@ type loggingResponseWriter struct {
 	http.ResponseWriter
 	status int
 	size   int
+	body   []byte
 }
 
 func (r *loggingResponseWriter) Write(b []byte) (int, error) {
@@ -47,7 +48,21 @@ func LogMiddleware(hand http.Handler) http.Handler {
 		}
 		hand.ServeHTTP(&lrw, r)
 		duration := time.Since(start)
-		Logger.Info("Request completed:", zap.String("method", r.Method),
-			zap.String("url", r.URL.Path), zap.Int("status", lrw.status), zap.Duration("duration", duration))
+		Logger.Info("Request completed:",
+			zap.String("method", r.Method),
+			zap.String("url", r.URL.Path),
+			zap.Int("status", lrw.status),
+			zap.Duration("duration", duration),
+		)
+
+		if lrw.status >= 400 {
+			Logger.Error("Request failed:",
+				zap.String("method", r.Method),
+				zap.String("url", r.URL.Path),
+				zap.Int("status", lrw.status),
+				zap.Duration("duration", duration),
+				zap.ByteString("response_body", lrw.body),
+			)
+		}
 	})
 }
