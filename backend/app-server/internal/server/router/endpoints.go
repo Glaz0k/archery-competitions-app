@@ -1,15 +1,29 @@
 package router
 
+// Individual Groups
+
 const (
-	RegisterCompetition        = "/api/competitions/{id}/register"
-	RegisterUser               = "/api/users/register"
-	CreateCompetition          = "/api/competition"
-	CreateCup                  = "/api/cup"
-	CreateIndividualGroup      = "/api/individual_group"
-	CreateRangeGroup           = "/api/range_group"
-	CreateQualification        = "/api/qualification"
-	CreateQualificationRound   = "/api/qualification_round"
-	CreateQualificationSection = "/api/qualification_section"
-	CreateRange                = "/api/range"
-	CreateShot                 = "/api/shot"
+	CreateIndividualGroup = "api/individual_group"
+)
+
+// Competitions
+const (
+	EndCompetition    = "api/competitions/{competition_id}/end"
+	CreateCompetition = "api/competition"
+	EditCompetition   = "api/competitions/{competition_id}"
+)
+
+// Cups
+const (
+	CreateCup = "api/cups"
+	Cup       = "api/cups/{cup_id}"
+)
+
+const (
+	CreateRangeGroup           = "api/range_group"
+	CreateQualification        = "api/qualification"
+	CreateQualificationRound   = "api/qualification_round"
+	CreateQualificationSection = "api/qualification_section"
+	CreateRange                = "api/range"
+	CreateShot                 = "api/shot"
 )
