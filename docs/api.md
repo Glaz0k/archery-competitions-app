@@ -1,25 +1,29 @@
-## 1. Регистрация участника на соревнование
+## Создание соревнования
 
-### `POST /competitions/{competition_id}/register`
+### `POST /competition/create`
 
-_Уровень доступа:_ `[organizer]`\
+_Уровень доступа:_ `[admin]`\
 _Тело запроса:_
 
 ```json
 {
-  "competitor_id": 724560469214
+  "cup_id": 1,
+  "stage": "I",
+  "start_date": "2025-03-10",
+  "end_date": "2025-03-10",
+  "is_ended": false
 }
 ```
 
 _Ответы:_
 
-- **Успешно зарегистрирован или уже был зарегистрирован**\
+- **Успешно создано**\
   `201 Created / 200 Ok`
   ```json
   {
     "id": 9275023853,
-    "competition_id": 812031285712
-    "competitor_id": 724560469214
+    "competition_id": 812031285712,
+    "competitor_id": 724560469214,
     "created_at": "2025-03-10 22:12:44.126597+03"
   }
   ```
