@@ -14,8 +14,6 @@ func TestNew(t *testing.T) {
 		User:     "root",
 		Password: "root_password",
 		Database: "postgres",
-		//PoolMaxConns: 10,
-		//PoolMinConns: 1,
 	}
 
 	conn, err := New(config)
