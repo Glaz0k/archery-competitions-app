@@ -1,5 +1,19 @@
 ## Модель кубка
 
+### Допустимые типы
+
+```
+<cup>
+{
+  "id": <number>,
+  "title": <string>,
+  "address": <string | null>,
+  "season": <string | null>
+}
+```
+
+### Пример
+
 ```json
 {
   "id": 17,

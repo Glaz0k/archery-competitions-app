@@ -1,5 +1,30 @@
 ## Модель индивидуальной группы
 
+### Допустимые типы
+
+```
+<individual_group>
+{
+  "id": <number>,
+  "competition_id": <number>,
+  "bow": <bow_class>,
+  "identity": <gender | null>,
+  "state": <group_state>
+}
+```
+
+_Перечисления:_
+
+- [`bow_class`](../enums/bow_class.md)
+- [`gender`](../enums/gender.md)
+- [`group_state`](../enums/group_state.md)
+
+_Пояснения:_
+
+- null в поле `identity` означает "Объединённый"
+
+### Пример
+
 ```json
 {
   "id": 812,
@@ -9,9 +34,3 @@
   "state": "created"
 }
 ```
-
-_Перечисления:_
-
-- `bow`: [bow_class](../enums/bow_class.md)
-- `identity`: [gender](../enums/gender.md) | `null`
-- `state`: [group_state](../enums/group_state.md)

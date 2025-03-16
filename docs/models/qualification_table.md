@@ -1,5 +1,40 @@
 ## Модель таблицы квалификаций
 
+### Допустимые типы
+
+```
+<qualification_table>
+{
+  "group_id": <number>,
+  "distance": <string>,
+  "round_count": <number>,
+  "sections": [ <section> ]
+}
+
+<section>
+{
+  "id": <number>,
+  "competitor": <competitor_shrinked>,
+  "place": <number | null>,
+  "rounds": [ <qualification_round_shrinked> ],
+  "total": <number | null>,
+  "10_s": <number | null>,
+  "9_s": <number | null>,
+  "rank_gained": <sports_rank | null>
+}
+```
+
+_Модели:_
+
+- [`competitor_shrinked`](competitor.md/#shrinked)
+- [`qualification_round_shrinked`](qualification_round.md/#shrinked)
+
+_Перечисления:_
+
+- [`sports_rank`](../enums/sports_rank.md)
+
+### Пример
+
 ```json
 {
   "group_id": 824,
@@ -13,31 +48,20 @@
       "rounds": [
         {
           "round_number": 1,
-          "range_group": {
-            "id": 9235235,
-            "ranges_count": 10,
-            "range_size": 3,
-            "total": 0
-          }
+          "is_ongoing": true,
+          "total": 28
         },
         {
           "round_number": 2,
-          "range_group": {
-            "id": 7429858,
-            "ranges_count": 10,
-            "range_size": 3,
-            "total": 0
-          }
+          "is_ongoing": false,
+          "total": 0
         }
       ],
-      "total": 0,
-      "10_s": 0,
-      "9_s": 0,
+      "total": 28,
+      "10_s": 1,
+      "9_s": 1,
       "rank_gained": null
     }
   ]
 }
 ```
-
-- `competitor`: [competitor_shrinked](competitor.md/#shrinked)
-- `rank_gained`: [sports_rank](../enums/sports_rank.md) | `null`
