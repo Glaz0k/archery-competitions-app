@@ -36,5 +36,5 @@ _Ответы:_
 
 - **Успешно**\
   `200 Ok`\
-  [`qualification_round.json`](../models/qualification_round.md)
+  [`qualification_round_full.json`](../models/qualification_round.md/#full)
 - [**Квалификация, раунд или участник не найдены**](user_errors.md/#не-найдено)
