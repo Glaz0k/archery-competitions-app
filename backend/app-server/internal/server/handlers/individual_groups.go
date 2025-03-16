@@ -1,12 +1,15 @@
 package handlers
 
 import (
-	"app-server/internal/models"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
+
+	"app-server/internal/models"
 
 	"github.com/gorilla/mux"
 )
@@ -31,4 +34,29 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	groupID := vars["group_id"]
+	groupId, err := strconv.Atoi(groupID)
+	if err != nil {
+		http.Error(w, "invalid group_id", http.StatusBadRequest)
+	}
+
+	var individualGroup models.IndividualGroup
+	err = conn.QueryRow(context.Background(), `SELECT * FROM individual_groups WHERE id = $1`, groupId).Scan(&individualGroup.ID, &individualGroup.CompetitionID, &individualGroup.Bow, &individualGroup.Identity, &individualGroup.State)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "individual group not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "database error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(individualGroup); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
