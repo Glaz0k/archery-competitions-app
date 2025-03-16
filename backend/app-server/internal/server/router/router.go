@@ -60,6 +60,9 @@ func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
 	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitors).Methods("GET")
 }
 
+func EditCupRoutes(router *mux.Router) {
+	router.HandleFunc(CupEndpoint, handlers.EditCup).Methods("PUT")
+}
 func Create() *mux.Router {
 	router := mux.NewRouter()
 	router.Use(logger.LogMiddleware)
@@ -77,6 +80,7 @@ func Create() *mux.Router {
 	CreateRangeRoutes(adminRouter)
 
 	EditCompetitionRoutes(adminRouter)
+	EditCupRoutes(adminRouter)
 
 	userRouter := router.NewRoute().Subrouter()
 	userRouter.Use(delivery.JWTRoleMiddleware("user"))

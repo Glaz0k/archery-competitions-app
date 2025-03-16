@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -22,7 +22,7 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = conn.Exec(context.Background(), "INSERT INTO cups (title, address, season) VALUES ($1, $2, $3)", cup.Title, cup.Address, cup.Season)
 	if err != nil {
-		log.Fatalf("unable to insert data: %v\n", err)
+		http.Error(w, fmt.Sprintf("unable to insert data: %v\n", err), http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -30,16 +30,15 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 
 func GetCup(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	cupID := vars["cup_id"]
-
-	if cupID == "" {
-		http.Error(w, "cup_id is required", http.StatusBadRequest)
-		return
+	cupId := vars["cup_id"]
+	cupID, err := strconv.Atoi(cupId)
+	if err != nil {
+		http.Error(w, "invalid cup_id", http.StatusBadRequest)
 	}
 
 	var cup models.Cup
 	query := `SELECT id, title, address, season FROM cups WHERE id = $1`
-	err := conn.QueryRow(context.Background(), query, cupID).Scan(
+	err = conn.QueryRow(context.Background(), query, cupID).Scan(
 		&cup.ID,
 		&cup.Title,
 		&cup.Address,
@@ -58,4 +57,22 @@ func GetCup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(cup)
+}
+
+func EditCup(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	cupID := vars["cup_id"]
+	var cup models.Cup
+	err := json.NewDecoder(r.Body).Decode(&cup)
+	if err != nil {
+		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		return
+	}
+	query := `UPDATE cups SET title = $1, address = $2, season = $3 WHERE id = $4`
+	_, err = conn.Exec(context.Background(), query, cup.Title, cup.Address, cup.Season, cupID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("unable to update data: %v\n", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

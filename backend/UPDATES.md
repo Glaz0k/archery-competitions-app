@@ -49,7 +49,9 @@
   "is_ended": false
 }
 ```
+
 Формат даты пока такой 2023-10-25T00:00:00Z из-за формата time.Time, скорее всего сделать кастомный анмаршал даты
+
 ## [new] GetCup
 
 - Получение информации о кубке
@@ -87,24 +89,6 @@
 }
 ```
 
-## [update] CreateIndividualGroup
-
-- Исправлен эндпоинт
-
-#### endpoint: /api/cups/{cup_id}/individual-groups
-
-#### method: POST
-
-Тело запроса:
-
-```json
-{
-  "bow": "classic",
-  "identity": "male",
-  "state": "created"
-}
-```
-
 ## [new] CreateIndividualGroup
 
 #### method: POST
@@ -121,6 +105,33 @@
   "bow": "classic",
   "identity": "male",
   "state": "created"
+}
+```
+
+## [new] EditCup
+
+#### method: PUT
+
+#### endpoint: /api/cups/{cup_id}
+
+Тело запроса:
+
+```json
+{
+  "title": "Test Cup",
+  "address": "Test Address",
+  "season": "2023/2024"
+}
+```
+
+Тело ответа:
+
+```json
+{
+  "id": 2,
+  "title": "Test Cup",
+  "address": "Test Address",
+  "season": "2023/2024"
 }
 ```
 
