@@ -42,6 +42,7 @@ func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
 	groupId, err := strconv.Atoi(groupID)
 	if err != nil {
 		http.Error(w, "invalid group_id", http.StatusBadRequest)
+		return
 	}
 
 	var individualGroup models.IndividualGroup
@@ -57,6 +58,46 @@ func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err = json.NewEncoder(w).Encode(individualGroup); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func DeleteGroup(w http.ResponseWriter, r *http.Request) {}
+
+func UpdateGroup(w http.ResponseWriter, r *http.Request) {}
+
+func GetCompetitors(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	groupID := vars["group_id"]
+	groupId, err := strconv.Atoi(groupID)
+	if err != nil {
+		http.Error(w, "invalid group_id", http.StatusBadRequest)
+		return
+	}
+
+	var competitor models.Competitor
+	err = conn.QueryRow(context.Background(), `SELECT competitor_id FROM competitor_group_details WHERE group_id = $1`, groupId).Scan(&competitor.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "competitor not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "database error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	err = conn.QueryRow(context.Background(), `SELECT full_name FROM competitors WHERE id = $1`, competitor.ID).Scan(&competitor.FullName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "competitor not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "database error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(competitor); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

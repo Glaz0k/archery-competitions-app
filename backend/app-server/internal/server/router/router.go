@@ -56,6 +56,10 @@ func GetIndividualGroupsRoutes(router *mux.Router) {
 	router.HandleFunc(IndividualGroupEndpoint, handlers.GetIndividualGroups).Methods("GET")
 }
 
+func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitors).Methods("GET")
+}
+
 func Create() *mux.Router {
 	router := mux.NewRouter()
 	router.Use(logger.LogMiddleware)
@@ -84,6 +88,8 @@ func Create() *mux.Router {
 
 	GetIndividualGroupsRoutes(adminRouter)
 	GetIndividualGroupsRoutes(userRouter)
+	GetIndividualGroupCompetitorsRoutes(userRouter)
+	GetIndividualGroupCompetitorsRoutes(adminRouter)
 
 	return router
 }
