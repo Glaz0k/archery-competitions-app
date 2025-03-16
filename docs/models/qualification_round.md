@@ -9,38 +9,14 @@
 {
   "section_id": <number>,
   "round_number": <number>,
-  "is_ongoing": <bool>
+  "is_active": <bool>,
   "range_group": <range_group>
-}
-
-<range_group>
-{
-  "id": <number>,
-  "ranges_max_count": <number>,
-  "range_size": <number>,
-  "ranges": <[ <range> ]>,
-  "total_score": <number>
-}
-
-<range>
-{
-  "id": <number>,
-  "range_number": <number>,
-  "is_ongoing": <bool>,
-  "shots": <[ <shot> ] | null>,
-  "range_score": <number | null>
-}
-
-<shot>
-{
-  "shot_number": <number>,
-  "score": <string | null>
 }
 ```
 
-_Специальные значения:_
+_Модели:_
 
-- `score`: `^(M|[1-9]|10|X)$`
+- [`range_group`](range_group.md)
 
 ### Пример
 
@@ -48,7 +24,7 @@ _Специальные значения:_
 {
   "section_id": 12034987,
   "round_number": 1,
-  "is_ongoing": true,
+  "is_active": true,
   "range_group": {
     "id": 1297461324,
     "ranges_max_count": 10,
@@ -57,7 +33,7 @@ _Специальные значения:_
       {
         "id": 234098123,
         "range_number": 1,
-        "is_ongoing": false,
+        "is_active": false,
         "shots": [
           {
             "shot_number": 1,
@@ -77,7 +53,7 @@ _Специальные значения:_
       {
         "id": 23987614,
         "range_number": 2,
-        "is_ongoing": true,
+        "is_active": true,
         "shots": [
           {
             "shot_number": 1,
@@ -97,7 +73,7 @@ _Специальные значения:_
       {
         "id": 43563568,
         "range_number": 3,
-        "is_ongoing": false,
+        "is_active": false,
         "shots": null,
         "range_score": null
       }
@@ -115,7 +91,7 @@ _Специальные значения:_
 <qualification_round_shrinked>
 {
   "round_number": <number>,
-  "is_ongoing": <bool>,
+  "is_active": <bool>,
   "total_score": <number | null>
 }
 ```
@@ -125,7 +101,7 @@ _Специальные значения:_
 ```json
 {
   "round_number": 2,
-  "is_ongoing": true,
+  "is_active": true,
   "total_score": 10
 }
 ```

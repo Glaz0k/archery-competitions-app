@@ -10,28 +10,11 @@
   "round_count": <number>,
   "sections": [ <section> ]
 }
-
-<section>
-{
-  "id": <number>,
-  "competitor": <competitor_shrinked>,
-  "place": <number | null>,
-  "rounds": [ <qualification_round_shrinked> ],
-  "total": <number | null>,
-  "10_s": <number | null>,
-  "9_s": <number | null>,
-  "rank_gained": <sports_rank | null>
-}
 ```
 
 _Модели:_
 
-- [`competitor_shrinked`](competitor.md/#shrinked)
-- [`qualification_round_shrinked`](qualification_round.md/#shrinked)
-
-_Перечисления:_
-
-- [`sports_rank`](../enums/sports_rank.md)
+- [`section`](section.md)
 
 ### Пример
 
@@ -43,7 +26,10 @@ _Перечисления:_
   "sections": [
     {
       "id": 3052,
-      "competitor": {},
+      "competitor": {
+        "id": 759265,
+        "full_name": "Иванов Иван"
+      },
       "place": null,
       "rounds": [
         {
