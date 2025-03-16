@@ -136,7 +136,7 @@ func TestCreateQualification(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handlers.CreateQualification(rr, req)
+	handlers.StartQualification(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 

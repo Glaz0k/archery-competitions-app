@@ -49,7 +49,7 @@
   "is_ended": false
 }
 ```
-
+Формат даты пока такой 2023-10-25T00:00:00Z из-за формата time.Time, скорее всего сделать кастомный анмаршал даты
 ## [new] GetCup
 
 - Получение информации о кубке
@@ -94,6 +94,25 @@
 #### endpoint: /api/cups/{cup_id}/individual-groups
 
 #### method: POST
+
+Тело запроса:
+
+```json
+{
+  "bow": "classic",
+  "identity": "male",
+  "state": "created"
+}
+```
+
+## [new] CreateIndividualGroup
+
+#### method: POST
+
+- Исправлен эндпоинт
+- Добавлена проверка на существоание
+
+#### endpoint: /api/competitions/{competition_id}/individual-groups
 
 Тело запроса:
 

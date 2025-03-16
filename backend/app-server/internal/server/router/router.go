@@ -24,8 +24,8 @@ func CreateRangeGroupRoutes(router *mux.Router) {
 	router.HandleFunc(CreateRangeGroup, handlers.CreateRangeGroup).Methods("POST")
 }
 
-func CreateQualificationRoutes(router *mux.Router) {
-	router.HandleFunc(CreateQualification, handlers.CreateQualification).Methods("POST")
+func StartQualificationRoutes(router *mux.Router) {
+	router.HandleFunc(StartQualification, handlers.StartQualification).Methods("POST")
 }
 
 func CreateQualificationRoundRoutes(router *mux.Router) {
@@ -63,7 +63,7 @@ func Create() *mux.Router {
 	CreateCompetitionRoutes(adminRouter)
 	CreateIndividualGroupRoutes(adminRouter)
 	CreateRangeGroupRoutes(adminRouter)
-	CreateQualificationRoutes(adminRouter)
+	StartQualificationRoutes(adminRouter)
 	CreateQualificationRoundRoutes(adminRouter)
 	CreateQualificationSectionRoutes(adminRouter)
 	CreateRangeRoutes(adminRouter)

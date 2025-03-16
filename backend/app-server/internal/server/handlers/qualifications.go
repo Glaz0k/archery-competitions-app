@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func CreateQualification(w http.ResponseWriter, r *http.Request) {
+func StartQualification(w http.ResponseWriter, r *http.Request) {
 	var qualification models.Qualification
 	err := json.NewDecoder(r.Body).Decode(&qualification)
 	if err != nil {
@@ -45,7 +45,7 @@ func CreateQualificationSection(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
-	_, err = conn.Exec(context.Background(), "INSERT INTO qualification_sections (group_id, competitor_id, place) VALUES ($1, $2, $3)", qualificationSection.IndividualGroupsID, qualificationSection.CompetitorsID, qualificationSection.Place)
+	_, err = conn.Exec(context.Background(), "INSERT INTO qualification_sections (group_id, competitor_id, place) VALUES ($1, $2, $3)", qualificationSection.IndividualGroupsID, qualificationSection.CompetitorID, qualificationSection.Place)
 	if err != nil {
 		log.Fatalf("unable to insert data: %v\n", err)
 		return

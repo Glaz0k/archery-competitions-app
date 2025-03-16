@@ -2,6 +2,7 @@ package router
 
 const (
 	IndividualGroupEndpoint = "/api/individual-groups/{individual_group_id}"
+	StartQualification      = "/api/individual-groups/{individual_group_id}/qualification/start"
 
 	EndCompetition        = "/api/competitions/{competition_id}/end"
 	CompetitionEndpoint   = "/api/competitions/{competition_id}"
@@ -12,9 +13,8 @@ const (
 	CreateCompetition = "/api/cups/{cup_id}/competitions"
 
 	CreateRangeGroup           = "/api/range-group"
-	CreateQualification        = "/api/qualification"
 	CreateQualificationRound   = "/api/qualification-round"
 	CreateQualificationSection = "/api/qualification-section"
 	CreateRange                = "/api/range"
-	CreateShot                 = "/api/shot"
+	CreateShot                 = "/api/range/{range_id}/shots"
 )
