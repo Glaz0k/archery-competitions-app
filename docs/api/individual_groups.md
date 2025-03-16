@@ -16,7 +16,7 @@ _Ответы:_
 - **Успешно**\
   `200 Ok`\
   [`individual_group.json`](../models/individual_group.md)
-- [**Группа не найдена**](user_errors.md/#не-найдено)
+- [**Группа не найдена**](../policies/user_errors.md/#не-найдено)
 
 ### `DELETE /individual_groups/{group_id}`
 
@@ -49,7 +49,7 @@ _Ответы:_
 - **Успешно**\
   `200 Ok`\
   `[`[`competitor_full.json`](../models/competitor.md#full)`]`
-- [**Группа не найдена**](user_errors.md/#не-найдено)
+- [**Группа не найдена**](../policies/user_errors.md/#не-найдено)
 
 ### `POST /individual_groups/{group_id}/competitors/sync`
 
@@ -65,8 +65,8 @@ _Ответы:_
 - **Успешно**\
   `200 Ok`\
   `[`[`competitor_full.json`](../models/competitor.md#full)`]`
-- [**Невозможно обновить список группы не на этапе создания**](user_errors.md/#невозможно-выполнить-действие)
-- [**Группа не найдена**](user_errors.md/#не-найдено)
+- [**Невозможно обновить список группы не на этапе создания**](../policies/user_errors.md/#невозможно-выполнить-действие)
+- [**Группа не найдена**](../policies/user_errors.md/#не-найдено)
 
 ## Управление квалицикацией (на уровне группы)
 
@@ -97,8 +97,8 @@ _Ответы:_
 - **Успешно**\
   `201 Created | 200 Ok`\
   [`qualification_table.json`](../models/qualification_table.md)
-- [**Неверные параметры квалификации**](user_errors.md/#неверные-параметры)
-- [**Группа не найдена**](user_errors.md/#не-найдено)
+- [**Неверные параметры квалификации**](../policies/user_errors.md/#неверные-параметры)
+- [**Группа не найдена**](../policies/user_errors.md/#не-найдено)
 
 ### `POST /individual_groups/{group_id}/qualification/end`
 
@@ -114,11 +114,11 @@ _Ответы:_
 - **Успешно**\
   `200 Ok`\
   [`qualification_table.json`](../models/qualification_table.md)
-- [**Невозможно закончить квалификацию из-за незавершённых участниками раундов**](user_errors.md/#невозможно-выполнить-действие)
+- [**Невозможно закончить квалификацию из-за незавершённых участниками раундов**](../policies/user_errors.md/#невозможно-выполнить-действие)
   ```json
   {
     "details": [{}]
   }
   ```
   - `details`: `[`[`competitor_shrinked.json`](../models/competitor.md/#shrinked)`]`
-- [**Группа не найдена**](user_errors.md/#не-найдено)
+- [**Группа не найдена**](../policies/user_errors.md/#не-найдено)

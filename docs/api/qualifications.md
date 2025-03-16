@@ -16,7 +16,7 @@ _Ответы:_
 - **Успешно**\
   `200 Ok`\
   [`qualification_table.json`](../models/qualification_table.md)
-- [**Квалификация не найдена**](user_errors.md/#не-найдено)
+- [**Квалификация не найдена**](../policies/user_errors.md/#не-найдено)
 
 ### `GET /qualifications/{group_id}/rounds/{round_number}?competitor_id=`
 
@@ -37,4 +37,4 @@ _Ответы:_
 - **Успешно**\
   `200 Ok`\
   [`qualification_round_full.json`](../models/qualification_round.md/#full)
-- [**Квалификация, раунд или участник не найдены**](user_errors.md/#не-найдено)
+- [**Квалификация, раунд или участник не найдены**](../policies/user_errors.md/#не-найдено)
