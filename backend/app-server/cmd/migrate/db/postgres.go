@@ -10,7 +10,7 @@ import (
 )
 
 func CreateMigration(connString string) error {
-	m, err := migrate.New("file://migrations", connString)
+	m, err := migrate.New("file://./cmd/migrate/migrations", connString)
 	if err != nil {
 		return err
 	}
