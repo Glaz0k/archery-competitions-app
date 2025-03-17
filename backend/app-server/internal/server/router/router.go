@@ -1,11 +1,10 @@
 package router
 
 import (
+	"github.com/gorilla/mux"
+
 	"app-server/internal/delivery"
 	"app-server/internal/server/handlers"
-	"app-server/pkg/logger"
-
-	"github.com/gorilla/mux"
 )
 
 func CreateCupRoutes(router *mux.Router) {
@@ -60,15 +59,19 @@ func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
 	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitors).Methods("GET")
 }
 
+func DeleteIndividualGroupRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupEndpoint, handlers.DeleteIndividualGroup).Methods("DELETE")
+}
+
 func EditCupRoutes(router *mux.Router) {
 	router.HandleFunc(CupEndpoint, handlers.EditCup).Methods("PUT")
 }
 func Create() *mux.Router {
 	router := mux.NewRouter()
-	router.Use(logger.LogMiddleware)
+	//router.Use(logger.LogMiddleware)
 
 	adminRouter := router.NewRoute().Subrouter()
-	adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
+	//adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
 
 	CreateCupRoutes(adminRouter)
 	CreateCompetitionRoutes(adminRouter)
@@ -91,9 +94,10 @@ func Create() *mux.Router {
 	GetCupRoutes(adminRouter)
 
 	GetIndividualGroupsRoutes(adminRouter)
-	GetIndividualGroupsRoutes(userRouter)
+	//GetIndividualGroupsRoutes(userRouter)
 	GetIndividualGroupCompetitorsRoutes(userRouter)
-	GetIndividualGroupCompetitorsRoutes(adminRouter)
+	//GetIndividualGroupCompetitorsRoutes(adminRouter)
 
+	DeleteIndividualGroupRoutes(adminRouter)
 	return router
 }
