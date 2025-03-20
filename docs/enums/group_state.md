@@ -3,9 +3,11 @@
 ```
 Enum group_state {
   created
-  qualifications_start
-  qualifications_end
-  finals_start
-  finals_end
+  qualification_start
+  qualification_end
+  quarterfinal_start
+  semifinal_start
+  final_start
+  completed
 }
 ```
