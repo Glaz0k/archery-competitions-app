@@ -68,14 +68,8 @@ _Переменные пути:_
 
 - `competitor_id` - id участника
 
-_Тело запроса:_
-
-[`change_competitor.json`](../requests/change_competitor.md)
-
 _Ответы:_
 
 - **Успешно**\
-  `200 Ok`\
-  [`competitor_full.json`](../models/competitor.md#full)
-- [**Неверные параметры**](../policies/user_errors.md/#неверные-параметры)
-- [**Не зарегистрирован**](../policies/user_errors.md/#не-найдено)
+  `204 No content`
+- [**Невозможно удалить**](../policies/user_errors.md/#невозможно-выполнить-действие)
