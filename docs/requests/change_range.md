@@ -1,43 +1,37 @@
-## Модель серии
+## Запрос изменения серии
 
 ### Допустимые типы
 
 ```
-<range>
+<change_range>
 {
-  "id": <number>,
   "range_number": <number>,
-  "is_active": <bool>,
-  "shots": <[ <shot> ] | null>,
-  "range_score": <number | null>
+  "shots": <[ <shot> ] | null>
 }
 ```
 
 _Модели:_
 
-- [`shot`](shot.md)
+- [`shot`](../models/shot.md)
 
 ### Пример
 
 ```json
 {
-  "id": 234098123,
   "range_number": 1,
-  "is_active": false,
   "shots": [
     {
       "shot_number": 1,
-      "score": "10"
+      "score": "7"
     },
     {
       "shot_number": 2,
-      "score": "9"
+      "score": "M"
     },
     {
       "shot_number": 3,
       "score": "X"
     }
-  ],
-  "range_score": 29
+  ]
 }
 ```
