@@ -18,7 +18,7 @@ _Ответы:_
   [`sparring_place.json`](../models/sparring_place.md)
 - [**Место не найдено**](../policies/user_errors.md/#не-найдено)
 
-## Управление сериями в секции
+## Управление сериями в месте
 
 ### `GET /sparring_places/{id}/ranges`
 

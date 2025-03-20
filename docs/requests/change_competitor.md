@@ -1,13 +1,10 @@
-# Модель участника
-
-## full
+## Запрос изменения информации об участнике
 
 ### Допустимые типы
 
 ```
-<competitor_full>
+<change_competitor>
 {
-  "id": <number>,
   "full_name": <string>,
   "birth_date": <date ISO 8601>,
   "identity": <gender>,
@@ -29,7 +26,6 @@ _Перечисления:_
 
 ```json
 {
-  "id": 759265,
   "full_name": "Иванов Иван",
   "birth_date": "1999-08-24",
   "identity": "male",
@@ -38,26 +34,5 @@ _Перечисления:_
   "region": "Санкт-Петербург",
   "federation": null,
   "club": null
-}
-```
-
-## shrinked
-
-### Допустимые типы
-
-```
-<competitor_shrinked>
-{
-  "id": <number>,
-  "full_name": <string>
-}
-```
-
-### Пример
-
-```json
-{
-  "id": 759265,
-  "full_name": "Иванов Иван"
 }
 ```
