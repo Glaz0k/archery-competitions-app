@@ -7,8 +7,8 @@
 {
   "id": <number>,
   "stage": <competition_stage>,
-  "start_date": <date ISO 8601 | null>,
-  "end_date": <date ISO 8601 | null>,
+  "start_date": <YYYY-MM-DD ISO 8601 | null>,
+  "end_date": <YYYY-MM-DD ISO 8601 | null>,
   "is_ended": <bool>
 }
 ```
