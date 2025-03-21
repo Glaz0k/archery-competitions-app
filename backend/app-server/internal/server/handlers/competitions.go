@@ -196,3 +196,31 @@ func EndCompetition(w http.ResponseWriter, r *http.Request) {
 	}
 	tools.WriteJSON(w, http.StatusOK, competition)
 }
+
+func GetCompetitorsFromCompetitionUser(w http.ResponseWriter, r *http.Request) {
+	competitionID, err := tools.ParseParamToInt(r, "competition_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+		return
+	}
+
+	userID, ok := r.Context().Value("user_id").(uint)
+	if !ok {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "UserID not found"})
+		return
+	}
+
+	var registered bool
+	queryCheck := `SELECT EXISTS (SELECT 1 FROM competitor_competition_details WHERE competition_id = $1 AND competitor_id = $2)`
+
+	err = conn.QueryRow(context.Background(), queryCheck, competitionID, userID).Scan(&registered)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to check registration: %v", err))
+		return
+	}
+	if !registered {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
+		return
+	}
+	//TODO
+}
