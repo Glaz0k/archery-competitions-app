@@ -1,27 +1,18 @@
 package handlers
 
 import (
+	"app-server/pkg/tools"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/jackc/pgx/v5"
 
 	"app-server/internal/models"
-
-	"github.com/gorilla/mux"
 )
-
-func ParseParam(r *http.Request, str string) (int, error) {
-	vars := mux.Vars(r)
-	result := vars[str]
-	res, err := strconv.Atoi(result)
-	return res, err
-}
 
 func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	var individualGroup models.IndividualGroup
@@ -30,8 +21,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
-
-	competitionId, err := ParseParam(r, "competition_id")
+	competitionId, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
 		http.Error(w, "invalid competition_id", http.StatusBadRequest)
 	}
@@ -47,7 +37,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
-	groupId, err := ParseParam(r, "group_id")
+	groupId, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
 		http.Error(w, "invalid group_id", http.StatusBadRequest)
 	}
@@ -138,7 +128,7 @@ func deleteIndividualGroups(ctx context.Context, tx pgx.Tx, groupID int) error {
 }
 
 func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
-	groupID, err := ParseParam(r, "group_id")
+	groupID, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
 		http.Error(w, "invalid group_id", http.StatusBadRequest)
 		return
@@ -189,7 +179,7 @@ func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 func UpdateGroup(w http.ResponseWriter, r *http.Request) {}
 
 func GetCompetitors(w http.ResponseWriter, r *http.Request) {
-	groupId, err := ParseParam(r, "group_id")
+	groupId, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
 		http.Error(w, "invalid group_id", http.StatusBadRequest)
 	}

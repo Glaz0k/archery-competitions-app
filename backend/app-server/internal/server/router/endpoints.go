@@ -9,9 +9,9 @@ const (
 	CompetitionEndpoint   = "/api/competitions/{competition_id}"
 	CreateIndividualGroup = "/api/competitions/{competition_id}/individual-group"
 
-	CreateCup         = "/api/cups"
-	CupEndpoint       = "/api/cups/{cup_id}"
-	CreateCompetition = "/api/cups/{cup_id}/competitions"
+	CupsEndpoint         = "/api/cups"
+	CupEndpoint          = "/api/cups/{cup_id}"
+	CompetitionsEndpoint = "/api/cups/{cup_id}/competitions"
 
 	CreateRangeGroup           = "/api/range-group"
 	CreateQualificationRound   = "/api/qualification-round"

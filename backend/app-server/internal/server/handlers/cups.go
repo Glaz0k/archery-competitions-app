@@ -2,77 +2,121 @@ package handlers
 
 import (
 	"app-server/internal/models"
+	"app-server/pkg/tools"
 	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
-	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 func CreateCup(w http.ResponseWriter, r *http.Request) {
 	var cup models.Cup
 	err := json.NewDecoder(r.Body).Decode(&cup)
 	if err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+
+	checkQuery := "SELECT id FROM cups WHERE title = $1 AND address = $2 AND season = $3"
+	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cup.Title, cup.Address, cup.Season)
+	if exists {
+		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "CUP ALREADY EXISTS"})
+		return
+	}
+	if err != nil {
+		err = tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	_, err = conn.Exec(context.Background(), "INSERT INTO cups (title, address, season) VALUES ($1, $2, $3)", cup.Title, cup.Address, cup.Season)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("unable to insert data: %v\n", err), http.StatusBadRequest)
+		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	err = tools.WriteJSON(w, http.StatusCreated, cup)
 }
 
 func GetCup(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	cupId := vars["cup_id"]
-	cupID, err := strconv.Atoi(cupId)
+	cupID, err := tools.ParseParamToInt(r, "cup_id")
 	if err != nil {
-		http.Error(w, "invalid cup_id", http.StatusBadRequest)
-	}
-
-	var cup models.Cup
-	query := `SELECT id, title, address, season FROM cups WHERE id = $1`
-	err = conn.QueryRow(context.Background(), query, cupID).Scan(
-		&cup.ID,
-		&cup.Title,
-		&cup.Address,
-		&cup.Season,
-	)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "cup not found", http.StatusNotFound)
-		} else {
-			http.Error(w, fmt.Sprintf("unable to get data: %v", err), http.StatusInternalServerError)
-		}
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(cup)
+	var cup models.Cup
+	checkQuery := `SELECT id, title, address, season FROM cups WHERE id = $1`
+	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cupID)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "CUP NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	tools.WriteJSON(w, http.StatusOK, cup)
+}
+
+func GetAllCups(w http.ResponseWriter, r *http.Request) {
+	query := `SELECT id, title, address, season FROM cups`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer rows.Close()
+	var cups []models.Cup
+
+	for rows.Next() {
+		var cup models.Cup
+		err = rows.Scan(
+			&cup.ID,
+			&cup.Title,
+			&cup.Address,
+			&cup.Season,
+		)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		cups = append(cups, cup)
+	}
+
+	if err = rows.Err(); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	err = tools.WriteJSON(w, http.StatusOK, cups)
 }
 
 func EditCup(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	cupID := vars["cup_id"]
-	var cup models.Cup
-	err := json.NewDecoder(r.Body).Decode(&cup)
+	cupID, err := tools.ParseParamToInt(r, "cup_id")
 	if err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
 		return
 	}
+	var cup models.Cup
+	err = json.NewDecoder(r.Body).Decode(&cup)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+
+	checkQuery := `SELECT id FROM cups WHERE id = $1`
+	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cupID)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "CUP NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
 	query := `UPDATE cups SET title = $1, address = $2, season = $3 WHERE id = $4`
 	_, err = conn.Exec(context.Background(), query, cup.Title, cup.Address, cup.Season, cupID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("unable to update data: %v\n", err), http.StatusInternalServerError)
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	tools.WriteJSON(w, http.StatusOK, cup)
 }

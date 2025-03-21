@@ -1,6 +1,8 @@
 package router
 
 import (
+	"app-server/pkg/logger"
+
 	"github.com/gorilla/mux"
 
 	"app-server/internal/delivery"
@@ -8,11 +10,11 @@ import (
 )
 
 func CreateCupRoutes(router *mux.Router) {
-	router.HandleFunc(CreateCup, handlers.CreateCup).Methods("POST")
+	router.HandleFunc(CupsEndpoint, handlers.CreateCup).Methods("POST")
 }
 
 func CreateCompetitionRoutes(router *mux.Router) {
-	router.HandleFunc(CreateCompetition, handlers.CreateCompetition).Methods("POST")
+	router.HandleFunc(CompetitionsEndpoint, handlers.CreateCompetition).Methods("POST")
 }
 
 func CreateIndividualGroupRoutes(router *mux.Router) {
@@ -66,12 +68,25 @@ func DeleteIndividualGroupRoutes(router *mux.Router) {
 func EditCupRoutes(router *mux.Router) {
 	router.HandleFunc(CupEndpoint, handlers.EditCup).Methods("PUT")
 }
+
+func GetAllCupsRoutes(router *mux.Router) {
+	router.HandleFunc(CupsEndpoint, handlers.GetAllCups).Methods("GET")
+}
+
+func GetAllCompetitionsRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitionsEndpoint, handlers.GetAllCompetitions).Methods("GET")
+}
+
+func EndCompetitionRoutes(router *mux.Router) {
+	router.HandleFunc(EndCompetition, handlers.EndCompetition).Methods("POST")
+}
+
 func Create() *mux.Router {
 	router := mux.NewRouter()
-	//router.Use(logger.LogMiddleware)
+	router.Use(logger.LogMiddleware)
 
 	adminRouter := router.NewRoute().Subrouter()
-	//adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
+	adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
 
 	CreateCupRoutes(adminRouter)
 	CreateCompetitionRoutes(adminRouter)
@@ -87,16 +102,25 @@ func Create() *mux.Router {
 
 	userRouter := router.NewRoute().Subrouter()
 	userRouter.Use(delivery.JWTRoleMiddleware("user"))
+
 	CreateShotRoutes(userRouter)
 	CreateShotRoutes(adminRouter)
 
 	GetCupRoutes(userRouter)
 	GetCupRoutes(adminRouter)
 
+	GetAllCupsRoutes(userRouter)
+	GetAllCupsRoutes(adminRouter)
+
+	GetAllCompetitionsRoutes(userRouter)
+	GetAllCompetitionsRoutes(adminRouter)
+
 	GetIndividualGroupsRoutes(adminRouter)
 	//GetIndividualGroupsRoutes(userRouter)
 	GetIndividualGroupCompetitorsRoutes(userRouter)
 	//GetIndividualGroupCompetitorsRoutes(adminRouter)
+
+	EndCompetitionRoutes(adminRouter)
 
 	DeleteIndividualGroupRoutes(adminRouter)
 	return router
