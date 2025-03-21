@@ -57,19 +57,19 @@ _Модели:_
           "ranges": [
             {
               "id": 234098123,
-              "range_number": 1,
+              "range_ordinal": 1,
               "is_active": false,
               "shots": [
                 {
-                  "shot_number": 1,
+                  "shot_ordinal": 1,
                   "score": "10"
                 },
                 {
-                  "shot_number": 2,
+                  "shot_ordinal": 2,
                   "score": "9"
                 },
                 {
-                  "shot_number": 3,
+                  "shot_ordinal": 3,
                   "score": "X"
                 }
               ],
@@ -77,19 +77,19 @@ _Модели:_
             },
             {
               "id": 23987614,
-              "range_number": 2,
+              "range_ordinal": 2,
               "is_active": true,
               "shots": [
                 {
-                  "shot_number": 1,
+                  "shot_ordinal": 1,
                   "score": "8"
                 },
                 {
-                  "shot_number": 2,
+                  "shot_ordinal": 2,
                   "score": null
                 },
                 {
-                  "shot_number": 3,
+                  "shot_ordinal": 3,
                   "score": null
                 }
               ],
@@ -97,7 +97,7 @@ _Модели:_
             },
             {
               "id": 43563568,
-              "range_number": 3,
+              "range_ordinal": 3,
               "is_active": false,
               "shots": null,
               "range_score": null

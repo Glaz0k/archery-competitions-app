@@ -20,7 +20,7 @@ _Ответы:_
 
 ## Управление раундом в секции
 
-### `GET /qualification_sections/{id}/rounds/{round_number}`
+### `GET /qualification_sections/{id}/rounds/{round_ordinal}`
 
 > Получить раунд. Участник имеет доступ только если это его секция
 
@@ -28,7 +28,7 @@ _Уровень доступа:_ `[admin, user]`\
 _Переменные пути:_
 
 - `id` - id секции
-- `round_number` - номер раунда
+- `round_ordinal` - номер раунда
 
 _Ответы:_
 
@@ -39,7 +39,7 @@ _Ответы:_
 
 ## Управление сериями в раунде
 
-### `GET /qualification_sections/{id}/rounds/{round_number}/ranges`
+### `GET /qualification_sections/{id}/rounds/{round_ordinal}/ranges`
 
 > Получить серии. Участник имеет доступ только если это его секция
 
@@ -47,7 +47,7 @@ _Уровень доступа:_ `[admin, user]`\
 _Переменные пути:_
 
 - `id` - id секции
-- `round_number` - номер раунда
+- `round_ordinal` - номер раунда
 
 _Ответы:_
 
@@ -56,7 +56,7 @@ _Ответы:_
   [`range_group.json`](../models/range_group.md)
 - [**Секция или раунд не найдены**](../policies/user_errors.md/#не-найдено)
 
-### `PUT /qualification_sections/{id}/rounds/{round_number}/ranges`
+### `PUT /qualification_sections/{id}/rounds/{round_ordinal}/ranges`
 
 > Изменить серию. Участник имеет доступ только если это его секция и серия активна. Если номера выстрелов в списке дублируются применяется последний встретившийся по порядку. При изменении организатором завершённой серии, результаты должны повлиять на итоговый счёт.
 
@@ -67,7 +67,7 @@ _Уровень доступа:_ `[admin, user]`\
 _Переменные пути:_
 
 - `id` - id секции
-- `round_number` - номер раунда
+- `round_ordinal` - номер раунда
 
 _Тело запроса:_
 
@@ -86,13 +86,13 @@ _Ответы:_
   {
     "error": "INVALID SCORE",
     "details": {
-      "shot_number": 2,
+      "shot_ordinal": 2,
       "type": "6-10"
     }
   }
   ```
 
-### `POST /qualification_sections/{id}/rounds/{round_number}/ranges/{range_number}/end`
+### `POST /qualification_sections/{id}/rounds/{round_ordinal}/ranges/{range_ordinal}/end`
 
 > Подвердить, что серия закончена.
 >
@@ -108,8 +108,8 @@ _Уровень доступа:_ `[admin, user]`\
 _Переменные пути:_
 
 - `id` - id секции
-- `round_number` - номер раунда
-- `range_number` - номер серии
+- `round_ordinal` - номер раунда
+- `range_ordinal` - номер серии
 
 _Ответы:_
 

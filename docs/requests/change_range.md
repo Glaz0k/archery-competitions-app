@@ -5,7 +5,7 @@
 ```
 <change_range>
 {
-  "range_number": <number>,
+  "range_ordinal": <number>,
   "shots": <[ <shot> ] | null>
 }
 ```
@@ -18,18 +18,18 @@ _Модели:_
 
 ```json
 {
-  "range_number": 1,
+  "range_ordinal": 1,
   "shots": [
     {
-      "shot_number": 1,
+      "shot_ordinal": 1,
       "score": "7"
     },
     {
-      "shot_number": 2,
+      "shot_ordinal": 2,
       "score": "M"
     },
     {
-      "shot_number": 3,
+      "shot_ordinal": 3,
       "score": "X"
     }
   ]

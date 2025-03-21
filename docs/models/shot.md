@@ -5,7 +5,7 @@
 ```
 <shot>
 {
-  "shot_number": <number>,
+  "shot_ordinal": <number>,
   "score": <string | null>
 }
 ```
@@ -18,7 +18,7 @@ _Специальные значения:_
 
 ```json
 {
-  "shot_number": 1,
+  "shot_ordinal": 1,
   "score": "10"
 }
 ```

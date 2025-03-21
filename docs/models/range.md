@@ -6,7 +6,7 @@
 <range>
 {
   "id": <number>,
-  "range_number": <number>,
+  "range_ordinal": <number>,
   "is_active": <bool>,
   "shots": <[ <shot> ] | null>,
   "range_score": <number | null>
@@ -22,19 +22,19 @@ _Модели:_
 ```json
 {
   "id": 234098123,
-  "range_number": 1,
+  "range_ordinal": 1,
   "is_active": false,
   "shots": [
     {
-      "shot_number": 1,
+      "shot_ordinal": 1,
       "score": "10"
     },
     {
-      "shot_number": 2,
+      "shot_ordinal": 2,
       "score": "9"
     },
     {
-      "shot_number": 3,
+      "shot_ordinal": 3,
       "score": "X"
     }
   ],

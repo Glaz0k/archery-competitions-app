@@ -37,12 +37,12 @@ _Перечисления:_
   "place": null,
   "rounds": [
     {
-      "round_number": 1,
+      "round_ordinal": 1,
       "is_ongoing": true,
       "total": 28
     },
     {
-      "round_number": 2,
+      "round_ordinal": 2,
       "is_ongoing": false,
       "total": 0
     }

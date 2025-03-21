@@ -65,13 +65,13 @@ _Ответы:_
   {
     "error": "INVALID SCORE",
     "details": {
-      "shot_number": 2,
+      "shot_ordinal": 2,
       "type": "6-10"
     }
   }
   ```
 
-### `POST /sparring_places/{id}/ranges/{range_number}/end`
+### `POST /sparring_places/{id}/ranges/{range_ordinal}/end`
 
 > Подвердить, что серия закончена.
 >
@@ -98,7 +98,7 @@ _Уровень доступа:_ `[admin, user]`\
 _Переменные пути:_
 
 - `id` - id места
-- `range_number` - номер серии
+- `range_ordinal` - номер серии
 
 _Ответы:_
 

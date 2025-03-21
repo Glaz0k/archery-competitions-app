@@ -8,7 +8,7 @@
 <qualification_round_full>
 {
   "section_id": <number>,
-  "round_number": <number>,
+  "round_ordinal": <number>,
   "is_active": <bool>,
   "range_group": <range_group>
 }
@@ -23,7 +23,7 @@ _Модели:_
 ```json
 {
   "section_id": 12034987,
-  "round_number": 1,
+  "round_ordinal": 1,
   "is_active": true,
   "range_group": {
     "id": 1297461324,
@@ -32,19 +32,19 @@ _Модели:_
     "ranges": [
       {
         "id": 234098123,
-        "range_number": 1,
+        "range_ordinal": 1,
         "is_active": false,
         "shots": [
           {
-            "shot_number": 1,
+            "shot_ordinal": 1,
             "score": "10"
           },
           {
-            "shot_number": 2,
+            "shot_ordinal": 2,
             "score": "9"
           },
           {
-            "shot_number": 3,
+            "shot_ordinal": 3,
             "score": "X"
           }
         ],
@@ -52,19 +52,19 @@ _Модели:_
       },
       {
         "id": 23987614,
-        "range_number": 2,
+        "range_ordinal": 2,
         "is_active": true,
         "shots": [
           {
-            "shot_number": 1,
+            "shot_ordinal": 1,
             "score": "8"
           },
           {
-            "shot_number": 2,
+            "shot_ordinal": 2,
             "score": null
           },
           {
-            "shot_number": 3,
+            "shot_ordinal": 3,
             "score": null
           }
         ],
@@ -72,7 +72,7 @@ _Модели:_
       },
       {
         "id": 43563568,
-        "range_number": 3,
+        "range_ordinal": 3,
         "is_active": false,
         "shots": null,
         "range_score": null
@@ -90,7 +90,7 @@ _Модели:_
 ```
 <qualification_round_shrinked>
 {
-  "round_number": <number>,
+  "round_ordinal": <number>,
   "is_active": <bool>,
   "total_score": <number | null>
 }
@@ -100,7 +100,7 @@ _Модели:_
 
 ```json
 {
-  "round_number": 2,
+  "round_ordinal": 2,
   "is_active": true,
   "total_score": 10
 }
