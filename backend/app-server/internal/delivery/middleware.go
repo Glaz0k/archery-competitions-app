@@ -11,11 +11,10 @@ import (
 
 var jwtKey = []byte("my_secret_key_my_secret_key_my_secret_key") // where to get
 
-// RS256???
 type Claims struct {
-	UserID             string `json:"user_id"`
-	Role               string `json:"role"`
-	jwt.StandardClaims        // not in example
+	UserID int    `json:"user_id"`
+	Role   string `json:"role"`
+	jwt.StandardClaims
 }
 
 func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
