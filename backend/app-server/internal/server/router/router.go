@@ -89,6 +89,14 @@ func GetQualificationSectionsRoutes(router *mux.Router) {
 	router.HandleFunc(GetQualificationSections, handlers.GetQualificationSection).Methods("GET")
 }
 
+func RegisterCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(RegisterCompetitor, handlers.CreateCompetitors).Methods("POST")
+}
+
+func GetCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(GetCompetitor, handlers.GetCompetitor).Methods("GET")
+}
+
 func Create() *mux.Router {
 	router := mux.NewRouter()
 	router.Use(logger.LogMiddleware)
@@ -136,6 +144,11 @@ func Create() *mux.Router {
 
 	GetQualificationSectionsRoutes(userRouter)
 	GetQualificationSectionsRoutes(adminRouter)
+
+	RegisterCompetitorRoutes(userRouter)
+
+	GetCompetitorRoutes(adminRouter)
+	GetCompetitorRoutes(userRouter)
 
 	return router
 }

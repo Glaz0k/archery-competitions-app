@@ -21,4 +21,7 @@ const (
 
 	GetCompetitorsFromCompetition = "/api/competitors/{competition_id}/competitors"
 	GetQualificationSections      = "/api/qualification_sections/{id}"
+
+	RegisterCompetitor = "/api/competitors/registration"
+	GetCompetitor      = "/api/competitors/{competitor_id}"
 )
