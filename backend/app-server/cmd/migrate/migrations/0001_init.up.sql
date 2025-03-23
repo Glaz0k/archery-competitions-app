@@ -76,6 +76,18 @@ CREATE TABLE "individual_groups" (
                                      "state" group_state NOT NULL DEFAULT 'created'
 );
 
+CREATE TABLE "competitors" (
+                               "id" bigint PRIMARY KEY,
+                               "full_name" varchar(32) NOT NULL,
+                               "birth_date" date NOT NULL,
+                               "identity" gender NOT NULL,
+                               "bow" bow_class,
+                               "rank" sports_rank,
+                               "region" varchar(256),
+                               "federation" varchar(256),
+                               "club" varchar(256)
+);
+
 CREATE TABLE "competitor_competition_details" (
                                                   "competition_id" bigint,
                                                   "competitor_id" bigint,
@@ -171,18 +183,6 @@ CREATE TABLE "shots" (
                          PRIMARY KEY ("range_id", "shot_ordinal")
 );
 
-CREATE TABLE "competitors" (
-                               "id" bigint PRIMARY KEY,
-                               "full_name" varchar(32) NOT NULL,
-                               "birth_date" date NOT NULL,
-                               "identity" gender NOT NULL,
-                               "bow" bow_class,
-                               "rank" sports_rank,
-                               "region" varchar(256),
-                               "federation" varchar(256),
-                               "club" varchar(256)
-);
-
 CREATE UNIQUE INDEX ON "competitions" ("cup_id", "stage");
 
 CREATE UNIQUE INDEX ON "individual_groups" ("competition_id", "bow", "identity");
@@ -201,17 +201,18 @@ COMMENT ON COLUMN "shoot_outs"."priority" IS 'signifies +/- sign after shoot-out
 
 COMMENT ON COLUMN "shots"."score" IS 'numbers 1-10 and M, X';
 
+-- Внешние ключи
 ALTER TABLE "competitions" ADD FOREIGN KEY ("cup_id") REFERENCES "cups" ("id");
 
 ALTER TABLE "individual_groups" ADD FOREIGN KEY ("competition_id") REFERENCES "competitions" ("id");
 
-ALTER TABLE "competitions" ADD FOREIGN KEY ("id") REFERENCES "competitor_competition_details" ("competition_id");
+ALTER TABLE "competitor_competition_details" ADD FOREIGN KEY ("competition_id") REFERENCES "competitions" ("id");
 
-ALTER TABLE "competitors" ADD FOREIGN KEY ("id") REFERENCES "competitor_competition_details" ("competitor_id");
+ALTER TABLE "competitor_competition_details" ADD FOREIGN KEY ("competitor_id") REFERENCES "competitors" ("id");
 
-ALTER TABLE "individual_groups" ADD FOREIGN KEY ("id") REFERENCES "competitor_group_details" ("group_id");
+ALTER TABLE "competitor_group_details" ADD FOREIGN KEY ("group_id") REFERENCES "individual_groups" ("id");
 
-ALTER TABLE "competitors" ADD FOREIGN KEY ("id") REFERENCES "competitor_group_details" ("competitor_id");
+ALTER TABLE "competitor_group_details" ADD FOREIGN KEY ("competitor_id") REFERENCES "competitors" ("id");
 
 ALTER TABLE "qualifications" ADD FOREIGN KEY ("group_id") REFERENCES "individual_groups" ("id");
 

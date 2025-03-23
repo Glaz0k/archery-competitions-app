@@ -46,7 +46,8 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 				w.Write([]byte(fmt.Sprintf("Access denied. Required role: %s", role)))
 				return
 			}
-			r.WithContext(context.WithValue(r.Context(), "user_id", claims.UserID))
+			ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
+			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})
 	}

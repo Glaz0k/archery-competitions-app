@@ -20,23 +20,14 @@ func CreateCompetitors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ok bool
-	competitor.ID, ok = r.Context().Value("user_id").(int)
+	tmp := r.Context().Value("user_id")
+	competitor.ID, ok = tmp.(int)
 	if !ok {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	query := `INSERT INTO competitors (id, full_name, birth_date, identity, bow, rank, region, federation, club)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-ON CONFLICT (full_name, birth_date)
-DO UPDATE SET
-    id = EXCLUDED.id,
-    identity = EXCLUDED.identity,
-    bow = EXCLUDED.bow,
-    rank = EXCLUDED.rank,
-    region = EXCLUDED.region,
-    federation = EXCLUDED.federation,
-    club = EXCLUDED.club;`
+	query := `INSERT INTO competitors (id, full_name, birth_date, identity, bow, rank, region, federation, club) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 	_, err = conn.Exec(context.Background(), query, competitor.ID, competitor.FullName, competitor.BirthDate, competitor.Identity, competitor.Bow, competitor.Rank, competitor.Region, competitor.Federation, competitor.Club)
 	if err != nil {
 		http.Error(w, "database error", http.StatusInternalServerError)
