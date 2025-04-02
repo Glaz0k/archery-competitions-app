@@ -82,7 +82,7 @@ func EndCompetitionRoutes(router *mux.Router) {
 }
 
 func RegisterCompetitorRoutes(router *mux.Router) {
-	router.HandleFunc(CreateCompetitor, handlers.RegisterCompetitor).Methods("POST")
+	router.HandleFunc(RegisterCompetitor, handlers.RegisterCompetitor).Methods("POST")
 }
 
 func GetCompetitorsFromCompetitionUserRoutes(router *mux.Router) {

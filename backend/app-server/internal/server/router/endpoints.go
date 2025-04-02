@@ -20,6 +20,6 @@ const (
 	CreateShot                 = "/api/range/{range_id}/shots"
 
 	Competitor                    = "/api/competitors/{competitor_id}"
-	CreateCompetitor              = "/api/competitors/registration"
+	RegisterCompetitor            = "/api/competitors/registration"
 	GetCompetitorsFromCompetition = "/api/competitors/{competition_id}/competitors"
 )
