@@ -17,12 +17,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class JwtProviderTest {
 
+    private final static SecretKey TEST_SECRET_KEY = Jwts.SIG.HS256.key().build();
     @Mock
     private UserEntity user;
-
     private JwtProvider jwtProvider;
-
-    private final static SecretKey TEST_SECRET_KEY = Jwts.SIG.HS256.key().build();
 
     @BeforeEach
     void setUp() {

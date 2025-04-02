@@ -2,7 +2,7 @@ FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-COPY target/auth-server-0.0.1.jar app.jar
+COPY target/auth-server-1.0.0.jar app.jar
 
 EXPOSE 8080
 
