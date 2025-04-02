@@ -58,7 +58,7 @@ func GetIndividualGroupsRoutes(router *mux.Router) {
 }
 
 func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
-	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitors).Methods("GET")
+	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitorsFromGroup).Methods("GET")
 }
 
 func DeleteIndividualGroupRoutes(router *mux.Router) {
@@ -81,8 +81,16 @@ func EndCompetitionRoutes(router *mux.Router) {
 	router.HandleFunc(EndCompetition, handlers.EndCompetition).Methods("POST")
 }
 
+func RegisterCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(CreateCompetitor, handlers.RegisterCompetitor).Methods("POST")
+}
+
 func GetCompetitorsFromCompetitionUserRoutes(router *mux.Router) {
 	router.HandleFunc(GetCompetitorsFromCompetition, handlers.GetCompetitorsFromCompetitionUser).Methods("GET")
+}
+
+func EditCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(Competitor, handlers.UserEditCompetitor).Methods("PUT")
 }
 
 func Create() *mux.Router {
@@ -124,10 +132,13 @@ func Create() *mux.Router {
 	GetIndividualGroupCompetitorsRoutes(userRouter)
 	//GetIndividualGroupCompetitorsRoutes(adminRouter)
 
+	RegisterCompetitorRoutes(userRouter)
 	EndCompetitionRoutes(adminRouter)
 
 	DeleteIndividualGroupRoutes(adminRouter)
 
+	EditCompetitorRoutes(userRouter)
+	// admin router
 	GetCompetitorsFromCompetitionUserRoutes(userRouter)
 	return router
 }

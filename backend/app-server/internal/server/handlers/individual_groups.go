@@ -177,26 +177,3 @@ func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateGroup(w http.ResponseWriter, r *http.Request) {}
-
-func GetCompetitors(w http.ResponseWriter, r *http.Request) {
-	groupId, err := tools.ParseParamToInt(r, "group_id")
-	if err != nil {
-		http.Error(w, "invalid group_id", http.StatusBadRequest)
-	}
-
-	var competitor models.Competitor
-	err = conn.QueryRow(context.Background(), `SELECT c.id, c.full_name FROM competitor_group_details cgd JOIN competitors c ON cgd.competitor_id = c.id WHERE cgd.group_id = $1 `, groupId).Scan(&competitor.ID, &competitor.FullName)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "competitor not found", http.StatusNotFound)
-		} else {
-			http.Error(w, "database error", http.StatusInternalServerError)
-		}
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(competitor); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}

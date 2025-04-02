@@ -38,3 +38,16 @@ func ExistsInDB(ctx context.Context, conn *pgx.Conn, query string, args ...inter
 
 	return true, nil
 }
+
+func GetUserIDFromContext(r *http.Request) (int, error) {
+	userID := r.Context().Value("user_id")
+	if userID == nil {
+		return -1, fmt.Errorf("user_id not found in context")
+	}
+
+	userId, ok := userID.(int)
+	if !ok {
+		return -1, fmt.Errorf("user_id has invalid type")
+	}
+	return userId, nil
+}

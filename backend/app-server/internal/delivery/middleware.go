@@ -13,7 +13,7 @@ var jwtKey = []byte("my_secret_key_my_secret_key_my_secret_key") // where to get
 
 // RS256???
 type Claims struct {
-	UserID             string `json:"user_id"`
+	UserID             int    `json:"user_id"`
 	Role               string `json:"role"`
 	jwt.StandardClaims        // not in example
 }
@@ -47,7 +47,7 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 				w.Write([]byte(fmt.Sprintf("Access denied. Required role: %s", role)))
 				return
 			}
-			r.WithContext(context.WithValue(r.Context(), "user_id", claims.UserID))
+			r = r.WithContext(context.WithValue(r.Context(), "user_id", claims.UserID))
 			next.ServeHTTP(w, r)
 		})
 	}
