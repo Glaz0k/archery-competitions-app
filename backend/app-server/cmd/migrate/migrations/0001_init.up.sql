@@ -77,16 +77,16 @@ CREATE TABLE "individual_groups" (
 );
 
 CREATE TABLE "competitor_competition_details" (
-                                                  "competition_id" bigint  UNIQUE,
-                                                  "competitor_id" bigint  UNIQUE,
+                                                  "competition_id" bigint,
+                                                  "competitor_id" bigint,
                                                   "is_active" bool NOT NULL DEFAULT true,
                                                   "created_at" timestamptz DEFAULT (now()),
                                                   PRIMARY KEY ("competition_id", "competitor_id")
 );
 
 CREATE TABLE "competitor_group_details" (
-                                            "group_id" bigint  UNIQUE,
-                                            "competitor_id" bigint  UNIQUE,
+                                            "group_id" bigint,
+                                            "competitor_id" bigint,
                                             PRIMARY KEY ("group_id", "competitor_id")
 );
 
