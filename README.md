@@ -34,7 +34,10 @@ archery-competitions-app/
 │
 ├── docs/
 │   ├── api/
-│   └── models/
+│   ├── enums/
+│   ├── models/
+│   ├── policies/
+│   └── requests/
 │
 ├── README.md
 └── .gitignore
@@ -54,7 +57,10 @@ archery-competitions-app/
   - docker-compose.yml: Файл для оркестрации фронтенд приложений.
 - docs/
   - api/: Документация для REST API
-  - models/: Модели для документации
+  - enums/: Используемые перечисления
+  - models/: Используемые модели
+  - policies/: Используемые при работе с REST API политики
+  - requests/: Используемые ответы API
 - README.md: Основная документация проекта.
 - .gitignore: Файл для исключения ненужных файлов из Git, может содержаться в каждой из поддиректорий.
 
