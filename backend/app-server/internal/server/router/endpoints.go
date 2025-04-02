@@ -19,9 +19,9 @@ const (
 	CreateRange                = "/api/range"
 	CreateShot                 = "/api/range/{range_id}/shots"
 
-	Competitor                    = "/api/competitors/{competitor_id}"
-	GetCompetitorsFromCompetition = "/api/competitors/{competition_id}/competitors"
-	GetQualificationSections      = "/api/qualification_sections/{id}"
+	Competitor                     = "/api/competitors/{competitor_id}"
+	CompetitorsCompetitionEndpoint = "/api/competitions/{competition_id}/competitors"
+	GetQualificationSections       = "/api/qualification_sections/{id}"
 
 	RegisterCompetitor = "/api/competitors/registration"
 	GetCompetitor      = "/api/competitors/{competitor_id}"
