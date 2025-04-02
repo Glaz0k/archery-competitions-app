@@ -5,7 +5,9 @@ import (
 	"app-server/internal/models"
 	"app-server/pkg/tools"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -199,11 +201,65 @@ func EndCompetition(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, competition)
 }
 
+func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
+	competitionID, err := tools.ParseParamToInt(r, "competition_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	var competitorId dto.Comprtitor
+	err = json.NewDecoder(r.Body).Decode(&competitorId)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+
+	var competitor models.Competitor
+	query := `SELECT id, full_name, birth_date, identity, bow, rank, region, federation, club FROM competitors WHERE id = $1`
+	err = conn.QueryRow(context.Background(), query, competitorId.CompetitorID).Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate, &competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region, &competitor.Federation, &competitor.Club)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		}
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	var exist bool
+	queryCheck := `SELECT EXISTS (SELECT 1 FROM competitor_competition_details WHERE competition_id = $1 AND competitor_id = $2)`
+	err = conn.QueryRow(context.Background(), queryCheck, competitionID, competitorId.CompetitorID).Scan(exist)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+	}
+
+	var competitionDetails dto.CompetitorCompetitionDetails
+	if exist {
+		query = `SELECT is_active, created_at FROM competitor_competition_details WHERE competition_id = $1`
+		competitionDetails.Competition_ID = competitionID
+		err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.Is_active, &competitionDetails.Created_at)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		}
+	} else {
+		competitionDetails = dto.CompetitorCompetitionDetails{
+			Competition_ID: competitionID,
+			Is_active:      true,
+			Created_at:     time.Now(),
+		}
+		query = `INSERT INTO competitor_competition_details (competition_id, competitor_id, is_active, created_at) VALUES ($1, $2, $3, $4)`
+		_, err = conn.Exec(context.Background(), query, competitionID, competitor.ID, competitionDetails.Is_active, competitionDetails.Created_at)
+	}
+
+	competitionDetails.Competitors = append(competitionDetails.Competitors, competitor)
+	tools.WriteJSON(w, http.StatusOK, competitionDetails)
+}
+
 // TODO check and for admin
 func GetCompetitorsFromCompetitionUser(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -228,7 +284,7 @@ func GetCompetitorsFromCompetitionUser(w http.ResponseWriter, r *http.Request) {
 
 	query := `SELECT is_active, created_at FROM competitor_competition_details WHERE competition_id = $1`
 	var competitionDetails dto.CompetitorCompetitionDetails
-	competitionDetails.Competiton_ID = competitionID
+	competitionDetails.Competition_ID = competitionID
 	err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.Is_active, &competitionDetails.Created_at)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
