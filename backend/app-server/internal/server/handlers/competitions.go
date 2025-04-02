@@ -214,14 +214,16 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
 	var competitor models.Competitor
 	query := `SELECT id, full_name, birth_date, identity, bow, rank, region, federation, club FROM competitors WHERE id = $1`
 	err = conn.QueryRow(context.Background(), query, competitorId.CompetitorID).Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate, &competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region, &competitor.Federation, &competitor.Club)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+			fmt.Println(err) //
+			return
 		}
+		fmt.Println(err) //
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
@@ -231,6 +233,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	err = conn.QueryRow(context.Background(), queryCheck, competitionID, competitorId.CompetitorID).Scan(exist)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
 	}
 
 	var competitionDetails dto.CompetitorCompetitionDetails
@@ -240,6 +243,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.Is_active, &competitionDetails.Created_at)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
 		}
 	} else {
 		competitionDetails = dto.CompetitorCompetitionDetails{
