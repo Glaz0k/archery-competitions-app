@@ -6,7 +6,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -15,14 +17,14 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 	var cup models.Cup
 	err := json.NewDecoder(r.Body).Decode(&cup)
 	if err != nil {
-		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
 	checkQuery := "SELECT id FROM cups WHERE title = $1 AND address = $2 AND season = $3"
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cup.Title, cup.Address, cup.Season)
 	if exists {
-		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "CUP ALREADY EXISTS"})
+		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "ALREADY EXISTS"})
 		return
 	}
 	if err != nil {
@@ -42,7 +44,7 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 func GetCup(w http.ResponseWriter, r *http.Request) {
 	cupID, err := tools.ParseParamToInt(r, "cup_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -132,4 +134,83 @@ func EditCup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tools.WriteJSON(w, http.StatusOK, cup)
+}
+
+func CreateCompetition(w http.ResponseWriter, r *http.Request) {
+	var competition models.Competition
+	err := json.NewDecoder(r.Body).Decode(&competition)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	cupID, err := tools.ParseParamToInt(r, "cup_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+	}
+	competition.CupID = cupID
+	if competition.EndDate.Before(time.Now()) {
+		competition.IsEnded = true
+	} else {
+		competition.IsEnded = false
+	}
+	var exists bool
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE cup_id = $1 AND stage = $2)`
+	err = conn.QueryRow(context.Background(), queryCheck, competition.CupID, competition.Stage).Scan(&exists)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("DATABSE ERROR: %v", err))
+		return
+	}
+	if exists {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EXISTS"})
+		return
+	}
+	query := "INSERT INTO competitions (cup_id, stage, start_date, end_date, is_ended) VALUES ($1, $2, $3, $4, $5)"
+
+	_, err = conn.Exec(context.Background(), query, competition.CupID, competition.Stage,
+		competition.StartDate, competition.EndDate, competition.IsEnded)
+
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	tools.WriteJSON(w, http.StatusCreated, competition)
+}
+
+func GetAllCompetitions(w http.ResponseWriter, r *http.Request) {
+	cupID, err := tools.ParseParamToInt(r, "cup_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+	}
+
+	query := `SELECT id, cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE cup_id = $1`
+	rows, err := conn.Query(context.Background(), query, cupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer rows.Close()
+	var competitions []models.Competition
+
+	for rows.Next() {
+		var competition models.Competition
+		err = rows.Scan(
+			&competition.ID,
+			&competition.CupID,
+			&competition.Stage,
+			&competition.StartDate,
+			&competition.EndDate,
+			&competition.IsEnded,
+		)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		competitions = append(competitions, competition)
+	}
+
+	if err = rows.Err(); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	tools.WriteJSON(w, http.StatusOK, competitions)
 }

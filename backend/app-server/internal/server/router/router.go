@@ -6,112 +6,8 @@ import (
 	"github.com/gorilla/mux"
 
 	"app-server/internal/delivery"
-	"app-server/internal/server/handlers"
+	. "app-server/internal/server/router/routes"
 )
-
-func CreateCupRoutes(router *mux.Router) {
-	router.HandleFunc(CupsEndpoint, handlers.CreateCup).Methods("POST")
-}
-
-func CreateCompetitionRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitionsEndpoint, handlers.CreateCompetition).Methods("POST")
-}
-
-func CreateIndividualGroupRoutes(router *mux.Router) {
-	router.HandleFunc(CreateIndividualGroup, handlers.CreateIndividualGroup).Methods("POST")
-}
-
-func CreateRangeGroupRoutes(router *mux.Router) {
-	router.HandleFunc(CreateRangeGroup, handlers.CreateRangeGroup).Methods("POST")
-}
-
-func StartQualificationRoutes(router *mux.Router) {
-	router.HandleFunc(StartQualification, handlers.StartQualification).Methods("POST")
-}
-
-func CreateQualificationRoundRoutes(router *mux.Router) {
-	router.HandleFunc(CreateQualificationRound, handlers.CreateQualificationRound).Methods("POST")
-}
-
-func CreateQualificationSectionRoutes(router *mux.Router) {
-	router.HandleFunc(CreateQualificationSection, handlers.CreateQualificationSection).Methods("POST")
-}
-
-func CreateRangeRoutes(router *mux.Router) {
-	router.HandleFunc(CreateRange, handlers.CreateRange).Methods("POST")
-}
-
-func CreateShotRoutes(router *mux.Router) {
-	router.HandleFunc(CreateShot, handlers.CreateShot).Methods("POST")
-}
-
-func EditCompetitionRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitionEndpoint, handlers.EditCompetition).Methods("PUT")
-}
-
-func GetCupRoutes(router *mux.Router) {
-	router.HandleFunc(CupEndpoint, handlers.GetCup).Methods("GET")
-}
-
-func GetIndividualGroupsRoutes(router *mux.Router) {
-	router.HandleFunc(IndividualGroupEndpoint, handlers.GetIndividualGroups).Methods("GET")
-}
-
-func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
-	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitor).Methods("GET")
-}
-
-func DeleteIndividualGroupRoutes(router *mux.Router) {
-	router.HandleFunc(IndividualGroupEndpoint, handlers.DeleteIndividualGroup).Methods("DELETE")
-}
-
-func UpdateIndividualGroupRoutes(router *mux.Router) {
-	router.HandleFunc(UpdateIndividualGroup, handlers.UpdateGroup).Methods("POST")
-}
-
-func EditCupRoutes(router *mux.Router) {
-	router.HandleFunc(CupEndpoint, handlers.EditCup).Methods("PUT")
-}
-
-func GetAllCupsRoutes(router *mux.Router) {
-	router.HandleFunc(CupsEndpoint, handlers.GetAllCups).Methods("GET")
-}
-
-func GetAllCompetitionsRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitionsEndpoint, handlers.GetAllCompetitions).Methods("GET")
-}
-
-func EndCompetitionRoutes(router *mux.Router) {
-	router.HandleFunc(EndCompetition, handlers.EndCompetition).Methods("POST")
-}
-
-func RegisterCompetitorRoutes(router *mux.Router) {
-	router.HandleFunc(RegisterCompetitor, handlers.RegisterCompetitor).Methods("POST")
-}
-
-func AddCompetitorCompetitionRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitorsCompetitionEndpoint, handlers.AddCompetitorCompetition).Methods("POST")
-}
-
-func GetCompetitorsFromCompetitionUserRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitorsCompetitionEndpoint, handlers.GetCompetitorsFromCompetitionUser).Methods("GET")
-}
-
-func GetQualificationSectionsRoutes(router *mux.Router) {
-	router.HandleFunc(GetQualificationSections, handlers.GetQualificationSection).Methods("GET")
-}
-
-func GetCompetitorRoutes(router *mux.Router) {
-	router.HandleFunc(GetCompetitor, handlers.GetCompetitor).Methods("GET")
-}
-
-func EditCompetitorRoutes(router *mux.Router) {
-	router.HandleFunc(Competitor, handlers.UserEditCompetitor).Methods("PUT")
-}
-
-func EditStatusCompetitorCompetitionRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitorCompetitonEndpoint, handlers.EditStatusCompetitorCompetitionAdmin).Methods("PUT")
-}
 
 func Create() *mux.Router {
 	router := mux.NewRouter()
@@ -120,23 +16,16 @@ func Create() *mux.Router {
 	adminRouter := router.NewRoute().Subrouter()
 	adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
 
-	CreateCupRoutes(adminRouter)
-	CreateCompetitionRoutes(adminRouter)
-	CreateIndividualGroupRoutes(adminRouter)
-	CreateRangeGroupRoutes(adminRouter)
-	StartQualificationRoutes(adminRouter)
-	CreateQualificationRoundRoutes(adminRouter)
-	CreateQualificationSectionRoutes(adminRouter)
-	CreateRangeRoutes(adminRouter)
-
-	EditCompetitionRoutes(adminRouter)
-	EditCupRoutes(adminRouter)
-
 	userRouter := router.NewRoute().Subrouter()
 	userRouter.Use(delivery.JWTRoleMiddleware("user"))
 
-	CreateShotRoutes(userRouter)
-	CreateShotRoutes(adminRouter)
+	CreateCupRoutes(adminRouter)
+	CreateCompetitionRoutes(adminRouter)
+	CreateIndividualGroupRoutes(adminRouter)
+	StartQualificationRoutes(adminRouter)
+
+	EditCompetitionRoutes(adminRouter)
+	EditCupRoutes(adminRouter)
 
 	GetCupRoutes(userRouter)
 	GetCupRoutes(adminRouter)
@@ -147,18 +36,19 @@ func Create() *mux.Router {
 	GetAllCompetitionsRoutes(userRouter)
 	GetAllCompetitionsRoutes(adminRouter)
 
-	GetIndividualGroupsRoutes(userRouter) //TODO
+	GetIndividualGroupsRoutes(userRouter)
 	GetIndividualGroupsRoutes(adminRouter)
+
+	SyncIndividualGroupsRoutes(adminRouter)
 
 	GetIndividualGroupCompetitorsRoutes(userRouter)
 	//GetIndividualGroupCompetitorsRoutes(adminRouter)
-	UpdateIndividualGroupRoutes(adminRouter)
 
 	EndCompetitionRoutes(adminRouter)
 
 	DeleteIndividualGroupRoutes(adminRouter)
 
-	EditCompetitorRoutes(userRouter)
+	EditCompetitorUserRoutes(userRouter)
 	// admin router
 	GetCompetitorsFromCompetitionUserRoutes(userRouter)
 
@@ -171,7 +61,7 @@ func Create() *mux.Router {
 	GetCompetitorRoutes(userRouter)
 
 	AddCompetitorCompetitionRoutes(adminRouter)
-	EditStatusCompetitorCompetitionRoutes(adminRouter)
+	EditCompetitorStatusAdminRoutes(adminRouter)
 
 	return router
 }

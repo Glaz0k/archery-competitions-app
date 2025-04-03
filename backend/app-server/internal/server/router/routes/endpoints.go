@@ -1,4 +1,4 @@
-package router
+package routes
 
 const (
 	IndividualGroupEndpoint            = "/api/individual-groups/{individual_group_id}"
@@ -27,5 +27,5 @@ const (
 	GetCompetitor      = "/api/competitors/{competitor_id}"
 
 	CompetitorsCompetitionEndpoint = "/api/competitions/{competition_id}/competitors"
-	CompetitorCompetitonEndpoint   = "/api/competitions/{competition_id}/competitors/{competitor_id}"
+	CompetitorCompetitionEndpoint  = "/api/competitions/{competition_id}/competitors/{competitor_id}"
 )
