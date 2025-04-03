@@ -15,86 +15,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateCompetition(w http.ResponseWriter, r *http.Request) {
-	var competition models.Competition
-	err := json.NewDecoder(r.Body).Decode(&competition)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
-		return
-	}
-	cupID, err := tools.ParseParamToInt(r, "cup_id")
-	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
-	}
-	competition.CupID = cupID
-	if competition.EndDate.Before(time.Now()) {
-		competition.IsEnded = true
-	} else {
-		competition.IsEnded = false
-	}
-	var exists bool
-	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE cup_id = $1 AND stage = $2)`
-	err = conn.QueryRow(context.Background(), queryCheck, competition.CupID, competition.Stage).Scan(&exists)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to check data existence: %v", err))
-		return
-	}
-	if exists {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EXISTS"})
-		return
-	}
-	query := "INSERT INTO competitions (cup_id, stage, start_date, end_date, is_ended) VALUES ($1, $2, $3, $4, $5)"
-
-	_, err = conn.Exec(context.Background(), query, competition.CupID, competition.Stage,
-		competition.StartDate, competition.EndDate, competition.IsEnded)
-
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-		fmt.Println(err)
-		return
-	}
-	tools.WriteJSON(w, http.StatusCreated, competition)
-}
-
-func GetAllCompetitions(w http.ResponseWriter, r *http.Request) {
-	cupID, err := tools.ParseParamToInt(r, "cup_id")
-	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
-	}
-
-	query := `SELECT id, cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE cup_id = $1`
-	rows, err := conn.Query(context.Background(), query, cupID)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-		return
-	}
-	defer rows.Close()
-	var competitions []models.Competition
-
-	for rows.Next() {
-		var competition models.Competition
-		err = rows.Scan(
-			&competition.ID,
-			&competition.CupID,
-			&competition.Stage,
-			&competition.StartDate,
-			&competition.EndDate,
-			&competition.IsEnded,
-		)
-		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-			return
-		}
-		competitions = append(competitions, competition)
-	}
-
-	if err = rows.Err(); err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-		return
-	}
-	tools.WriteJSON(w, http.StatusOK, competitions)
-}
-
 func EditCompetition(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	competitionID := vars["competition_id"]
@@ -142,6 +62,8 @@ func EditCompetition(w http.ResponseWriter, r *http.Request) {
 
 	tools.WriteJSON(w, http.StatusOK, competition)
 }
+
+// TODO: delete
 
 func EndCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")

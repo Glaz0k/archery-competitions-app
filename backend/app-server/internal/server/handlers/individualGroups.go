@@ -59,6 +59,45 @@ func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetCompetitorsFromGroup(w http.ResponseWriter, r *http.Request) {
+	groupId, err := tools.ParseParamToInt(r, "group_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+
+	rows, err := conn.Query(context.Background(), `
+        SELECT c.id, c.full_name 
+        FROM competitor_group_details cgd 
+        JOIN competitors c ON cgd.competitor_id = c.id 
+        WHERE cgd.group_id = $1`, groupId)
+
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer rows.Close()
+
+	var competitors []models.Competitor
+	for rows.Next() {
+		var competitor models.Competitor
+		if err = rows.Scan(&competitor.ID, &competitor.FullName); err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		competitors = append(competitors, competitor)
+	}
+	if err = rows.Err(); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	if len(competitors) == 0 {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "COMPETITORS NOT FOUND"})
+		return
+	}
+	tools.WriteJSON(w, http.StatusOK, competitors)
+}
+
 func deleteShootOuts(ctx context.Context, tx pgx.Tx, groupID int) error {
 	query := `
 		DELETE FROM shoot_outs 

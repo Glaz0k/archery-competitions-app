@@ -1,0 +1,44 @@
+package routes
+
+import (
+	"app-server/internal/server/handlers"
+
+	"github.com/gorilla/mux"
+)
+
+// TODO: Разбить на админа и юзера
+
+func GetIndividualGroupsRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupEndpoint, handlers.GetIndividualGroups).Methods("GET")
+}
+
+func DeleteIndividualGroupRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupEndpoint, handlers.DeleteIndividualGroup).Methods("DELETE")
+}
+
+// TODO: Разбить на админа и юзера
+
+func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitor).Methods("GET")
+}
+
+// TODO: sync competitors
+
+// TODO: разбить на юзера и админа
+
+// TODO: get qualification table for user for admin
+func StartQualificationRoutes(router *mux.Router) {
+	router.HandleFunc(StartQualification, handlers.StartQualification).Methods("POST")
+}
+
+// TODO: end qualification
+
+// TODO: final grid
+
+// TODO: quarterfinal start
+
+// TODO: semifinal start
+
+// TODO: final start
+
+// TODO: final end
