@@ -65,6 +65,10 @@ func DeleteIndividualGroupRoutes(router *mux.Router) {
 	router.HandleFunc(IndividualGroupEndpoint, handlers.DeleteIndividualGroup).Methods("DELETE")
 }
 
+func UpdateIndividualGroupRoutes(router *mux.Router) {
+	router.HandleFunc(UpdateIndividualGroup, handlers.UpdateGroup).Methods("POST")
+}
+
 func EditCupRoutes(router *mux.Router) {
 	router.HandleFunc(CupEndpoint, handlers.EditCup).Methods("PUT")
 }
@@ -135,6 +139,7 @@ func Create() *mux.Router {
 	//GetIndividualGroupsRoutes(userRouter)
 	GetIndividualGroupCompetitorsRoutes(userRouter)
 	//GetIndividualGroupCompetitorsRoutes(adminRouter)
+	UpdateIndividualGroupRoutes(adminRouter)
 
 	EndCompetitionRoutes(adminRouter)
 

@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"app-server/pkg/tools"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+
+	"app-server/pkg/tools"
 
 	"github.com/jackc/pgx/v5"
 
@@ -176,7 +177,108 @@ func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UpdateGroup(w http.ResponseWriter, r *http.Request) {}
+func UpdateGroup(w http.ResponseWriter, r *http.Request) {
+	groupId, err := tools.ParseParamToInt(r, "group_id")
+	if err != nil {
+		http.Error(w, "invalid group_id", http.StatusBadRequest)
+	}
+
+	var req struct {
+		_          int               `json:"group_id"`
+		Competitor models.Competitor `json:"competitor"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		http.Error(w, "failed to start transaction", http.StatusInternalServerError)
+		return
+	}
+	defer func(tx pgx.Tx, ctx context.Context) {
+		err := tx.Rollback(ctx)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}(tx, context.Background())
+
+	_, err = tx.Exec(context.Background(),
+		`INSERT INTO competitors (id, full_name, birth_date, identity, bow, rank, region, federation, club)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		 ON CONFLICT (id) DO UPDATE SET
+			full_name = EXCLUDED.full_name,
+			birth_date = EXCLUDED.birth_date,
+			identity = EXCLUDED.identity,
+			bow = EXCLUDED.bow,
+			rank = EXCLUDED.rank,
+			region = EXCLUDED.region,
+			federation = EXCLUDED.federation,
+			club = EXCLUDED.club`,
+		req.Competitor.ID,
+		req.Competitor.FullName,
+		req.Competitor.BirthDate,
+		req.Competitor.Identity,
+		req.Competitor.Bow,
+		req.Competitor.Rank,
+		req.Competitor.Region,
+		req.Competitor.Federation,
+		req.Competitor.Club,
+	)
+	if err != nil {
+		http.Error(w, "failed to upsert competitor", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`INSERT INTO competitor_group_details (group_id, competitor_id)
+		 VALUES ($1, $2)
+		 ON CONFLICT (group_id, competitor_id) DO NOTHING`,
+		groupId,
+		req.Competitor.ID,
+	)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "failed to add competitor to group", http.StatusInternalServerError)
+		return
+	}
+
+	var competitionId int
+	err = tx.QueryRow(context.Background(),
+		`SELECT competition_id FROM individual_groups WHERE id = $1`,
+		groupId,
+	).Scan(&competitionId)
+	if err != nil {
+		http.Error(w, "failed to get competition_id", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = tx.Exec(context.Background(),
+		`INSERT INTO competitor_competition_details (competition_id, competitor_id, is_active)
+		 VALUES ($1, $2, true)
+		 ON CONFLICT (competition_id, competitor_id) DO UPDATE SET
+			is_active = EXCLUDED.is_active`,
+		competitionId,
+		req.Competitor.ID,
+	)
+	if err != nil {
+		http.Error(w, "failed to update competition details", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tx.Commit(context.Background()); err != nil {
+		http.Error(w, "failed to commit transaction", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
 
 func GetCompetitors(w http.ResponseWriter, r *http.Request) {
 	groupId, err := tools.ParseParamToInt(r, "group_id")
