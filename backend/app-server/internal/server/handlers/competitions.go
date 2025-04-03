@@ -12,27 +12,24 @@ import (
 	"app-server/internal/dto"
 	"app-server/internal/models"
 	"app-server/pkg/tools"
-
-	"github.com/gorilla/mux"
 )
 
 func EditCompetition(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	competitionID := vars["competition_id"]
-	var updateData struct {
-		StartDate string `json:"start_date"`
-		EndDate   string `json:"end_date"`
+	competitionID, err := tools.ParseParamToInt(r, "competition_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
 	}
-	err := json.NewDecoder(r.Body).Decode(&updateData)
+	updateData := models.CompetitionUpdateData
+	err = json.NewDecoder(r.Body).Decode(&updateData)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
 	checkQuery := `SELECT id FROM competitions WHERE id = $1`
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, competitionID)
 	if !exists {
-		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "COMPETITION NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	if err != nil {
@@ -57,7 +54,7 @@ func EditCompetition(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		http.Error(w, "unable to update data", http.StatusInternalServerError)
+		http.Error(w, "DATABASE ERROR", http.StatusInternalServerError)
 		return
 	}
 
@@ -69,7 +66,7 @@ func EditCompetition(w http.ResponseWriter, r *http.Request) {
 func EndCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -80,7 +77,7 @@ func EndCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "COMPETITION NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	var competition models.Competition

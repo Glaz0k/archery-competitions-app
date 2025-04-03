@@ -1,10 +1,5 @@
 package models
 
-type Shot struct {
-	ShotNumber int    `json:"shot_number"`
-	Score      string `json:"score"`
-	RangeID    int    `json:"range_id"`
-}
 type Range struct {
 	ID          int    `json:"id"`
 	RangeNumber int    `json:"range_number"`

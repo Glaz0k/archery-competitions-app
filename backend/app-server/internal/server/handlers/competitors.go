@@ -48,7 +48,7 @@ func RegisterCompetitor(w http.ResponseWriter, r *http.Request) {
 func GetCompetitor(w http.ResponseWriter, r *http.Request) {
 	competitorID, err := tools.ParseParamToInt(r, "competitor_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	var competitor models.Competitor

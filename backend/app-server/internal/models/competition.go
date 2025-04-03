@@ -10,3 +10,8 @@ type Competition struct {
 	EndDate   time.Time `json:"end_date"`
 	IsEnded   bool      `json:"is_ended"`
 }
+
+var CompetitionUpdateData struct {
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+}
