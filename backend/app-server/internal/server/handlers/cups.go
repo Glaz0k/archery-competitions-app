@@ -5,7 +5,10 @@ import (
 	"app-server/pkg/tools"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func CreateCup(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +29,9 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 		err = tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
-	_, err = conn.Exec(context.Background(), "INSERT INTO cups (title, address, season) VALUES ($1, $2, $3)", cup.Title, cup.Address, cup.Season)
+	err = conn.QueryRow(context.Background(),
+		"INSERT INTO cups (title, address, season) VALUES ($1, $2, $3) RETURNING id",
+		cup.Title, cup.Address, cup.Season).Scan(&cup.ID)
 	if err != nil {
 		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
@@ -37,21 +42,29 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 func GetCup(w http.ResponseWriter, r *http.Request) {
 	cupID, err := tools.ParseParamToInt(r, "cup_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
 
 	var cup models.Cup
-	checkQuery := `SELECT id, title, address, season FROM cups WHERE id = $1`
-	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cupID)
-	if !exists {
-		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "CUP NOT FOUND"})
-		return
-	}
+	query := `SELECT id, title, address, season FROM cups WHERE id = $1`
+
+	err = conn.QueryRow(context.Background(), query, cupID).Scan(
+		&cup.ID,
+		&cup.Title,
+		&cup.Address,
+		&cup.Season,
+	)
+
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		if errors.Is(err, pgx.ErrNoRows) {
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "CUP NOT FOUND"})
+		} else {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		}
 		return
 	}
+
 	tools.WriteJSON(w, http.StatusOK, cup)
 }
 

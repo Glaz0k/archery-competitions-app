@@ -13,3 +13,8 @@ type Competitor struct {
 	Federation string    `json:"federation"`
 	Club       string    `json:"club"`
 }
+
+type CompetitorGroupDetails struct {
+	GroupID      int `json:"group_id"`
+	CompetitorID int `json:"competitor_id"`
+}
