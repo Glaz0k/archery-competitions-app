@@ -105,6 +105,10 @@ func EditCompetitorRoutes(router *mux.Router) {
 	router.HandleFunc(Competitor, handlers.UserEditCompetitor).Methods("PUT")
 }
 
+func EditStatusCompetitorCompetitionRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitorCompetitonEndpoint, handlers.EditStatusCompetitorCompetitionAdmin).Methods("PUT")
+}
+
 func Create() *mux.Router {
 	router := mux.NewRouter()
 	router.Use(logger.LogMiddleware)
@@ -161,6 +165,7 @@ func Create() *mux.Router {
 	GetCompetitorRoutes(userRouter)
 
 	AddCompetitorCompetitionRoutes(adminRouter)
+	EditStatusCompetitorCompetitionRoutes(adminRouter)
 
 	return router
 }

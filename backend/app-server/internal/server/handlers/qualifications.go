@@ -39,7 +39,7 @@ func CreateQualificationRound(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
-	_, err = conn.Exec(context.Background(), "INSERT INTO qualification_rounds (section_id, round_number, range_group_id) VALUES ($1, $2, $3)", qualificationRound.SectionID, qualificationRound.RoundNumber, qualificationRound.RangeGroupId)
+	_, err = conn.Exec(context.Background(), "INSERT INTO qualification_rounds (section_id, round_ordinal, range_group_id) VALUES ($1, $2, $3)", qualificationRound.SectionID, qualificationRound.RoundNumber, qualificationRound.RangeGroupId)
 	if err != nil {
 		log.Fatalf("unable to insert data: %v\n", err)
 		return
