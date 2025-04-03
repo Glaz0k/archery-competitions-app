@@ -15,9 +15,8 @@ archery-competitions-app/
 │   │   └── Dockerfile
 │   ├── auth-server/
 │   │   ├── src/
-│   │   └── Dockerfile
-│   ├── postgres-auth/
-│   │   └── Dockerfile
+│   │   ├── Dockerfile
+│   │   └── docker-compose.yml
 │   ├── app-server/
 │   │   ├── src/
 │   │   └── Dockerfile
@@ -44,7 +43,6 @@ archery-competitions-app/
   - api-gateway/: Содержит конфигурацию Nginx и Dockerfile для создания образа API Gateway.
   - redis-session-storage/: Конфигурация Docker для Redis.
   - auth-server/: Java проект для сервера аутентификации.
-  - postgres-auth/: Конфигурация Docker для базы данных Postgres, используемой сервером аутентификации.
   - app-server/: Go проект для монолитного сервиса, реализующего бизнес-логику.
   - postgres-app/: Конфигурация Docker для базы данных Postgres, используемой приложением.
   - docker-compose.yml: Файл для оркестрации всех бэкенд сервисов.
