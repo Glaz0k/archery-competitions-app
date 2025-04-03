@@ -19,18 +19,19 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	var individualGroup models.IndividualGroup
 	err := json.NewDecoder(r.Body).Decode(&individualGroup)
 	if err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
 	competitionId, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		http.Error(w, "invalid competition_id", http.StatusBadRequest)
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+		return
 	}
 
 	individualGroup.CompetitionID = competitionId
 	_, err = conn.Exec(context.Background(), "INSERT INTO individual_groups (competition_id, bow, identity, state) VALUES ($1, $2, $3, $4)", individualGroup.CompetitionID, individualGroup.Bow, individualGroup.Identity, individualGroup.State)
 	if err != nil {
-		http.Error(w, "unable to insert data: %v\n", http.StatusInternalServerError)
+		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to insert data: %v", err))
 		return
 	}
 
@@ -38,9 +39,10 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
-	groupId, err := tools.ParseParamToInt(r, "group_id")
+	groupId, err := tools.ParseParamToInt(r, "individual_group_id")
 	if err != nil {
-		http.Error(w, "invalid group_id", http.StatusBadRequest)
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
 	}
 
 	var individualGroup models.IndividualGroup
@@ -52,6 +54,25 @@ func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "database error", http.StatusInternalServerError)
 		}
 		return
+	}
+
+	role := r.Context().Value("role")
+	if role != "admin" {
+		id, ok := r.Context().Value("user_id").(int)
+		if !ok {
+			http.Error(w, "invalid user_id", http.StatusInternalServerError)
+			return
+		}
+
+		var check bool
+		err = conn.QueryRow(context.Background(), `SELECT EXISTS(
+    SELECT 1 FROM competitor_group_details 
+    WHERE group_id = $1 AND competitor_id = $2
+)`, groupId, id).Scan(&check)
+		if err != nil || !check {
+			tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "insufficient access rights"})
+			return
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -274,10 +295,6 @@ func UpdateGroup(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(map[string]string{"status": "success"})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
 
 func GetCompetitors(w http.ResponseWriter, r *http.Request) {

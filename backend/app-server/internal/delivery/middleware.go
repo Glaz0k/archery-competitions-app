@@ -47,6 +47,7 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 				return
 			}
 			r = r.WithContext(context.WithValue(r.Context(), "user_id", claims.UserID))
+			r = r.WithContext(context.WithValue(r.Context(), "role", role))
 			next.ServeHTTP(w, r)
 		})
 	}

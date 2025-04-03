@@ -147,8 +147,9 @@ func Create() *mux.Router {
 	GetAllCompetitionsRoutes(userRouter)
 	GetAllCompetitionsRoutes(adminRouter)
 
+	GetIndividualGroupsRoutes(userRouter) //TODO
 	GetIndividualGroupsRoutes(adminRouter)
-	//GetIndividualGroupsRoutes(userRouter)
+
 	GetIndividualGroupCompetitorsRoutes(userRouter)
 	//GetIndividualGroupCompetitorsRoutes(adminRouter)
 	UpdateIndividualGroupRoutes(adminRouter)
