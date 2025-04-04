@@ -164,10 +164,10 @@ func CreateCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EXISTS"})
 		return
 	}
-	query := "INSERT INTO competitions (cup_id, stage, start_date, end_date, is_ended) VALUES ($1, $2, $3, $4, $5)"
+	query := "INSERT INTO competitions (cup_id, stage, start_date, end_date, is_ended) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 
-	_, err = conn.Exec(context.Background(), query, competition.CupID, competition.Stage,
-		competition.StartDate, competition.EndDate, competition.IsEnded)
+	err = conn.QueryRow(context.Background(), query, competition.CupID, competition.Stage,
+		competition.StartDate, competition.EndDate, competition.IsEnded).Scan(&competition.ID)
 
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})

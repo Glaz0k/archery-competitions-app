@@ -22,17 +22,6 @@ func Create() *mux.Router {
 	commonRouter := router.NewRoute().Subrouter()
 	commonRouter.Use(delivery.JWTRoleMiddleware("admin, user"))
 
-	//router.Use(delivery.JWTMiddleware())
-	//
-	//adminRouter := router.NewRoute().Subrouter()
-	//adminRouter.Use(delivery.RoleMiddleware("admin"))
-	//
-	//userRouter := router.NewRoute().Subrouter()
-	//userRouter.Use(delivery.RoleMiddleware("user"))
-	//
-	//commonRouter := router.NewRoute().Subrouter()
-	//commonRouter.Use(delivery.RoleMiddleware("admin, user"))
-
 	CreateCupRoutes(adminRouter)
 	CreateCompetitionRoutes(adminRouter)
 	CreateIndividualGroupRoutes(adminRouter)

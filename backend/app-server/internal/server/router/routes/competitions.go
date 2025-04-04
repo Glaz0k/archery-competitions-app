@@ -33,7 +33,7 @@ func DeleteCompetitorCompetitorRoutes(router *mux.Router) {
 }
 
 func CreateIndividualGroupRoutes(router *mux.Router) {
-	router.HandleFunc(CreateIndividualGroup, handlers.CreateIndividualGroup).Methods("POST")
+	router.HandleFunc(IndividualGroupsCompetition, handlers.CreateIndividualGroup).Methods("POST")
 }
 
 // TODO: GetIndividualGroupsFromCompetitionAdminRoutes
