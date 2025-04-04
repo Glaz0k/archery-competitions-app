@@ -20,16 +20,16 @@ func AddCompetitorCompetitionRoutes(router *mux.Router) {
 	router.HandleFunc(CompetitorsCompetitionEndpoint, handlers.AddCompetitorCompetition).Methods("POST")
 }
 
-func GetCompetitorsFromCompetitionUserRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitorsCompetitionEndpoint, handlers.GetCompetitorsFromCompetitionUser).Methods("GET")
+func GetCompetitorsFromCompetitionRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitorsCompetitionEndpoint, handlers.GetCompetitorsFromCompetition).Methods("GET")
 }
 
-// TODO: GetCompetitorsFromCompetitionAdminRoutes
+func EditCompetitorStatusRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitorCompetitionEndpoint, handlers.EditCompetitorStatus).Methods("PUT")
+}
 
-// TODO: ChangeCompetitorsStatusUserRoutes
-
-func EditCompetitorStatusAdminRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitorCompetitionEndpoint, handlers.EditStatusCompetitorCompetitionAdmin).Methods("PUT")
+func DeleteCompetitorCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitorCompetitionEndpoint, handlers.DeleteCompetitorCompetition).Methods("DELETE")
 }
 
 func CreateIndividualGroupRoutes(router *mux.Router) {

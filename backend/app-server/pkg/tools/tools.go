@@ -51,3 +51,11 @@ func GetUserIDFromContext(r *http.Request) (int, error) {
 	}
 	return userId, nil
 }
+
+func GetRoleFromContext(r *http.Request) (string, error) {
+	role := r.Context().Value("role")
+	if role == nil {
+		return "", fmt.Errorf("role not found in context")
+	}
+	return role.(string), nil
+}

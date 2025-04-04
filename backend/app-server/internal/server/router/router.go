@@ -19,6 +19,20 @@ func Create() *mux.Router {
 	userRouter := router.NewRoute().Subrouter()
 	userRouter.Use(delivery.JWTRoleMiddleware("user"))
 
+	commonRouter := router.NewRoute().Subrouter()
+	commonRouter.Use(delivery.JWTRoleMiddleware("admin, user"))
+
+	//router.Use(delivery.JWTMiddleware())
+	//
+	//adminRouter := router.NewRoute().Subrouter()
+	//adminRouter.Use(delivery.RoleMiddleware("admin"))
+	//
+	//userRouter := router.NewRoute().Subrouter()
+	//userRouter.Use(delivery.RoleMiddleware("user"))
+	//
+	//commonRouter := router.NewRoute().Subrouter()
+	//commonRouter.Use(delivery.RoleMiddleware("admin, user"))
+
 	CreateCupRoutes(adminRouter)
 	CreateCompetitionRoutes(adminRouter)
 	CreateIndividualGroupRoutes(adminRouter)
@@ -50,7 +64,8 @@ func Create() *mux.Router {
 
 	EditCompetitorUserRoutes(userRouter)
 	// admin router
-	GetCompetitorsFromCompetitionUserRoutes(userRouter)
+
+	GetCompetitorsFromCompetitionRoutes(commonRouter)
 
 	GetQualificationSectionsRoutes(userRouter)
 	GetQualificationSectionsRoutes(adminRouter)
@@ -61,7 +76,8 @@ func Create() *mux.Router {
 	GetCompetitorRoutes(userRouter)
 
 	AddCompetitorCompetitionRoutes(adminRouter)
-	EditCompetitorStatusAdminRoutes(adminRouter)
+	EditCompetitorStatusRoutes(commonRouter)
+	DeleteCompetitorCompetitorRoutes(adminRouter)
 
 	return router
 }
