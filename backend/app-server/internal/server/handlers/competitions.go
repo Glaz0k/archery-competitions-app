@@ -266,7 +266,6 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 		}
 		competitorIDs = append(competitorIDs, id)
 	}
-	rows.Close()
 
 	var competitor models.Competitor
 	for _, competitorID := range competitorIDs {
@@ -381,7 +380,6 @@ func EditCompetitorStatus(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	rows.Close()
 
 	var competitorDetails dto.CompetitorCompetitionDetails
 	competitorDetails.Competition_ID = competitionID
@@ -462,7 +460,6 @@ func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	rows.Close()
 
 	query = `DELETE FROM competitor_competition_details WHERE competition_id = $1 AND competitor_id = $2`
 	_, err = conn.Query(context.Background(), query, competitionID, competitorID)
@@ -530,5 +527,42 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+
+	query = `SELECT ccd.competitor_id 
+		FROM competitor_competition_details ccd
+        JOIN competitors c ON ccd.competitor_id = c.id
+		WHERE ccd.competition_id = $1 
+		AND ccd.is_active = $2
+		AND c.identity = $3
+		AND c.bow = $4`
+	rows, err := conn.Query(context.Background(), query, competitionId, true, individualGroup.Identity, individualGroup.Bow)
+	defer rows.Close()
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	var competitorIDs []int
+	var id int
+	for rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		competitorIDs = append(competitorIDs, id)
+	}
+
+	query = `INSERT INTO competitor_group_details (group_id, competitor_id) VALUES ($1, $2)`
+	for _, id = range competitorIDs {
+		_, err = conn.Exec(context.Background(), query, individualGroup.ID, id)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+	}
+
 	tools.WriteJSON(w, http.StatusCreated, individualGroup)
 }
+
+//Atomicity???
