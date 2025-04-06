@@ -4,6 +4,7 @@ const (
 	IndividualGroupEndpoint            = "/api/individual-groups/{individual_group_id}"
 	IndividualGroupCompetitorsEndpoint = "/api/individual-groups/{group_id}/competitors"
 	StartQualification                 = "/api/individual-groups/{individual_group_id}/qualification/start"
+	QualificationTable                 = "/api/individual_groups/{group_id}/qualification"
 	UpdateIndividualGroup              = "/api/individual-groups/{group_id}/competitors/sync"
 
 	EndCompetition        = "/api/competitions/{competition_id}/end"

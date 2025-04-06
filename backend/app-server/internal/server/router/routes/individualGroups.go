@@ -21,7 +21,7 @@ func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
 }
 
 func SyncIndividualGroupsRoutes(router *mux.Router) {
-	router.HandleFunc(UpdateIndividualGroup, handlers.UpdateGroup).Methods("POST")
+	router.HandleFunc(UpdateIndividualGroup, handlers.SyncIndividualGroup).Methods("POST")
 }
 
 func GetCompetitorFromIndividualGroupRoutes(router *mux.Router) {
@@ -30,7 +30,10 @@ func GetCompetitorFromIndividualGroupRoutes(router *mux.Router) {
 
 // TODO: разбить на юзера и админа
 
-// TODO: get qualification table for user for admin
+func GetQualificationTableRoutes(router *mux.Router) {
+	router.HandleFunc(QualificationTable, handlers.GetQualifications).Methods("GET")
+}
+
 func StartQualificationRoutes(router *mux.Router) {
 	router.HandleFunc(StartQualification, handlers.StartQualification).Methods("POST")
 }

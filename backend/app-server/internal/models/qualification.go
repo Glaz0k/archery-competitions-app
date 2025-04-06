@@ -28,6 +28,28 @@ type QualificationRound struct {
 	IsOngoing    bool `json:"is_ongoing"`
 }
 
+type CompetitorShrinked struct {
+	ID       int    `json:"id"`
+	FullName string `json:"full_name"`
+}
+
+type RoundShrinked struct {
+	RoundOrdinal int  `json:"round_ordinal"`
+	IsActive     bool `json:"is_active"`
+	TotalScore   int  `json:"total_score"`
+}
+
+type QualificationSectionForTable struct {
+	ID         int                `json:"id"`
+	Competitor CompetitorShrinked `json:"competitor"`
+	Place      int                `json:"place"`
+	Round      []RoundShrinked    `json:"rounds"`
+	Total      int                `json:"total"`
+	CountTen   int                `json:"10_s"`
+	CountNine  int                `json:"9_s"`
+	RankGained string             `json:"rank_gained"`
+}
+
 type QualificationSection struct {
 	ID                 int   `json:"id"`
 	IndividualGroupsID []int `json:"groups_id"`
@@ -42,8 +64,8 @@ type Qualification struct {
 }
 
 type QualificationTable struct {
-	GroupID    int                    `json:"group_id"`
-	Distance   string                 `json:"distance"`
-	RoundCount int                    `json:"round_count"`
-	Sections   []QualificationSection `json:"sections"`
+	GroupID    int                            `json:"group_id"`
+	Distance   string                         `json:"distance"`
+	RoundCount int                            `json:"round_count"`
+	Sections   []QualificationSectionForTable `json:"sections"`
 }
