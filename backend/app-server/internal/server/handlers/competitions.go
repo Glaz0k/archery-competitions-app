@@ -12,6 +12,8 @@ import (
 	"app-server/internal/dto"
 	"app-server/internal/models"
 	"app-server/pkg/tools"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func EditCompetition(w http.ResponseWriter, r *http.Request) {
@@ -250,11 +252,11 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 
 	query = `SELECT competitor_id FROM competitor_competition_details WHERE competition_id = $1`
 	rows, err := conn.Query(context.Background(), query, competitionID)
-	defer rows.Close()
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	defer rows.Close()
 
 	var competitorIDs []int
 	var id int
@@ -362,11 +364,11 @@ func EditCompetitorStatus(w http.ResponseWriter, r *http.Request) {
 	WHERE ig.competition_id = $1
 	AND cgd.competitor_id = $2`
 	rows, err := conn.Query(context.Background(), query, competitionID, competitorID)
-	defer rows.Close()
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	defer rows.Close()
 
 	var status string
 	for rows.Next() {
@@ -442,11 +444,11 @@ func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	WHERE ig.competition_id = $1
 	AND cgd.competitor_id = $2`
 	rows, err := conn.Query(context.Background(), query, competitionID, competitorID)
-	defer rows.Close()
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	defer rows.Close()
 
 	var status string
 	for rows.Next() {
@@ -483,17 +485,14 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	err = conn.QueryRow(context.Background(), queryCheck, competitionId).Scan(&is_ended)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			fmt.Println("nooo") //
 			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 			return
 		}
-		fmt.Println(err) //
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 
 	if is_ended {
-		fmt.Println("enddd") //
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
@@ -501,7 +500,6 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	var individualGroup models.IndividualGroup
 	err = json.NewDecoder(r.Body).Decode(&individualGroup)
 	if err != nil {
-		fmt.Println(err) //
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
@@ -510,20 +508,24 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	queryCheck = `SELECT EXISTS (SELECT 1 FROM individual_groups WHERE competition_id= $1 and bow = $2 and identity = $3)`
 	err = conn.QueryRow(context.Background(), queryCheck, competitionId, individualGroup.Bow, individualGroup.Identity).Scan(&exist)
 	if err != nil {
-		fmt.Println(err) //
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	if exist {
-		fmt.Println("exist") //
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EXISTS"})
 	}
+
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer tx.Rollback(context.Background())
 
 	individualGroup.CompetitionID = competitionId
 	query := `INSERT INTO individual_groups (competition_id, bow, identity) VALUES ($1, $2, $3) RETURNING id, state`
 	err = conn.QueryRow(context.Background(), query, individualGroup.CompetitionID, individualGroup.Bow, individualGroup.Identity).Scan(&individualGroup.ID, &individualGroup.State)
 	if err != nil {
-		fmt.Println(err) //
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
@@ -536,11 +538,11 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		AND c.identity = $3
 		AND c.bow = $4`
 	rows, err := conn.Query(context.Background(), query, competitionId, true, individualGroup.Identity, individualGroup.Bow)
-	defer rows.Close()
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	defer rows.Close()
 
 	var competitorIDs []int
 	var id int
@@ -562,7 +564,77 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	err = tx.Commit(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
 	tools.WriteJSON(w, http.StatusCreated, individualGroup)
 }
 
-//Atomicity???
+func GetIndividualGroupsFromCompetition(w http.ResponseWriter, r *http.Request) {
+	competitionId, err := tools.ParseParamToInt(r, "competition_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionId)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+		return
+	}
+	var rows pgx.Rows
+	if role == "user" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+			return
+		}
+
+		query := `SELECT ig.id, ig.competition_id, ig.bow, ig.identity, ig.state 
+			FROM individual_groups ig 
+			JOIN competitor_group_details cgd ON cgd.group_id = ig.id
+			WHERE ig.competition_id = $1
+			AND cgd.competitor_id = $2`
+
+		rows, err = conn.Query(context.Background(), query, competitionId, userID)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		defer rows.Close()
+	} else {
+		query := `SELECT id, competition_id, bow, identity, state FROM individual_groups WHERE competition_id = $1`
+		rows, err = conn.Query(context.Background(), query, competitionId)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		defer rows.Close()
+	}
+
+	var groups []models.IndividualGroup
+	var group models.IndividualGroup
+	for rows.Next() {
+		err = rows.Scan(&group.ID, &group.CompetitionID, &group.Bow, &group.Identity, &group.State)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		groups = append(groups, group)
+	}
+	tools.WriteJSON(w, http.StatusOK, groups)
+}

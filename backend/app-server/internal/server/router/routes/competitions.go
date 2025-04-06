@@ -36,6 +36,6 @@ func CreateIndividualGroupRoutes(router *mux.Router) {
 	router.HandleFunc(IndividualGroupsCompetition, handlers.CreateIndividualGroup).Methods("POST")
 }
 
-// TODO: GetIndividualGroupsFromCompetitionAdminRoutes
-
-// TODO: GetIndividualGroupsFromCompetitionUserRoutes
+func GetIndividualGroupsFromCompetitionRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupsCompetition, handlers.GetIndividualGroupsFromCompetition).Methods("GET")
+}
