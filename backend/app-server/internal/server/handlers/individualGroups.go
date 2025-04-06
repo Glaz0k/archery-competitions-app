@@ -15,29 +15,6 @@ import (
 	"app-server/internal/models"
 )
 
-func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
-	var individualGroup models.IndividualGroup
-	err := json.NewDecoder(r.Body).Decode(&individualGroup)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
-		return
-	}
-	competitionId, err := tools.ParseParamToInt(r, "competition_id")
-	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
-		return
-	}
-
-	individualGroup.CompetitionID = competitionId
-	_, err = conn.Exec(context.Background(), "INSERT INTO individual_groups (competition_id, bow, identity, state) VALUES ($1, $2, $3, $4)", individualGroup.CompetitionID, individualGroup.Bow, individualGroup.Identity, individualGroup.State)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to insert data: %v", err))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
 func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
 	groupId, err := tools.ParseParamToInt(r, "individual_group_id")
 	if err != nil {

@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -17,7 +16,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
+func JWTRoleMiddleware(roles string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -41,13 +40,13 @@ func JWTRoleMiddleware(role string) func(next http.Handler) http.Handler {
 				return
 			}
 
-			if claims.Role != role {
-				w.WriteHeader(http.StatusForbidden)
-				w.Write([]byte(fmt.Sprintf("Access denied. Required role: %s", role)))
+			if !strings.Contains(roles, claims.Role) {
+				http.Error(w, "Invalid role", http.StatusForbidden)
 				return
 			}
+
 			r = r.WithContext(context.WithValue(r.Context(), "user_id", claims.UserID))
-			r = r.WithContext(context.WithValue(r.Context(), "role", role))
+			r = r.WithContext(context.WithValue(r.Context(), "role", claims.Role))
 			next.ServeHTTP(w, r)
 		})
 	}

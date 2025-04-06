@@ -18,3 +18,8 @@ type CompetitorGroupDetails struct {
 	GroupID      int `json:"group_id"`
 	CompetitorID int `json:"competitor_id"`
 }
+
+type CompetitorShrinked struct {
+	ID       int    `json:"id"`
+	FullName string `json:"full_name"`
+}

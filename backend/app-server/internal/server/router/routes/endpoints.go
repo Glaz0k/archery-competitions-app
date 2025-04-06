@@ -7,19 +7,13 @@ const (
 	QualificationTable                 = "/api/individual_groups/{group_id}/qualification"
 	UpdateIndividualGroup              = "/api/individual-groups/{group_id}/competitors/sync"
 
-	EndCompetition        = "/api/competitions/{competition_id}/end"
-	CompetitionEndpoint   = "/api/competitions/{competition_id}"
-	CreateIndividualGroup = "/api/competitions/{competition_id}/individual-group"
+	EndCompetition              = "/api/competitions/{competition_id}/end"
+	CompetitionEndpoint         = "/api/competitions/{competition_id}"
+	IndividualGroupsCompetition = "/api/competitions/{competition_id}/individual_groups"
 
 	CupsEndpoint         = "/api/cups"
 	CupEndpoint          = "/api/cups/{cup_id}"
 	CompetitionsEndpoint = "/api/cups/{cup_id}/competitions"
-
-	CreateRangeGroup           = "/api/range-group"
-	CreateQualificationRound   = "/api/qualification-round"
-	CreateQualificationSection = "/api/qualification-section"
-	CreateRange                = "/api/range"
-	CreateShot                 = "/api/range/{range_id}/shots"
 
 	Competitor               = "/api/competitors/{competitor_id}"
 	GetQualificationSections = "/api/qualification_sections/{id}"
@@ -29,4 +23,8 @@ const (
 
 	CompetitorsCompetitionEndpoint = "/api/competitions/{competition_id}/competitors"
 	CompetitorCompetitionEndpoint  = "/api/competitions/{competition_id}/competitors/{competitor_id}"
+
+	SparringPlace = "/api/sparring_places/{id}"
+	Ranges        = "/api/sparring_places/{id}/ranges"
+	RangeEnd      = "api/sparring_places/{id}/ranges/{range_original}/end"
 )
