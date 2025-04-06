@@ -1,11 +1,10 @@
 package routes
 
 const (
-	IndividualGroupEndpoint            = "/api/individual-groups/{individual_group_id}"
-	IndividualGroupCompetitorsEndpoint = "/api/individual-groups/{group_id}/competitors"
-	StartQualification                 = "/api/individual-groups/{individual_group_id}/qualification/start"
-	QualificationTable                 = "/api/individual_groups/{group_id}/qualification"
-	UpdateIndividualGroup              = "/api/individual-groups/{group_id}/competitors/sync"
+	IndividualGroupEndpoint            = "/api/individual_groups/{group_id}"
+	IndividualGroupCompetitorsEndpoint = "/api/individual_groups/{group_id}/competitors"
+	StartQualification                 = "/api/individual_groups/{group_id}/qualification/start"
+	UpdateIndividualGroup              = "/api/individual_groups/{group_id}/competitors/sync"
 
 	EndCompetition              = "/api/competitions/{competition_id}/end"
 	CompetitionEndpoint         = "/api/competitions/{competition_id}"
@@ -24,7 +23,8 @@ const (
 	CompetitorsCompetitionEndpoint = "/api/competitions/{competition_id}/competitors"
 	CompetitorCompetitionEndpoint  = "/api/competitions/{competition_id}/competitors/{competitor_id}"
 
-	SparringPlace = "/api/sparring_places/{id}"
-	Ranges        = "/api/sparring_places/{id}/ranges"
-	RangeEnd      = "api/sparring_places/{id}/ranges/{range_original}/end"
+	QualificationTable = "/api/individual_groups/{group_id}/qualification"
+	SparringPlace      = "/api/sparring_places/{id}"
+	Ranges             = "/api/sparring_places/{id}/ranges"
+	RangeEnd           = "api/sparring_places/{id}/ranges/{range_original}/end"
 )

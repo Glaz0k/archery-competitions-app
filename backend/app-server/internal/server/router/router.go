@@ -23,29 +23,22 @@ func Create() *mux.Router {
 	commonRouter.Use(delivery.JWTRoleMiddleware("admin, user"))
 
 	CreateCupRoutes(adminRouter)
+	GetCupRoutes(commonRouter)
+	GetAllCupsRoutes(commonRouter)
+	EditCupRoutes(adminRouter)
 	CreateCompetitionRoutes(adminRouter)
+	GetAllCompetitionsRoutes(commonRouter)
+
 	CreateIndividualGroupRoutes(adminRouter)
 	StartQualificationRoutes(adminRouter)
 
 	EditCompetitionRoutes(adminRouter)
-	EditCupRoutes(adminRouter)
 
-	GetCupRoutes(userRouter)
-	GetCupRoutes(adminRouter)
-
-	GetAllCupsRoutes(userRouter)
-	GetAllCupsRoutes(adminRouter)
-
-	GetAllCompetitionsRoutes(userRouter)
-	GetAllCompetitionsRoutes(adminRouter)
-
-	GetIndividualGroupsRoutes(userRouter)
-	GetIndividualGroupsRoutes(adminRouter)
+	GetIndividualGroupsRoutes(commonRouter)
 
 	SyncIndividualGroupsRoutes(adminRouter)
 
-	GetIndividualGroupCompetitorsRoutes(userRouter)
-	//GetIndividualGroupCompetitorsRoutes(adminRouter)
+	GetIndividualGroupCompetitorsRoutes(commonRouter)
 
 	GetQualificationTableRoutes(userRouter)
 	GetQualificationTableRoutes(adminRouter)
@@ -54,8 +47,7 @@ func Create() *mux.Router {
 
 	DeleteIndividualGroupRoutes(adminRouter)
 
-	EditCompetitorUserRoutes(userRouter)
-	// admin router
+	EditCompetitorRoutes(commonRouter)
 
 	GetCompetitorsFromCompetitionRoutes(commonRouter)
 
@@ -64,8 +56,7 @@ func Create() *mux.Router {
 
 	RegisterCompetitorRoutes(userRouter)
 
-	GetCompetitorRoutes(adminRouter)
-	GetCompetitorRoutes(userRouter)
+	GetCompetitorRoutes(commonRouter)
 
 	AddCompetitorCompetitionRoutes(adminRouter)
 	EditCompetitorStatusRoutes(commonRouter)

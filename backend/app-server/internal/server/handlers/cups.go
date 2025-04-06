@@ -47,7 +47,36 @@ func GetCup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "BAD ACTION"})
+		return
+	}
+	if role == "user" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "BAD ACTION"})
+			return
+		}
 
+		checkQuery := `
+            SELECT EXISTS (
+                SELECT 1 
+                FROM competitor_competition_details ccd
+                JOIN competitions comp ON ccd.competition_id = comp.id
+                WHERE ccd.competitor_id = $1 AND comp.cup_id = $2
+            )`
+		var isParticipant bool
+		err = conn.QueryRow(context.Background(), checkQuery, userID, cupID).Scan(&isParticipant)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		if !isParticipant {
+			tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "BAD ACTION"})
+			return
+		}
+	}
 	var cup models.Cup
 	query := `SELECT id, title, address, season FROM cups WHERE id = $1`
 
@@ -60,7 +89,7 @@ func GetCup(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "CUP NOT FOUND"})
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		} else {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		}
@@ -71,11 +100,48 @@ func GetCup(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllCups(w http.ResponseWriter, r *http.Request) {
-	query := `SELECT id, title, address, season FROM cups`
-	rows, err := conn.Query(context.Background(), query)
+	role, err := tools.GetRoleFromContext(r)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "BAD ACTION"})
 		return
+	}
+	var query string
+	var rows pgx.Rows
+	if role == "user" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "BAD ACTION"})
+			return
+		}
+		query = `
+        SELECT 
+            c.id, 
+            c.title, 
+            c.address, 
+            c.season
+        FROM 
+            cups c
+        JOIN 
+            competitions comp ON c.id = comp.cup_id
+        JOIN 
+            competitor_competition_details ccd ON comp.id = ccd.competition_id
+        WHERE 
+            ccd.competitor_id = $1
+        ORDER BY 
+            c.season DESC, c.id`
+		rows, err = conn.Query(context.Background(), query, userID)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+	}
+	if role == "admin" {
+		query = `SELECT id, title, address, season FROM cups`
+		rows, err = conn.Query(context.Background(), query)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
 	}
 	defer rows.Close()
 	var cups []models.Cup
