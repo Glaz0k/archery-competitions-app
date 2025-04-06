@@ -1,63 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/page/history_page.dart';
+import 'package:mobile_app/page/profile_page.dart';
+import 'package:mobile_app/page/series_input_page.dart';
 
-void main() {
-  runApp(const Onion());
-}
+void main() => runApp(
+  MaterialApp(
+    theme: ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    ),
+    home: Onion(),
+  ),
+);
 
-class Onion extends StatelessWidget {
+class Onion extends StatefulWidget {
   const Onion({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<StatefulWidget> createState() => _OnionState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _OnionState extends State<Onion> {
+  static const List<NavigationDestination> _destinations = [
+    NavigationDestination(
+      selectedIcon: Icon(Icons.history_edu),
+      icon: Icon(Icons.history_edu_outlined),
+      label: 'История',
+    ),
+    NavigationDestination(
+      selectedIcon: Icon(Icons.ads_click),
+      icon: Icon(Icons.ads_click_outlined),
+      label: 'Результаты',
+    ),
+    NavigationDestination(
+      selectedIcon: Icon(Icons.account_circle),
+      icon: Icon(Icons.account_circle_outlined),
+      label: 'Профиль',
+    ),
+  ];
+  late final List<Widget> _mainPages;
+  int _currentPage = 1;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _mainPages = [HistoryPage(), SeriesInputPage(), ProfilePage()];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: _mainPages[_currentPage],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentPage,
+        destinations: _destinations,
+        onDestinationSelected:
+            (idx) => setState(() {
+              _currentPage = idx;
+            }),
+        //labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       ),
     );
   }
