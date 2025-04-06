@@ -23,11 +23,6 @@ type QualificationRound struct {
 	IsOngoing    bool `json:"is_ongoing"`
 }
 
-type CompetitorShrinked struct {
-	ID       int    `json:"id"`
-	FullName string `json:"full_name"`
-}
-
 type RoundShrinked struct {
 	RoundOrdinal int  `json:"round_ordinal"`
 	IsActive     bool `json:"is_active"`

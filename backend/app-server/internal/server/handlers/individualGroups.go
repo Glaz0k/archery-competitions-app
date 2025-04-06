@@ -245,22 +245,33 @@ func getQualificationSections(groupID int, r *http.Request) ([]models.Qualificat
          WHERE qs.group_id = $1
          ORDER BY qs.id`, groupID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query failed: %w", err)
 	}
-	defer rows.Close()
+
 	role := r.Context().Value("role")
-	id := r.Context().Value("user_id")
-	ok := false
+	userID := r.Context().Value("user_id")
 	var sections []models.QualificationSectionForTable
+	var hasAccess bool
+
 	for rows.Next() {
 		var section models.QualificationSectionForTable
 		if err := rows.Scan(&section.ID, &section.Competitor.ID, &section.Competitor.FullName, &section.Place); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan failed: %w", err)
 		}
 
-		if id == section.Competitor.ID {
-			ok = true
+		if userID == section.Competitor.ID {
+			hasAccess = true
 		}
+
+		sections = append(sections, section)
+	}
+
+	if role != "admin" && !hasAccess {
+		return nil, errors.New("no access rights")
+	}
+	rows.Close()
+
+	for _, section := range sections {
 		rounds, totalScore, tensCount, ninesCount, err := getSectionRoundsStats(section.ID)
 		if err != nil {
 			return nil, err
@@ -270,12 +281,6 @@ func getQualificationSections(groupID int, r *http.Request) ([]models.Qualificat
 		section.Total = totalScore
 		section.CountTen = tensCount
 		section.CountNine = ninesCount
-
-		sections = append(sections, section)
-	}
-
-	if role != "admin" && !ok {
-		return nil, errors.New("no access rights")
 	}
 
 	return sections, nil
@@ -288,9 +293,8 @@ func getSectionRoundsStats(sectionID int) ([]models.RoundShrinked, int, int, int
          WHERE section_id = $1
          ORDER BY round_ordinal`, sectionID)
 	if err != nil {
-		return nil, 0, 0, 0, err
+		return nil, 0, 0, 0, fmt.Errorf("query rounds failed: %w", err)
 	}
-	defer rows.Close()
 
 	var rounds []models.RoundShrinked
 	var totalScore, tensCount, ninesCount int
@@ -298,16 +302,20 @@ func getSectionRoundsStats(sectionID int) ([]models.RoundShrinked, int, int, int
 	for rows.Next() {
 		var round models.RoundShrinked
 		if err := rows.Scan(&round.RoundOrdinal, &round.IsActive); err != nil {
-			return nil, 0, 0, 0, err
+			return nil, 0, 0, 0, fmt.Errorf("scan round failed: %w", err)
 		}
 
+		rounds = append(rounds, round)
+	}
+	rows.Close()
+
+	for _, round := range rounds {
 		roundScore, tens, nines, err := getRoundStats(sectionID, round.RoundOrdinal)
 		if err != nil {
-			return nil, 0, 0, 0, err
+			return nil, 0, 0, 0, fmt.Errorf("get round stats failed: %w", err)
 		}
 
 		round.TotalScore = roundScore
-		rounds = append(rounds, round)
 
 		totalScore += roundScore
 		tensCount += tens
@@ -332,7 +340,11 @@ func getRoundStats(sectionID int, roundOrdinal int) (int, int, int, error) {
          WHERE qr.section_id = $1 AND qr.round_ordinal = $2`,
 		sectionID, roundOrdinal).Scan(&score, &tens, &nines)
 
-	return score, tens, nines, err
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("query stats failed: %w", err)
+	}
+
+	return score, tens, nines, nil
 }
 
 func deleteShootOuts(ctx context.Context, tx pgx.Tx, groupID int) error {
