@@ -23,7 +23,8 @@ const (
 	CompetitorsCompetitionEndpoint = "/api/competitions/{competition_id}/competitors"
 	CompetitorCompetitionEndpoint  = "/api/competitions/{competition_id}/competitors/{competitor_id}"
 
-	SparringPlace = "/api/sparring_places/{id}"
-	Ranges        = "/api/sparring_places/{id}/ranges"
-	RangeEnd      = "api/sparring_places/{id}/ranges/{range_original}/end"
+	QualificationTable = "/api/individual_groups/{group_id}/qualification"
+	SparringPlace      = "/api/sparring_places/{id}"
+	Ranges             = "/api/sparring_places/{id}/ranges"
+	RangeEnd           = "api/sparring_places/{id}/ranges/{range_original}/end"
 )

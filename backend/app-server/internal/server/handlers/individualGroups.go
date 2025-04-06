@@ -4,7 +4,6 @@ import (
 	"app-server/internal/dto"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
