@@ -1,10 +1,10 @@
 package routes
 
 const (
-	IndividualGroupEndpoint            = "/api/individual-groups/{individual_group_id}"
-	IndividualGroupCompetitorsEndpoint = "/api/individual-groups/{group_id}/competitors"
-	StartQualification                 = "/api/individual-groups/{individual_group_id}/qualification/start"
-	UpdateIndividualGroup              = "/api/individual-groups/{group_id}/competitors/sync"
+	IndividualGroupEndpoint            = "/api/individual_groups/{group_id}"
+	IndividualGroupCompetitorsEndpoint = "/api/individual_groups/{group_id}/competitors"
+	StartQualification                 = "/api/individual_groups/{group_id}/qualification/start"
+	UpdateIndividualGroup              = "/api/individual_groups/{group_id}/competitors/sync"
 
 	EndCompetition              = "/api/competitions/{competition_id}/end"
 	CompetitionEndpoint         = "/api/competitions/{competition_id}"

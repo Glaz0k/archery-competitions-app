@@ -17,7 +17,7 @@ func DeleteIndividualGroupRoutes(router *mux.Router) {
 // TODO: Разбить на админа и юзера
 
 func GetIndividualGroupCompetitorsRoutes(router *mux.Router) {
-	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitor).Methods("GET")
+	router.HandleFunc(IndividualGroupCompetitorsEndpoint, handlers.GetCompetitorsFromGroup).Methods("GET")
 }
 
 func SyncIndividualGroupsRoutes(router *mux.Router) {

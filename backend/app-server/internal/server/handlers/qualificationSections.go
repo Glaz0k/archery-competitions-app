@@ -19,7 +19,7 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
-	qualification.IndividualGroupID, err = tools.ParseParamToInt(r, "individual_group_id")
+	qualification.IndividualGroupID, err = tools.ParseParamToInt(r, "group_id")
 	if err != nil {
 		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return

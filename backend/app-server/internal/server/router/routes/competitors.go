@@ -14,9 +14,8 @@ func GetCompetitorRoutes(router *mux.Router) {
 	router.HandleFunc(GetCompetitor, handlers.GetCompetitor).Methods("GET")
 }
 
-// TODO: edit for admin
-func EditCompetitorUserRoutes(router *mux.Router) {
-	router.HandleFunc(Competitor, handlers.UserEditCompetitor).Methods("PUT")
+func EditCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(Competitor, handlers.EditCompetitor).Methods("PUT")
 }
 
 // TODO: delete competitor

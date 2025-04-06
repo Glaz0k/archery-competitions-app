@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-type Comprtitor struct {
+type Competitor struct {
 	CompetitorID int `json:"competitor_id"`
 }
 
 type CompetitorCompetitionDetails struct {
-	Competition_ID int                 `json:"competition_id"`
-	Competitors    []models.Competitor `json:"competitor"`
-	Is_active      bool                `json:"is_active"`
-	Created_at     time.Time           `json:"created_at"`
+	CompetitionID int                 `json:"competition_id"`
+	Competitors   []models.Competitor `json:"competitor"`
+	IsActive      bool                `json:"is_active"`
+	CreatedAt     time.Time           `json:"created_at"`
 }

@@ -72,27 +72,33 @@ func GetCompetitor(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, competitor)
 }
 
-func EditCompetitor(w http.ResponseWriter, r *http.Request, isAdmin bool) {
+func EditCompetitor(w http.ResponseWriter, r *http.Request) {
 	competitorID, err := tools.ParseParamToInt(r, "competitor_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
-	if !isAdmin {
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "BAD ACTION"})
+		return
+	}
+	if role == "user" {
 		userID, err := tools.GetUserIDFromContext(r)
 		if err != nil {
-			tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": fmt.Sprintf("%v", err)})
+			tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "BAD ACTION"})
 			return
 		}
 		if competitorID != userID {
-			tools.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "PERMISSION DENIED"})
+			tools.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "BAD ACTION"})
 			return
 		}
 	}
 
 	var competitor models.Competitor
-	if err := json.NewDecoder(r.Body).Decode(&competitor); err != nil {
+	competitor.ID = competitorID
+	if err = json.NewDecoder(r.Body).Decode(&competitor); err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
@@ -112,12 +118,4 @@ func EditCompetitor(w http.ResponseWriter, r *http.Request, isAdmin bool) {
 		return
 	}
 	tools.WriteJSON(w, http.StatusOK, competitor)
-}
-
-func AdminEditCompetitor(w http.ResponseWriter, r *http.Request) {
-	EditCompetitor(w, r, true)
-}
-
-func UserEditCompetitor(w http.ResponseWriter, r *http.Request) {
-	EditCompetitor(w, r, false)
 }
