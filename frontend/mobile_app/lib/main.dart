@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/page/history_page.dart';
+import 'package:mobile_app/page/competition_page.dart';
 import 'package:mobile_app/page/profile_page.dart';
-import 'package:mobile_app/page/series_input_page.dart';
+import 'package:mobile_app/page/series_page.dart';
 
 void main() => runApp(
   MaterialApp(
     theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blue,
+        secondary: Colors.red,
+      ),
     ),
     home: Onion(),
   ),
@@ -22,14 +25,14 @@ class Onion extends StatefulWidget {
 class _OnionState extends State<Onion> {
   static const List<NavigationDestination> _destinations = [
     NavigationDestination(
-      selectedIcon: Icon(Icons.history_edu),
-      icon: Icon(Icons.history_edu_outlined),
-      label: 'История',
+      selectedIcon: Icon(Icons.info),
+      icon: Icon(Icons.info_outline),
+      label: 'Объявления',
     ),
     NavigationDestination(
-      selectedIcon: Icon(Icons.ads_click),
-      icon: Icon(Icons.ads_click_outlined),
-      label: 'Результаты',
+      selectedIcon: Icon(Icons.scoreboard),
+      icon: Icon(Icons.scoreboard_outlined),
+      label: 'Серии',
     ),
     NavigationDestination(
       selectedIcon: Icon(Icons.account_circle),
@@ -43,7 +46,7 @@ class _OnionState extends State<Onion> {
   @override
   void initState() {
     super.initState();
-    _mainPages = [HistoryPage(), SeriesInputPage(), ProfilePage()];
+    _mainPages = [CompetitionPage(), SeriesPage(), ProfilePage()];
   }
 
   @override
