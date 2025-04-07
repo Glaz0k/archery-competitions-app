@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  auth:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${AUTH_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${AUTH_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${AUTH_DB_PASSWORD}
+      - JWT_SECRET_KEY=${HS256_SECRET_KEY_BASE64}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=${AUTH_DB_NAME}
+      - POSTGRES_USER=${AUTH_DB_USERNAME}
+      - POSTGRES_PASSWORD=${AUTH_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
