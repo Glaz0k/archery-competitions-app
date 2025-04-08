@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"app-server/internal/dto"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
+
+	"app-server/internal/dto"
 
 	"app-server/pkg/tools"
 
@@ -150,7 +151,7 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to begin transaction: %v", err))
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
 		return
 	}
 	defer tx.Rollback(context.Background())
@@ -166,7 +167,7 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	_, err = tx.Exec(context.Background(),
 		"DELETE FROM competitor_group_details WHERE group_id = $1", groupID)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to delete old competitors: %v", err))
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete old competitors: %v", err)})
 		return
 	}
 
@@ -179,7 +180,7 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
         RETURNING competitor_id`,
 		groupID, competitionID)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to insert new competitors: %v", err))
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to insert new competitors: %v", err)})
 		return
 	}
 	defer rows.Close()
@@ -187,7 +188,7 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var id int
 		if err := rows.Scan(&id); err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to scan competitor id: %v", err))
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to scan competitor id: %v", err)})
 			return
 		}
 		competitorIDs = append(competitorIDs, id)
@@ -199,7 +200,7 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 			`SELECT id, full_name, birth_date, identity, bow, rank, region, federation, club FROM competitors WHERE id = ANY($1)`,
 			competitorIDs)
 		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to fetch competitors details: %v", err))
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to fetch competitors details: %v", err)})
 			return
 		}
 		defer rows.Close()
@@ -208,7 +209,7 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 			var c models.Competitor
 
 			if err := rows.Scan(&c.ID, &c.FullName, &c.BirthDate, &c.Identity, &c.Bow, &c.Rank, &c.Region, &c.Federation, &c.Club); err != nil {
-				tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to scan competitor details: %v", err))
+				tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to scan competitor details: %v", err)})
 				return
 			}
 
@@ -220,15 +221,23 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	err = tx.QueryRow(context.Background(),
 		"SELECT EXISTS(SELECT 1 FROM qualifications WHERE group_id = $1)", groupID).Scan(&hasQualification)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to check qualification: %v", err))
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to check qualification: %v", err)})
 		return
 	}
 
 	if hasQualification {
 		_, err = tx.Exec(context.Background(),
+			"DELETE FROM qualification_rounds WHERE section_id IN (SELECT id FROM qualification_sections WHERE group_id = $1)",
+			groupID)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete old qualification rounds: %v", err)})
+			return
+		}
+
+		_, err = tx.Exec(context.Background(),
 			"DELETE FROM qualification_sections WHERE group_id = $1", groupID)
 		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to delete old qualification sections: %v", err))
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete old qualification sections: %v", err)})
 			return
 		}
 
@@ -239,14 +248,14 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
             WHERE competition_id = $2 AND is_active = true`,
 			groupID, competitionID)
 		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to insert new qualification sections: %v", err))
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to insert new qualification sections: %v", err)})
 			return
 		}
 	}
 
 	err = tx.Commit(context.Background())
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to commit transaction: %v", err))
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to commit transaction: %v", err)})
 		return
 	}
 
@@ -273,7 +282,7 @@ func GetQualifications(w http.ResponseWriter, r *http.Request) {
 
 	sections, err := getQualificationSections(groupID, r)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("unable to fetch sections: %v", err))
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to fetch sections: %v", err)})
 		return
 	}
 
@@ -373,10 +382,8 @@ func getRoundStats(sectionID int, roundOrdinal int) (int, int, int, error) {
 	var score, tens, nines int
 	err := conn.QueryRow(context.Background(),
 		`SELECT 
-            COALESCE(SUM(
-                CASE WHEN s.score ~ '^[0-9]+$' THEN s.score::integer ELSE 0 END
-            ), 0),
-            COALESCE(SUM(CASE WHEN s.score = '10' THEN 1 ELSE 0 END), 0),
+            COALESCE(SUM(CASE WHEN s.score = 'X' THEN 10 WHEN s.score = 'M' THEN 0 ELSE CAST(s.score AS INTEGER) END), 0),
+            COALESCE(SUM(CASE WHEN s.score = '10' THEN 1 WHEN s.score = 'X' THEN 1 ELSE 0 END), 0),
             COALESCE(SUM(CASE WHEN s.score = '9' THEN 1 ELSE 0 END), 0)
          FROM shots s
          JOIN ranges r ON s.range_id = r.id
@@ -391,51 +398,99 @@ func getRoundStats(sectionID int, roundOrdinal int) (int, int, int, error) {
 	return score, tens, nines, nil
 }
 
+func deleteShots(ctx context.Context, tx pgx.Tx, groupID int) error {
+	_, err := tx.Exec(ctx, `
+        DELETE FROM shots 
+        WHERE range_id IN (
+            SELECT r.id FROM ranges r
+            JOIN range_groups rg ON r.group_id = rg.id
+            JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
+        )`, groupID)
+	return err
+}
+
 func deleteShootOuts(ctx context.Context, tx pgx.Tx, groupID int) error {
-	query := `
-		DELETE FROM shoot_outs 
-		WHERE place_id IN (
-			SELECT id FROM sparring_places 
-			WHERE range_group_id IN (
-				SELECT id FROM range_groups 
-				WHERE id IN (
-					SELECT range_group_id FROM qualification_rounds 
-					WHERE section_id IN (
-						SELECT id FROM qualification_sections 
-						WHERE group_id = $1
-					)
-				)
-			)
-		)`
-	_, err := tx.Exec(ctx, query, groupID)
+	_, err := tx.Exec(ctx, `
+        DELETE FROM shoot_outs 
+        WHERE place_id IN (
+            SELECT sp.id FROM sparring_places sp
+            JOIN range_groups rg ON sp.range_group_id = rg.id
+            JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
+        )`, groupID)
+	return err
+}
+
+func deleteSparrings(ctx context.Context, tx pgx.Tx, groupID int) error {
+	_, err := tx.Exec(ctx, `
+        DELETE FROM sparrings 
+        WHERE top_place_id IN (
+            SELECT id FROM sparring_places 
+            WHERE range_group_id IN (
+                SELECT rg.id FROM range_groups rg
+                JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+                JOIN qualification_sections qs ON qr.section_id = qs.id
+                WHERE qs.group_id = $1
+            )
+        ) OR bot_place_id IN (
+            SELECT id FROM sparring_places 
+            WHERE range_group_id IN (
+                SELECT rg.id FROM range_groups rg
+                JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+                JOIN qualification_sections qs ON qr.section_id = qs.id
+                WHERE qs.group_id = $1
+            )
+        )`, groupID)
 	return err
 }
 
 func deleteSparringPlaces(ctx context.Context, tx pgx.Tx, groupID int) error {
-	query := `
-		DELETE FROM sparring_places 
-		WHERE range_group_id IN (
-			SELECT id FROM range_groups 
-			WHERE id IN (
-				SELECT range_group_id FROM qualification_rounds 
-				WHERE section_id IN (
-					SELECT id FROM qualification_sections 
-					WHERE group_id = $1
-				)
-			)
-		)`
-	_, err := tx.Exec(ctx, query, groupID)
+	_, err := tx.Exec(ctx, `
+        DELETE FROM sparring_places 
+        WHERE range_group_id IN (
+            SELECT rg.id FROM range_groups rg
+            JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
+        )`, groupID)
+	return err
+}
+
+func deleteRanges(ctx context.Context, tx pgx.Tx, groupID int) error {
+	_, err := tx.Exec(ctx, `
+        DELETE FROM ranges 
+        WHERE group_id IN (
+            SELECT rg.id FROM range_groups rg
+            JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
+        )`, groupID)
 	return err
 }
 
 func deleteQualificationRounds(ctx context.Context, tx pgx.Tx, groupID int) error {
-	query := `
-		DELETE FROM qualification_rounds 
-		WHERE section_id IN (
-			SELECT id FROM qualification_sections 
-			WHERE group_id = $1
-		)`
-	_, err := tx.Exec(ctx, query, groupID)
+	_, err := tx.Exec(ctx, `
+        DELETE FROM qualification_rounds 
+        WHERE section_id IN (
+            SELECT id FROM qualification_sections 
+            WHERE group_id = $1
+        )`, groupID)
+	return err
+}
+
+func deleteRangeGroups(ctx context.Context, tx pgx.Tx, groupID int) error {
+	_, err := tx.Exec(ctx, `
+        DELETE FROM range_groups 
+        WHERE id IN (
+            SELECT range_group_id FROM qualification_rounds 
+            WHERE section_id IN (
+                SELECT id FROM qualification_sections 
+                WHERE group_id = $1
+            )
+        )`, groupID)
 	return err
 }
 
@@ -454,7 +509,7 @@ func deleteCompetitorGroupDetails(ctx context.Context, tx pgx.Tx, groupID int) e
 	return err
 }
 
-func deleteIndividualGroups(ctx context.Context, tx pgx.Tx, groupID int) error {
+func deleteIndividualGroup(ctx context.Context, tx pgx.Tx, groupID int) error {
 	_, err := tx.Exec(ctx, `DELETE FROM individual_groups WHERE id = $1`, groupID)
 	return err
 }
@@ -462,48 +517,75 @@ func deleteIndividualGroups(ctx context.Context, tx pgx.Tx, groupID int) error {
 func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	groupID, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
-		http.Error(w, "invalid group_id", http.StatusBadRequest)
+		tools.WriteJSON(w, http.StatusBadRequest, "invalid group_id")
 		return
 	}
 
-	tx, err := conn.Begin(context.Background())
+	ctx := r.Context()
+	tx, err := conn.Begin(ctx)
 	if err != nil {
-		http.Error(w, "Failed to start transaction", http.StatusInternalServerError)
+		tools.WriteJSON(w, http.StatusInternalServerError, "failed to start transaction")
 		return
 	}
-	defer func(tx pgx.Tx, ctx context.Context) {
-		err := tx.Rollback(ctx)
-		if err != nil {
+	defer tx.Rollback(ctx)
 
-		}
-	}(tx, context.Background())
-
-	operations := []func(context.Context, pgx.Tx, int) error{
-		deleteShootOuts,
-		deleteSparringPlaces,
-		deleteQualificationRounds,
-		deleteQualificationSections,
-		deleteQualifications,
-		deleteCompetitorGroupDetails,
-		deleteIndividualGroups,
-	}
-
-	for _, op := range operations {
-		if err := op(r.Context(), tx, groupID); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to delete data: %v", err), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	if err := tx.Commit(context.Background()); err != nil {
-		http.Error(w, "Failed to commit transaction", http.StatusInternalServerError)
+	if err := deleteAllGroupData(ctx, tx, groupID); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("failed to delete group data: %v", err))
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write([]byte("Group and related data deleted successfully"))
-	if err != nil {
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+	if err := tx.Commit(ctx); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, "failed to commit transaction")
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
+	if err := deleteShootOuts(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete shoot outs: %v", err)
+	}
+
+	if err := deleteSparringPlaces(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete sparring places: %v", err)
+	}
+
+	if err := deleteSparrings(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete sparrings: %v", err)
+	}
+
+	if err := deleteShots(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete shots: %v", err)
+	}
+
+	if err := deleteRanges(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete ranges: %v", err)
+	}
+
+	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete range groups: %v", err)
+	}
+
+	if err := deleteQualificationRounds(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete qualification rounds: %v", err)
+	}
+
+	if err := deleteQualificationSections(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete qualification sections: %v", err)
+	}
+
+	if err := deleteQualifications(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete qualifications: %v", err)
+	}
+
+	if err := deleteCompetitorGroupDetails(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete competitor details: %v", err)
+	}
+
+	if err := deleteIndividualGroup(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete individual group: %v", err)
+	}
+
+	return nil
 }

@@ -38,7 +38,9 @@ func StartQualificationRoutes(router *mux.Router) {
 	router.HandleFunc(StartQualification, handlers.StartQualification).Methods("POST")
 }
 
-// TODO: end qualification
+func EndQualificationRoutes(router *mux.Router) {
+	router.HandleFunc(EndQualification, handlers.EndQualification).Methods("POST")
+}
 
 // TODO: final grid
 

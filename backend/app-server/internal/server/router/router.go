@@ -31,6 +31,7 @@ func Create() *mux.Router {
 
 	CreateIndividualGroupRoutes(adminRouter)
 	StartQualificationRoutes(adminRouter)
+	EndQualificationRoutes(adminRouter)
 
 	EditCompetitionRoutes(adminRouter)
 
@@ -42,7 +43,7 @@ func Create() *mux.Router {
 
 	GetQualificationTableRoutes(userRouter)
 	GetQualificationTableRoutes(adminRouter)
-	
+
 	EndCompetitionRoutes(adminRouter)
 
 	DeleteIndividualGroupRoutes(adminRouter)
