@@ -1,12 +1,15 @@
-import { createTheme, MantineProvider } from "@mantine/core";
+import { Routes, Route } from "react-router";
 import LoginPage from "./components/pages/LoginPage";
-
-const theme = createTheme();
+import ContentLayout from "./components/pages/ContentLayout";
+import CupsPage from "./components/pages/CupsPage";
 
 export default function App() {
   return (
-    <MantineProvider theme={theme}>
-      <LoginPage />
-    </MantineProvider>
+    <Routes>
+      <Route path="login" element={<LoginPage />} />
+      <Route element={<ContentLayout />}>
+        <Route path="cups" element={<CupsPage />} />
+      </Route>
+    </Routes>
   );
 }
