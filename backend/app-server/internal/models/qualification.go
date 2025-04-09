@@ -2,8 +2,8 @@ package models
 
 type Range struct {
 	ID          int    `json:"id"`
-	RangeNumber int    `json:"range_number"`
-	IsOngoing   bool   `json:"is_ongoing"`
+	RangeNumber int    `json:"range_ordinal"`
+	IsOngoing   bool   `json:"is_active"`
 	Shots       []Shot `json:"shots"`
 	RangeScore  int    `json:"range_score"`
 }

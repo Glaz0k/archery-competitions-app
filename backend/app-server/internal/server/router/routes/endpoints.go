@@ -15,14 +15,15 @@ const (
 	CupEndpoint          = "/api/cups/{cup_id}"
 	CompetitionsEndpoint = "/api/cups/{cup_id}/competitions"
 
-	Competitor               = "/api/competitors/{competitor_id}"
-	GetQualificationSections = "/api/qualification_sections/{id}"
-
+	Competitor         = "/api/competitors/{competitor_id}"
 	RegisterCompetitor = "/api/competitors/registration"
 	GetCompetitor      = "/api/competitors/{competitor_id}"
 
 	CompetitorsCompetitionEndpoint = "/api/competitions/{competition_id}/competitors"
 	CompetitorCompetitionEndpoint  = "/api/competitions/{competition_id}/competitors/{competitor_id}"
+
+	GetQualificationSections           = "/api/qualification_sections/{id}"
+	QualificationSectionRangesEndpoint = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges"
 
 	QualificationTable = "/api/individual_groups/{group_id}/qualification"
 	SparringPlace      = "/api/sparring_places/{id}"

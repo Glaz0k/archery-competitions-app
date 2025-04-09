@@ -63,6 +63,8 @@ func Create() *mux.Router {
 	EditCompetitorStatusRoutes(commonRouter)
 	DeleteCompetitorCompetitorRoutes(adminRouter)
 	GetIndividualGroupsFromCompetitionRoutes(commonRouter)
+	GetQualificationSectionRangesRoutes(commonRouter)
+	EditQualificationSectionRangesRoutes(commonRouter)
 
 	return router
 }

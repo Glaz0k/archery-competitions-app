@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"app-server/internal/dto"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -8,6 +9,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"sort"
 
 	"app-server/internal/models"
@@ -339,4 +342,314 @@ func GetQualificationSection(w http.ResponseWriter, r *http.Request) {
 	if err = json.NewEncoder(w).Encode(qualificationSection); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func GetQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
+	sectionId, err := tools.ParseParamToInt(r, "id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	round, err := tools.ParseParamToInt(r, "round_ordinal")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+		return
+	}
+
+	if role == "user" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+			return
+		}
+
+		var exist bool
+		queryCheck := `SELECT  EXISTS (SELECT 1 FROM qualification_sections WHERE id = $1 AND competitor_id = $2)`
+		err = conn.QueryRow(context.Background(), queryCheck, sectionId, userID).Scan(&exist)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		if !exist {
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "BAD ACTION"})
+			return
+		}
+	}
+
+	var rangeGroup models.RangeGroup
+	query := `SELECT rg.id, rg.ranges_max_count, rg.range_size
+		FROM range_groups rg 
+		JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+		WHERE qr.section_id = $1
+		AND qr.round_ordinal = $2`
+
+	err = conn.QueryRow(context.Background(), query, sectionId, round).Scan(&rangeGroup.ID, &rangeGroup.RangesMaxCount, &rangeGroup.RangeSize)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	var rg models.Range
+	var ranges []models.Range
+	var totalScore int
+
+	query = `SELECT id, range_ordinal, is_active FROM ranges WHERE group_id = $1`
+	rows, err := conn.Query(context.Background(), query, rangeGroup.ID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&rg.ID, &rg.RangeNumber, &rg.IsOngoing)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		ranges = append(ranges, rg)
+	}
+
+	for i := range ranges {
+		err = getShotsFromRange(&ranges[i])
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		rangeScore, err := getRangeScore(ranges[i].Shots)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		ranges[i].RangeScore = rangeScore
+		totalScore += rangeScore
+	}
+
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	rangeGroup.Ranges = ranges
+	rangeGroup.TotalScore = totalScore
+	tools.WriteJSON(w, http.StatusOK, rangeGroup)
+}
+
+func getShotsFromRange(r *models.Range) error {
+	query := `SELECT shot_ordinal, score FROM shots WHERE range_id = $1`
+	rows, err := conn.Query(context.Background(), query, r.ID)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var s models.Shot
+	var shots []models.Shot
+	var score sql.NullString
+	for rows.Next() {
+		err = rows.Scan(&s.ShotNumber, &score)
+		if err != nil {
+			return err
+		}
+		s.Score = score.String
+		shots = append(shots, s)
+	}
+	r.Shots = shots
+	return nil
+}
+
+func getRangeScore(shots []models.Shot) (int, error) {
+	var rangeScore int
+	pattern := regexp.MustCompile(`^(10|[1-9])$`)
+	for _, shot := range shots {
+		score := shot.Score
+		if pattern.MatchString(score) {
+			s, err := strconv.Atoi(score)
+			if err != nil {
+				return 0, fmt.Errorf("invalid score")
+			}
+			rangeScore += s
+		} else if score == "X" {
+			rangeScore += 10
+		} else if !(score == "M" || score == "") {
+			return 0, fmt.Errorf("invalid score")
+		}
+	}
+	return rangeScore, nil
+}
+
+// TODO валидация значений score
+func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
+	sectionId, err := tools.ParseParamToInt(r, "id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	round, err := tools.ParseParamToInt(r, "round_ordinal")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	var changeRange dto.ChangeRange
+	err = json.NewDecoder(r.Body).Decode(&changeRange)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+
+	var isRangeExist bool
+	queryCheck := `SELECT EXISTS (SELECT 1 
+		FROM ranges r 
+		JOIN  range_groups rg ON rg.id = r.group_id
+		JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+		WHERE qr.section_id = $1
+		AND qr.round_ordinal = $2
+		AND r.range_ordinal = $3)`
+	err = conn.QueryRow(context.Background(), queryCheck, sectionId, round, changeRange.RangeOrdinal).Scan(&isRangeExist)
+	if err != nil {
+		fmt.Println(err) //
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	if !isRangeExist {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	var isRangeActive bool
+	var typeRange string
+	var rangeGroupId int
+	queryCheck = `SELECT r.is_active, rg.type, rg.id
+		FROM ranges r 
+		JOIN  range_groups rg ON rg.id = r.group_id
+		JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+		WHERE qr.section_id = $1
+		AND qr.round_ordinal = $2
+		AND r.range_ordinal = $3`
+	err = conn.QueryRow(context.Background(), queryCheck, sectionId, round, changeRange.RangeOrdinal).Scan(&isRangeActive, &typeRange, &rangeGroupId)
+
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		fmt.Println(err) //
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+		return
+	}
+
+	if role == "user" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+			return
+		}
+
+		var exist bool
+		queryCheck = `SELECT EXISTS (SELECT 1 FROM qualification_sections WHERE id = $1 AND competitor_id = $2)`
+		err = conn.QueryRow(context.Background(), queryCheck, sectionId, userID).Scan(&exist)
+		if err != nil {
+			fmt.Println(err) //
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		if !exist {
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "BAD ACTION"})
+			return
+		}
+
+		if err != nil {
+			fmt.Println(err) //
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		if !isRangeActive {
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "BAD ACTION"})
+			return
+		}
+		if typeRange == "6-10" {
+			for _, c := range changeRange.Shots {
+				if c.Score != "X" && c.Score != "M" && c.Score < "6" {
+					e := dto.ErrorInvalidType{
+						Error: "INVALID SCORE",
+						Details: dto.DetailsInvalidType{
+							ShotOrdinal: c.ShotNumber,
+							Type:        typeRange,
+						},
+					}
+					tools.WriteJSON(w, http.StatusBadRequest, e)
+					return
+				}
+			}
+		}
+	}
+	fmt.Println(changeRange)
+	err = editRanges(changeRange, sectionId, round)
+	if err != nil {
+		fmt.Println(err) //
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	var rg models.Range
+	rg.RangeNumber = changeRange.RangeOrdinal
+	query := `SELECT id, is_active FROM ranges WHERE group_id = $1 AND range_ordinal = $2`
+	err = conn.QueryRow(context.Background(), query, rangeGroupId, changeRange.RangeOrdinal).Scan(&rg.ID, &rg.IsOngoing)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	err = getShotsFromRange(&rg)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	rg.RangeScore, err = getRangeScore(rg.Shots)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	//TODO for admin к завершенной пересчитать места
+
+	tools.WriteJSON(w, http.StatusOK, rg)
+}
+
+func editRanges(changeRange dto.ChangeRange, sectionId int, round int) error {
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+
+	query := `UPDATE shots s
+			SET score = $1 
+			FROM ranges r 
+			JOIN range_groups rg ON rg.id = r.group_id
+			JOIN qualification_rounds qr ON rg.id = qr.range_group_id
+			WHERE s.range_id = r.id
+			AND s.shot_ordinal = $2
+			AND r.range_ordinal = $3
+			AND qr.section_id = $4
+			AND qr.round_ordinal = $5`
+	for _, s := range changeRange.Shots {
+		_, err = conn.Exec(context.Background(), query, s.Score, s.ShotNumber, changeRange.RangeOrdinal, sectionId, round)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
 }
