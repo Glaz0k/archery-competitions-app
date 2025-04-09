@@ -6,9 +6,8 @@ class User {
   final String city;
   final String email;
   final String club;
-  final String imagePath;
-  final bool isDarkMode;
-  const User({required this.name, required this.surname, required this.middleName, required this.phoneNumber, required this.city, required this.email, required this.club, required this.imagePath, required this.isDarkMode});
+  final bool isSettings;
+  const User({required this.name, required this.surname, required this.middleName, required this.phoneNumber, required this.city, required this.email, required this.club, required this.isSettings});
 }
 
 class UserPreferences {
@@ -19,7 +18,6 @@ class UserPreferences {
       city: "SPB",
       email: "faskl@mail.ru",
       club: "Polytech",
-      imagePath: "https://img.goodfon.ru/original/4266x3072/e/e6/zhivotnoe-kot-bolshie-glaza.jpg",
-      isDarkMode: false
+      isSettings: false
   );
 }

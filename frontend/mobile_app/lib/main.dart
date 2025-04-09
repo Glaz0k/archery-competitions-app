@@ -209,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
           body: ListView(
             physics: BouncingScrollPhysics(),
             children: [
-              ProfileWidget(imagePath: user.imagePath, onClicked: () async {}),
+              ProfileWidget(onClicked: () async {}),
               MyTextBox(text: user.name, sectionName: "Name"),
             ],)
         )
