@@ -10,8 +10,8 @@ type SparringPlace struct {
 }
 
 type Shot struct {
-	ShotNumber int    `json:"shot_ordinal"`
-	Score      string `json:"score"`
+	ShotOrdinal int    `json:"shot_ordinal"`
+	Score       string `json:"score"`
 }
 
 type ShotOut struct {

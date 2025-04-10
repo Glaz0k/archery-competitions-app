@@ -19,7 +19,7 @@ import (
 func EditCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	updateData := models.CompetitionUpdateData
@@ -68,7 +68,7 @@ func EditCompetition(w http.ResponseWriter, r *http.Request) {
 func EndCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -126,7 +126,7 @@ func EndCompetition(w http.ResponseWriter, r *http.Request) {
 func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -199,7 +199,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -285,12 +285,12 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 func EditCompetitorStatus(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	competitorID, err := tools.ParseParamToInt(r, "competitor_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -406,12 +406,12 @@ func EditCompetitorStatus(w http.ResponseWriter, r *http.Request) {
 func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	competitorID, err := tools.ParseParamToInt(r, "competitor_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -434,7 +434,7 @@ func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !registered {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -476,7 +476,7 @@ func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	competitionId, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -576,7 +576,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 func GetIndividualGroupsFromCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionId, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 

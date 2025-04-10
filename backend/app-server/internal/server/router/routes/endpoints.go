@@ -24,6 +24,7 @@ const (
 
 	GetQualificationSections           = "/api/qualification_sections/{id}"
 	QualificationSectionRangesEndpoint = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges"
+	EndRange                           = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges/{range_ordinal}/end"
 
 	QualificationTable = "/api/individual_groups/{group_id}/qualification"
 	SparringPlace      = "/api/sparring_places/{id}"

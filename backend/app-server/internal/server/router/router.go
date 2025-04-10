@@ -65,6 +65,7 @@ func Create() *mux.Router {
 	GetIndividualGroupsFromCompetitionRoutes(commonRouter)
 	GetQualificationSectionRangesRoutes(commonRouter)
 	EditQualificationSectionRangesRoutes(commonRouter)
+	EndRangeRoutes(commonRouter)
 
 	return router
 }
