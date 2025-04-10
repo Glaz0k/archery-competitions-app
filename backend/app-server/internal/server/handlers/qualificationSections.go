@@ -10,11 +10,13 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"strconv"
 	"sort"
+	"strconv"
 
 	"app-server/internal/models"
 	"app-server/pkg/tools"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func StartQualification(w http.ResponseWriter, r *http.Request) {
@@ -589,8 +591,15 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	fmt.Println(changeRange)
-	err = editRanges(changeRange, sectionId, round)
+
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer tx.Rollback(context.Background())
+
+	err = editRanges(tx, changeRange, sectionId, round)
 	if err != nil {
 		fmt.Println(err) //
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
@@ -600,7 +609,7 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 	var rg models.Range
 	rg.RangeNumber = changeRange.RangeOrdinal
 	query := `SELECT id, is_active FROM ranges WHERE group_id = $1 AND range_ordinal = $2`
-	err = conn.QueryRow(context.Background(), query, rangeGroupId, changeRange.RangeOrdinal).Scan(&rg.ID, &rg.IsOngoing)
+	err = tx.QueryRow(context.Background(), query, rangeGroupId, changeRange.RangeOrdinal).Scan(&rg.ID, &rg.IsOngoing)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
@@ -618,18 +627,23 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO for admin к завершенной пересчитать места
+	if !isRangeActive {
+		err = editCompetitorsPlaces(tx, sectionId)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
 
 	tools.WriteJSON(w, http.StatusOK, rg)
 }
 
-func editRanges(changeRange dto.ChangeRange, sectionId int, round int) error {
-	tx, err := conn.Begin(context.Background())
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(context.Background())
-
+func editRanges(tx pgx.Tx, changeRange dto.ChangeRange, sectionId int, round int) error {
 	query := `UPDATE shots s
 			SET score = $1 
 			FROM ranges r 
@@ -641,15 +655,72 @@ func editRanges(changeRange dto.ChangeRange, sectionId int, round int) error {
 			AND qr.section_id = $4
 			AND qr.round_ordinal = $5`
 	for _, s := range changeRange.Shots {
-		_, err = conn.Exec(context.Background(), query, s.Score, s.ShotNumber, changeRange.RangeOrdinal, sectionId, round)
+		_, err := tx.Exec(context.Background(), query, s.Score, s.ShotNumber, changeRange.RangeOrdinal, sectionId, round)
 		if err != nil {
 			return err
 		}
 	}
+	return nil
+}
 
-	err = tx.Commit(context.Background())
+func editCompetitorsPlaces(tx pgx.Tx, sectionId int) error {
+	type CompetitorResult struct {
+		ID    int
+		Total int
+		Tens  int
+		Nines int
+	}
+
+	var individualGroupId int
+	query := `SELECT group_id FROM qualification_sections WHERE id = $1`
+	err := tx.QueryRow(context.Background(), query, sectionId).Scan(&individualGroupId)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to get individual group id %v", err)
+	}
+
+	var competitors []CompetitorResult
+	rows, err := tx.Query(context.Background(), `
+        SELECT 
+            qs.competitor_id,
+            SUM(CASE WHEN s.score = 'X' THEN 10 WHEN s.score = 'M' THEN 0 ELSE CAST(s.score AS INTEGER) END) as total,
+            SUM(CASE WHEN s.score = 'X' THEN 1 WHEN s.score = '10' THEN 1 ELSE 0 END) as tens,
+            SUM(CASE WHEN s.score = '9' THEN 1 ELSE 0 END) as nines
+        FROM qualification_sections qs
+        JOIN qualification_rounds qr ON qr.section_id = qs.id
+        JOIN range_groups rg ON qr.range_group_id = rg.id
+        JOIN ranges r ON r.group_id = rg.id
+        JOIN shots s ON s.range_id = r.id
+        WHERE qs.group_id = $1
+        GROUP BY qs.competitor_id`, individualGroupId)
+	if err != nil {
+		return fmt.Errorf("unable to get competitor results: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cr CompetitorResult
+		if err := rows.Scan(&cr.ID, &cr.Total, &cr.Tens, &cr.Nines); err != nil {
+			return fmt.Errorf("unable to scan competitor result: %v", err)
+		}
+		competitors = append(competitors, cr)
+	}
+
+	sort.Slice(competitors, func(i, j int) bool {
+		if competitors[i].Total != competitors[j].Total {
+			return competitors[i].Total > competitors[j].Total
+		}
+		if competitors[i].Tens != competitors[j].Tens {
+			return competitors[i].Tens > competitors[j].Tens
+		}
+		return competitors[i].Nines > competitors[j].Nines
+	})
+
+	for place, competitor := range competitors {
+		_, err = tx.Exec(context.Background(), `UPDATE qualification_sections SET place = $1 WHERE group_id = $2 AND competitor_id = $3`,
+			place+1, individualGroupId, competitor.ID)
+		if err != nil {
+			return fmt.Errorf("unable to update competitor place: %v", err)
+		}
 	}
 	return nil
 }

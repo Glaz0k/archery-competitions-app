@@ -524,7 +524,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 
 	individualGroup.CompetitionID = competitionId
 	query := `INSERT INTO individual_groups (competition_id, bow, identity) VALUES ($1, $2, $3) RETURNING id, state`
-	err = conn.QueryRow(context.Background(), query, individualGroup.CompetitionID, individualGroup.Bow, individualGroup.Identity).Scan(&individualGroup.ID, &individualGroup.State)
+	err = tx.QueryRow(context.Background(), query, individualGroup.CompetitionID, individualGroup.Bow, individualGroup.Identity).Scan(&individualGroup.ID, &individualGroup.State)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
@@ -537,7 +537,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		AND ccd.is_active = $2
 		AND c.identity = $3
 		AND c.bow = $4`
-	rows, err := conn.Query(context.Background(), query, competitionId, true, individualGroup.Identity, individualGroup.Bow)
+	rows, err := tx.Query(context.Background(), query, competitionId, true, individualGroup.Identity, individualGroup.Bow)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
@@ -557,7 +557,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 
 	query = `INSERT INTO competitor_group_details (group_id, competitor_id) VALUES ($1, $2)`
 	for _, id = range competitorIDs {
-		_, err = conn.Exec(context.Background(), query, individualGroup.ID, id)
+		_, err = tx.Exec(context.Background(), query, individualGroup.ID, id)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 			return
