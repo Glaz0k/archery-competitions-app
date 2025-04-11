@@ -10,7 +10,7 @@ import {
 import { useForm } from "@mantine/form";
 
 export default function LoginPage() {
-  const form = useForm({
+  const loginForm = useForm({
     mode: "uncontrolled",
     initialValues: {
       username: "",
@@ -18,28 +18,28 @@ export default function LoginPage() {
     },
   });
 
-  const handleSubmit = function (values) {
-    console.log(values);
+  const handleLoginSubmit = (loginFormValues) => {
+    console.log(loginFormValues);
   };
 
   return (
     <Center style={{ height: "100vh" }}>
       <Paper shadow="md" radius="md">
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form onSubmit={loginForm.onSubmit(handleLoginSubmit)}>
           <Stack align="center" w={300}>
             <Title order={2}>ArcheryManager</Title>
             <TextInput
               label="Имя пользователя"
               placeholder="Username"
-              key={form.key("username")}
-              {...form.getInputProps("username")}
+              key={loginForm.key("username")}
+              {...loginForm.getInputProps("username")}
               w="100%"
             />
             <PasswordInput
               label="Пароль"
               placeholder="Password"
-              key={form.key("password")}
-              {...form.getInputProps("password")}
+              key={loginForm.key("password")}
+              {...loginForm.getInputProps("password")}
               w="100%"
             />
             <Button type="submit">Войти</Button>
