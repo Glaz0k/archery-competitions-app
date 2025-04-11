@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/page/widgets/User.dart';
 import 'package:mobile_app/page/widgets/appbar_widget.dart';
@@ -10,6 +11,7 @@ void main() {
 
 class Onion extends StatelessWidget {
   const Onion({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,6 +26,7 @@ class Onion extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
 
   @override
@@ -75,9 +78,9 @@ class AuthPage extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.grey
+        scaffoldBackgroundColor: Colors.grey,
       ),
-      home: LoginPage()
+      home: LoginPage(),
     );
   }
 }
@@ -90,7 +93,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
-
   final _sizeBlackText = const TextStyle(fontSize: 12, color: Colors.black);
   final _sizeWhiteText = const TextStyle(fontSize: 15, color: Colors.white);
 
@@ -125,10 +127,7 @@ class _LoginPage extends State<LoginPage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Вход'),
-        backgroundColor: Colors.green,
-      ),
+      appBar: AppBar(title: Text('Вход'), backgroundColor: Colors.green),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -142,10 +141,11 @@ class _LoginPage extends State<LoginPage> {
                   errorText: _submitted ? _errorText : null,
                   icon: const Icon(Icons.person),
                   hintText: 'адрес электронной почты',
-
                 ),
                 validator: (String? value) {
-                  return (value != null && !value.contains('@')) ? "Нужно использовать значок @" : null;
+                  return (value != null && !value.contains('@'))
+                      ? "Нужно использовать значок @"
+                      : null;
                 },
                 onChanged: null,
                 keyboardType: TextInputType.emailAddress,
@@ -157,37 +157,31 @@ class _LoginPage extends State<LoginPage> {
               padding: EdgeInsets.only(top: 10.0),
               child: TextFormField(
                 decoration: InputDecoration(
-                    labelText: "Password",
-                    hintText: 'пароль',
-                    icon: Icon(Icons.person)
+                  labelText: "Password",
+                  hintText: 'пароль',
+                  icon: Icon(Icons.person),
                 ),
                 obscureText: true,
                 style: _sizeBlackText,
               ),
             ),
             Padding(
-              padding:EdgeInsets.only(top: 25.0),
+              padding: EdgeInsets.only(top: 25.0),
               child: ElevatedButton(
-                  onPressed: null,
-                  style: ButtonStyle(
-                    minimumSize: WidgetStateProperty.all(const Size(200, 40)),
-                    backgroundColor: WidgetStateProperty.all(Colors.green),
-                    overlayColor: WidgetStateProperty.all(Colors.blueAccent)
-                  ),
-                  child: Text(
-                    "Войти",
-                    style: _sizeWhiteText,
-                  )
-
-
+                onPressed: null,
+                style: ButtonStyle(
+                  minimumSize: WidgetStateProperty.all(const Size(200, 40)),
+                  backgroundColor: WidgetStateProperty.all(Colors.green),
+                  overlayColor: WidgetStateProperty.all(Colors.blueAccent),
+                ),
+                child: Text("Войти", style: _sizeWhiteText),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
-  
 }
 
 class ProfilePage extends StatefulWidget {
@@ -198,21 +192,114 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final user = UserPreferences.myUser;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: Colors.green.shade300
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primaryColor: Colors.green.shade300),
+      home: Scaffold(
+        appBar: buildAppBar(context),
+        body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                SizedBox(height: 30,),
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.surname),
+                    leading: Icon(CupertinoIcons.person_alt, color: Colors.teal),
+                  ),
+                ),
+
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.name),
+                    leading: Icon(Icons.account_circle_sharp, color: Colors.teal),
+                  ),
+                ),
+
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.middleName),
+                    leading: Icon(Icons.account_circle_sharp, color: Colors.teal),
+                  ),
+                ),
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.email),
+                    leading: Icon(Icons.email, color: Colors.teal),
+                  ),
+                ),
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.phoneNumber),
+                    leading: Icon(Icons.phone, color: Colors.teal),
+                  ),
+                ),
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.city),
+                    leading: Icon(Icons.location_city, color: Colors.teal),
+                  ),
+                ),
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 25.0,
+                  ),
+                  child: ListTile(
+                    title: Text(user.club),
+                    leading: Icon(CupertinoIcons.sportscourt_fill, color: Colors.teal),
+                  ),
+                ),
+                ProfileWidget(onClicked: () async {}),
+                SizedBox(height: 30),
+                SizedBox(
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      side: BorderSide.none,
+                      shape: StadiumBorder(),
+                    ),
+                    child: const Text(
+                      "Редактировать",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        home: Scaffold(appBar: buildAppBar(context),
-          body: ListView(
-            physics: BouncingScrollPhysics(),
-            children: [
-              ProfileWidget(onClicked: () async {}),
-              MyTextBox(text: user.name, sectionName: "Name"),
-            ],)
-        )
+      ),
     );
   }
 }
@@ -225,8 +312,6 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePage extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
+    return Scaffold();
   }
 }

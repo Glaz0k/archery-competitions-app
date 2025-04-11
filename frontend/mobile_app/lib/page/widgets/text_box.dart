@@ -11,7 +11,6 @@ class MyTextBox extends StatelessWidget {
       child: Column(
         children: [
           Text(sectionName),
-
           Text(text)
         ],
       ),
