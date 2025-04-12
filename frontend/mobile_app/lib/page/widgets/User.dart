@@ -4,10 +4,9 @@ class User {
   final String middleName;
   final String phoneNumber;
   final String city;
-  final String email;
+  final String login;
   final String club;
-  final bool isSettings;
-  const User({required this.name, required this.surname, required this.middleName, required this.phoneNumber, required this.city, required this.email, required this.club, required this.isSettings});
+  const User({required this.name, required this.surname, required this.middleName, required this.phoneNumber, required this.city, required this.login, required this.club,});
 }
 
 class UserPreferences {
@@ -16,8 +15,7 @@ class UserPreferences {
       middleName: "God",
       phoneNumber: "321421",
       city: "SPB",
-      email: "faskl@mail.ru",
+      login: "login",
       club: "Polytech",
-      isSettings: false
   );
 }
