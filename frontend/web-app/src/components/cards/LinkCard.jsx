@@ -1,40 +1,28 @@
+import { IconFileTypePdf, IconInfoCircle, IconTrashX } from "@tabler/icons-react";
+import { Link } from "react-router";
 import {
   ActionIcon,
   Card,
   Group,
-  Stack,
+  rem,
   Skeleton,
+  Stack,
   ThemeIcon,
   Title,
   useMantineTheme,
-  rem,
 } from "@mantine/core";
-import {
-  IconInfoCircle,
-  IconTrashX,
-  IconFileTypePdf,
-} from "@tabler/icons-react";
-import { Link } from "react-router";
 
-export function LinkCard({
-  key,
-  title,
-  to,
-  tag = null,
-  onExport = null,
-  onDelete = null,
-  children,
-}) {
+export function LinkCard({ title, to, tag = null, onExport = null, onDelete = null, children }) {
   return (
-    <Card key={key}>
+    <Card>
       <Group>
         <ThemeIcon>
           <IconInfoCircle />
         </ThemeIcon>
         <Stack flex={1}>
-          <Link to={to}>
-            <Title order={3}>{title}</Title>
-          </Link>
+          <Title order={3}>
+            <Link to={to}>{title}</Link>
+          </Title>
           <Stack>{children}</Stack>
         </Stack>
         {tag}
@@ -54,7 +42,7 @@ export function LinkCard({
 }
 
 export function LinkCardSkeleton({
-  key,
+  isTagged = false,
   isExport = false,
   isDelete = false,
   children,
@@ -62,18 +50,20 @@ export function LinkCardSkeleton({
   const theme = useMantineTheme();
 
   const iconSize = 40;
+  const tagSize = {
+    width: 150,
+    height: 30,
+  };
 
   return (
-    <Card key={"skeleton-" + key}>
+    <Card>
       <Group>
         <Skeleton circle height={iconSize} />
         <Stack flex={1}>
-          <Skeleton
-            height={rem(theme.headings.sizes.h3.fontSize)}
-            width={200}
-          />
+          <Skeleton height={rem(theme.headings.sizes.h3.fontSize)} width={200} />
           <Stack>{children}</Stack>
         </Stack>
+        {isTagged && <Skeleton width={tagSize.width} height={tagSize.height} />}
         {isExport && <Skeleton circle height={iconSize} />}
         {isDelete && <Skeleton circle height={iconSize} />}
       </Group>

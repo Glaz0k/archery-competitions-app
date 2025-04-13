@@ -1,12 +1,4 @@
-import {
-  Button,
-  Center,
-  Paper,
-  PasswordInput,
-  Stack,
-  TextInput,
-  Title,
-} from "@mantine/core";
+import { Button, Center, Paper, PasswordInput, Stack, TextInput, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 export default function LoginPage() {

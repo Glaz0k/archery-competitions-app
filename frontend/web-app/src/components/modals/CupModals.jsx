@@ -1,4 +1,4 @@
-import { Modal, TextInput, Button, Stack, Text, Group } from "@mantine/core";
+import { Button, Modal, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 export function CupAddModal({
@@ -16,17 +16,20 @@ export function CupAddModal({
     },
   });
 
+  const actionsOnClose = () => {
+    cupForm.reset();
+    onClose();
+  };
+
+  const actionsOnSubmit = async (cupFormValues) => {
+    if (await handleSubmit(cupFormValues)) {
+      cupForm.reset();
+    }
+  };
+
   return (
-    <Modal
-      opened={opened}
-      onClose={() => {
-        cupForm.reset();
-        onClose();
-      }}
-      title="Новый кубок"
-      centered
-    >
-      <form onSubmit={cupForm.onSubmit(handleSubmit)}>
+    <Modal opened={opened} onClose={actionsOnClose} title="Новый кубок" centered>
+      <form onSubmit={cupForm.onSubmit(actionsOnSubmit)}>
         <TextInput
           withAsterisk
           label="Название"
@@ -38,11 +41,7 @@ export function CupAddModal({
           key={cupForm.key("address")}
           {...cupForm.getInputProps("address")}
         />
-        <TextInput
-          label="Сезон"
-          key={cupForm.key("season")}
-          {...cupForm.getInputProps("season")}
-        />
+        <TextInput label="Сезон" key={cupForm.key("season")} {...cupForm.getInputProps("season")} />
         <Button type="submit" loading={loading} loaderProps={{ type: "dots" }}>
           Добавить
         </Button>
@@ -58,25 +57,23 @@ export function CupDeleteModal({
   onConfirm = null,
   loading = false,
 }) {
+  const actionsOnClose = () => {
+    onDeny();
+    onClose();
+  };
+
+  const actionsOnConfirm = () => {
+    onConfirm();
+  };
+
   return (
-    <Modal
-      opened={opened}
-      onClose={() => {
-        onDeny();
-        onClose();
-      }}
-      title="Удаление кубка"
-      closeOnClickOutside={!loading}
-      closeOnEscape={!loading}
-      closeButtonProps={{ disabled: loading }}
-      centered
-    >
+    <Modal opened={opened} onClose={actionsOnClose} title="Удаление кубка" centered>
       <Stack align="end">
         <Text w="100%">
-          Вы уверены, что хотите удалить кубок. Вместе с кубком удалятся также
-          все связанные соревнования и группы.
+          Вы уверены, что хотите удалить кубок. Вместе с ним удалятся также все связанные
+          соревнования и группы.
         </Text>
-        <Button loading={loading} onClick={onConfirm}>
+        <Button loading={loading} onClick={actionsOnConfirm}>
           Удалить
         </Button>
       </Stack>

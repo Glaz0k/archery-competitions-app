@@ -1,25 +1,24 @@
+import { useEffect, useState } from "react";
+import { IconPlus, IconRefresh } from "@tabler/icons-react";
 import {
   ActionIcon,
-  Card,
+  CloseButton,
+  Flex,
   Group,
+  Pagination,
+  rem,
+  Skeleton,
   Stack,
+  Text,
   TextInput,
   Title,
   useMantineTheme,
-  Skeleton,
-  rem,
-  Pagination,
-  Text,
-  CloseButton,
-  Flex,
-  Center,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconRefresh, IconPlus } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
 import { deleteCup, getCups, postCup } from "../../api/cups";
-import { CupAddModal, CupDeleteModal } from "../modals/CupModals";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
+import EmptyCardSpace from "../misc/EmptyCardSpace";
+import { CupAddModal, CupDeleteModal } from "../modals/CupModals";
 
 export default function CupsPage() {
   const [cups, setCups] = useState([]);
@@ -66,17 +65,15 @@ export default function CupsPage() {
     return true;
   };
 
-  const removeCup = async (cupId) => {
+  const removeCup = async () => {
     try {
-      setCupDeletionId(cupId);
       setCupDeletion(true);
-      await deleteCup(cupId);
-      setCups(cups.filter((cup) => cup.id !== cupId));
+      await deleteCup(cupDeletionId);
+      setCups(cups.filter((cup) => cup.id !== cupDeletionId));
     } catch (err) {
       console.error(err);
       return false;
     } finally {
-      setCupDeletionId(null);
       setCupDeletion(false);
     }
     return true;
@@ -96,6 +93,7 @@ export default function CupsPage() {
   const handleCupSubmition = async (cupFormValues) => {
     if (await createCup(cupFormValues)) {
       setActivePage(1);
+      return true;
     }
   };
 
@@ -109,7 +107,7 @@ export default function CupsPage() {
   };
 
   const handleCupDeletion = async () => {
-    if (await removeCup(cupDeletionId)) {
+    if (await removeCup()) {
       setActivePage(1);
       delControl.close();
     }
@@ -184,22 +182,12 @@ export default function CupsPage() {
                 onDelete={() => confirmCupDeletion(cup.id)}
                 to={"/cups/" + cup.id}
               >
-                <Text>
-                  Адрес: {cup.address != null ? cup.address : "Не указан"}
-                </Text>
-                <Text>
-                  Сезон: {cup.season != null ? cup.season : "Не указан"}
-                </Text>
+                <Text>Адрес: {cup.address != null ? cup.address : "Не указан"}</Text>
+                <Text>Сезон: {cup.season != null ? cup.season : "Не указан"}</Text>
               </LinkCard>
             ))
           ) : (
-            <Center flex={1}>
-              <Card>
-                <Title align="center" order={1}>
-                  Кубки не найдены
-                </Title>
-              </Card>
-            </Center>
+            <EmptyCardSpace label="Кубки не найдены" />
           )}
         </Stack>
         <Pagination

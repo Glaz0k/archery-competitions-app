@@ -1,7 +1,30 @@
-const mockTime = 2000;
+import { parseISO } from "date-fns";
+import apiMock from "./mocks";
+
+export async function postCup({ title, address, season }) {
+  await apiMock();
+  const cup = {
+    id: Math.floor(Math.random() * 10000),
+    title: title,
+    address: address,
+    season: season,
+  };
+  return cup;
+}
+
+export async function getCup(cupId) {
+  await apiMock();
+  const cup = {
+    id: cupId,
+    title: "Стрелы парадокса",
+    address: 'г. Санкт-Петербург, ЛК "Парадокс Лучника"',
+    season: "2023/2024",
+  };
+  return { ...cup };
+}
 
 export async function getCups() {
-  await new Promise((res) => setTimeout(res, mockTime));
+  await apiMock();
   const data = [
     {
       id: 0,
@@ -127,30 +150,78 @@ export async function getCups() {
   return data.slice();
 }
 
-export async function postCup(addCupRequestBody) {
-  await new Promise((res) => setTimeout(res, mockTime));
-  if (addCupRequestBody.title == "") {
-    throw {
-      code: 400,
-      error: "INVALID PARAMETERS",
-    };
-  }
-  if (addCupRequestBody.address == "") {
-    addCupRequestBody.address = null;
-  }
-  if (addCupRequestBody.season == "") {
-    addCupRequestBody.season = null;
-  }
+export async function putCup({ id, title, address, season }) {
+  await apiMock();
   const cup = {
-    id: Math.floor(Math.random() * 10000),
-    title: addCupRequestBody.title,
-    address: addCupRequestBody.address,
-    season: addCupRequestBody.season,
+    id: id,
+    title: title,
+    address: address,
+    season: season,
   };
   return cup;
 }
 
-export async function deleteCup(_cupId) {
-  await new Promise((res) => setTimeout(res, mockTime));
+export async function deleteCup(cupId) {
+  console.log(cupId);
+  await apiMock();
   return true;
+}
+
+export async function postCompetition({ id, stage, startDate, endDate }) {
+  console.log(id);
+  await apiMock();
+  const competition = {
+    id: Math.floor(Math.random() * 10000),
+    stage: stage,
+    startDate: startDate,
+    endDate: endDate,
+    isEnded: false,
+  };
+  return competition;
+}
+
+export async function getCompetitions(cupId) {
+  console.log(cupId);
+  await apiMock(1.1);
+  const data = [
+    {
+      id: 0,
+      stage: "I",
+      start_date: "2025-05-15",
+      end_date: "2025-05-16",
+      is_ended: true,
+    },
+    {
+      id: 1,
+      stage: "II",
+      start_date: "2025-06-08",
+      end_date: null,
+      is_ended: true,
+    },
+    {
+      id: 2,
+      stage: "III",
+      start_date: null,
+      end_date: null,
+      is_ended: false,
+    },
+    {
+      id: 3,
+      stage: "F",
+      start_date: "2026-01-14",
+      end_date: "2025-10-01",
+      is_ended: false,
+    },
+  ];
+  return data.map(mapToCompetition);
+}
+
+function mapToCompetition({ id, stage, start_date, end_date, is_ended }) {
+  return {
+    id: id,
+    stage: stage,
+    startDate: start_date != null ? parseISO(start_date) : null,
+    endDate: end_date != null ? parseISO(end_date) : null,
+    isEnded: is_ended,
+  };
 }

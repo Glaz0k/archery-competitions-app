@@ -1,18 +1,36 @@
 import { StrictMode } from "react";
+import { setDefaultOptions } from "date-fns";
+import { ru } from "date-fns/locale";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { createTheme, MantineProvider } from "@mantine/core";
-import App from "./App.jsx";
-import "@mantine/core/styles.css";
+import { DatesProvider } from "@mantine/dates";
 
-const theme = createTheme();
+import "dayjs/locale/ru";
+
+import App from "./App.jsx";
+
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+
+const theme = createTheme({});
+
+setDefaultOptions({ locale: ru });
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <MantineProvider theme={theme}>
-        <App />
-      </MantineProvider>
+      <DatesProvider
+        settings={{
+          locale: "ru",
+          firstDayOfWeek: 0,
+          weekendDays: [0],
+        }}
+      >
+        <MantineProvider theme={theme}>
+          <App />
+        </MantineProvider>
+      </DatesProvider>
     </BrowserRouter>
   </StrictMode>
 );

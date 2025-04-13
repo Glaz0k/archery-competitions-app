@@ -1,16 +1,6 @@
-import { Link, Outlet } from "react-router";
-import {
-  AppShell,
-  Title,
-  Text,
-  Group,
-  Button,
-  ActionIcon,
-  Flex,
-  Box,
-  Stack,
-} from "@mantine/core";
 import { IconLogout } from "@tabler/icons-react";
+import { Link, Outlet } from "react-router";
+import { ActionIcon, AppShell, Box, Button, Flex, Group, Text, Title } from "@mantine/core";
 
 export default function ContentLayout() {
   return (
@@ -31,7 +21,7 @@ export default function ContentLayout() {
         </Group>
       </AppShell.Header>
       <AppShell.Main style={{ display: "flex", flexDirection: "column" }}>
-        <Box px={200} py={50} flex={1} display="flex" bg="gray">
+        <Box px={200} py={50} flex={1} display="flex" bg="gray" pos="relative">
           <Outlet />
         </Box>
         <Flex h={100} align="end" justify="center">

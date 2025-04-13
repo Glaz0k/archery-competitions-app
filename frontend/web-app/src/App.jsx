@@ -1,7 +1,8 @@
-import { Routes, Route } from "react-router";
-import LoginPage from "./components/pages/LoginPage";
+import { Route, Routes } from "react-router";
 import ContentLayout from "./components/pages/ContentLayout";
+import CupPage from "./components/pages/CupPage";
 import CupsPage from "./components/pages/CupsPage";
+import LoginPage from "./components/pages/LoginPage";
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Route path="login" element={<LoginPage />} />
       <Route element={<ContentLayout />}>
         <Route path="cups" element={<CupsPage />} />
+        <Route path="cups/:cupId" element={<CupPage />} />
       </Route>
     </Routes>
   );
