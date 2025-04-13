@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../model/series_model.dart';
 
@@ -9,7 +10,29 @@ class SeriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return Consumer<SeriesModel>(
+      builder:
+          (context, seriesModel, _) => Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: seriesModel.addNewSeries,
+            ),
+            body: ListView(
+              scrollDirection: Axis.vertical,
+              children: [
+                for (var (index, series) in seriesModel.seriesList.indexed)
+                  SeriesCard(
+                    name: Text("Серия ${index + 1}"),
+                    series: series,
+                    active: index + 1 == seriesModel.seriesList.length,
+                    onAdd: () => seriesModel.addToLast(index),
+                    onChange:
+                        (index, score) =>
+                            seriesModel.changeElementInLast(index, score),
+                  ),
+              ],
+            ),
+          ),
+    );
   }
 }
 
@@ -47,10 +70,13 @@ class _SeriesCardState extends State<SeriesCard> {
         var isSelected = index == _selected;
         var text = Text('$score');
         if (isSelected) {
-          return FilledButton(onPressed: () => _selectScore(null), child: text);
+          return FilledButton(
+            onPressed: widget.active ? () => _selectScore(null) : null,
+            child: text,
+          );
         } else {
           return FilledButton.tonal(
-            onPressed: () => _selectScore(index),
+            onPressed: widget.active ? () => _selectScore(index) : null,
             child: text,
           );
         }
@@ -61,13 +87,18 @@ class _SeriesCardState extends State<SeriesCard> {
     return Column(
       children: [
         ListView(scrollDirection: Axis.horizontal, children: body),
-        AnimatedContainer(duration: Duration(microseconds: 200),
-          child: selected != null? Slider(
-            value: widget.series.scores[selected].toDouble(),
-            divisions: 10,
-            onChanged: (score) => widget.onChange(selected, score.round()),
-          ) : SizedBox.shrink(),
-        )
+        AnimatedContainer(
+          duration: Duration(microseconds: 200),
+          child:
+              selected != null
+                  ? Slider(
+                    value: widget.series.scores[selected].toDouble(),
+                    divisions: 10,
+                    onChanged:
+                        (score) => widget.onChange(selected, score.round()),
+                  )
+                  : SizedBox.shrink(),
+        ),
       ],
     );
   }
