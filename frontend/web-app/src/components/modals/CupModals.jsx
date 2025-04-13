@@ -3,8 +3,8 @@ import { useForm } from "@mantine/form";
 
 export function CupAddModal({
   opened = false,
-  onClose = null,
-  handleSubmit = null,
+  onClose = () => {},
+  handleSubmit = (_cupFormValues) => true,
   loading = false,
 }) {
   const cupForm = useForm({
@@ -52,28 +52,18 @@ export function CupAddModal({
 
 export function CupDeleteModal({
   opened = false,
-  onClose = null,
-  onDeny = null,
-  onConfirm = null,
+  onClose = () => {},
+  onConfirm = () => {},
   loading = false,
 }) {
-  const actionsOnClose = () => {
-    onDeny();
-    onClose();
-  };
-
-  const actionsOnConfirm = () => {
-    onConfirm();
-  };
-
   return (
-    <Modal opened={opened} onClose={actionsOnClose} title="Удаление кубка" centered>
+    <Modal opened={opened} onClose={onClose} title="Удаление кубка" centered>
       <Stack align="end">
         <Text w="100%">
           Вы уверены, что хотите удалить кубок. Вместе с ним удалятся также все связанные
           соревнования и группы.
         </Text>
-        <Button loading={loading} onClick={actionsOnConfirm}>
+        <Button loading={loading} onClick={onConfirm}>
           Удалить
         </Button>
       </Stack>

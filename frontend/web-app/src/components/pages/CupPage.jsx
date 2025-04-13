@@ -5,6 +5,7 @@ import {
   IconEdit,
   IconPlus,
   IconRefresh,
+  IconTrashX,
   IconX,
 } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router";
@@ -24,11 +25,12 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
-import { getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
+import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { formatCompetitionDateRange, stageToTitle } from "../../helper/competitons";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
 import { CompetitionAddModal, CompetitionDeleteModal } from "../modals/CompetitionModals";
+import { CupDeleteModal } from "../modals/CupModals";
 
 export default function CupPage() {
   const { cupId } = useParams();
@@ -50,6 +52,9 @@ export default function CupPage() {
     season: null,
   });
   const [isEditedCupSubmitting, setEditedCupSubmitting] = useState(false);
+
+  const [isOpenedCupDel, cupDelControl] = useDisclosure(false);
+  const [cupDeletion, setCupDeletion] = useState(false);
 
   const [competitions, setCompetitions] = useState([]);
   const [competitionsLoading, setCompetitionsLoading] = useState(true);
@@ -84,6 +89,19 @@ export default function CupPage() {
       setEditedCupSubmitting(false);
     }
     return true;
+  };
+
+  const removeCup = async () => {
+    try {
+      setCupDeletion(true);
+      await deleteCup(cupId);
+      navigate("/cups");
+    } catch (err) {
+      console.error(err);
+      return false;
+    } finally {
+      setCupDeletion(false);
+    }
   };
 
   const readCompetitions = async (cupId) => {
@@ -153,8 +171,9 @@ export default function CupPage() {
     competitionDelControl.open();
   };
 
-  const denyCompetitionDeletion = () => {
+  const closeCompetitionDeletion = () => {
     setCompetitionDeletionId(null);
+    competitionDelControl.close();
   };
 
   const handleCompetitionSubmission = async ({ stage, startDate, endDate }) => {
@@ -177,6 +196,12 @@ export default function CupPage() {
     }
   };
 
+  const handleCupDeletion = async () => {
+    if (await removeCup()) {
+      cupDelControl.close();
+    }
+  };
+
   useEffect(() => {
     readCup(cupId);
     readCompetitions(cupId);
@@ -188,8 +213,7 @@ export default function CupPage() {
     <>
       <CompetitionDeleteModal
         opened={isOpenedCompetitionDel}
-        onClose={competitionDelControl.close}
-        onDeny={denyCompetitionDeletion}
+        onClose={closeCompetitionDeletion}
         onConfirm={handleCompetitionDeletion}
         loading={competitionDeletion}
       />
@@ -199,6 +223,13 @@ export default function CupPage() {
         onClose={competitionAddControl.close}
         handleSubmit={handleCompetitionSubmission}
         loading={competitionSubmission}
+      />
+
+      <CupDeleteModal
+        opened={isOpenedCupDel}
+        onClose={cupDelControl.close}
+        onConfirm={handleCupDeletion}
+        loading={cupDeletion}
       />
 
       <LoadingOverlay visible={cupLoading} />
@@ -231,22 +262,27 @@ export default function CupPage() {
               value={isCupEditing ? editedCup.season : cup.season}
               onChange={(e) => setEditedCup({ ...editedCup, season: e.currentTarget.value })}
             />
-            <Group>
-              {!isCupEditing && (
-                <ActionIcon onClick={handleCupEditing}>
-                  <IconEdit />
-                </ActionIcon>
-              )}
-              {isCupEditing && (
-                <>
-                  <ActionIcon onClick={handleCupEditingSubmit}>
-                    <IconCheck />
+            <Group w="100%">
+              <Group flex={1}>
+                {!isCupEditing && (
+                  <ActionIcon onClick={handleCupEditing}>
+                    <IconEdit />
                   </ActionIcon>
-                  <ActionIcon onClick={() => setCupEditing(false)}>
-                    <IconX />
-                  </ActionIcon>
-                </>
-              )}
+                )}
+                {isCupEditing && (
+                  <>
+                    <ActionIcon onClick={handleCupEditingSubmit}>
+                      <IconCheck />
+                    </ActionIcon>
+                    <ActionIcon onClick={() => setCupEditing(false)}>
+                      <IconX />
+                    </ActionIcon>
+                  </>
+                )}
+              </Group>
+              <ActionIcon onClick={cupDelControl.open}>
+                <IconTrashX />
+              </ActionIcon>
             </Group>
           </Stack>
           <Stack flex={1}>
@@ -270,22 +306,18 @@ export default function CupPage() {
                   </LinkCardSkeleton>
                 ))
             ) : competitions.length > 0 ? (
-              competitions.map((competition, index) => (
+              competitions.map(({ id, stage, startDate, endDate, isEnded }, index) => (
                 <LinkCard
                   key={index}
-                  title={stageToTitle(competition.stage)}
-                  to={"/competitions/" + competition.id}
-                  tag={
-                    competition.is_ended ? (
-                      <Badge leftSection={<IconCheck />}>Завершено</Badge>
-                    ) : null
-                  }
-                  onExport={competition.is_ended ? handleExport : null}
+                  title={stageToTitle(stage)}
+                  to={"/competitions/" + id}
+                  tag={isEnded ? <Badge leftSection={<IconCheck />}>Завершено</Badge> : null}
+                  onExport={isEnded ? handleExport : null}
                   onDelete={() => {
-                    confirmCompetitionDeletion(competition.id);
+                    confirmCompetitionDeletion(id);
                   }}
                 >
-                  <Text>{formatCompetitionDateRange(competition)}</Text>
+                  <Text>{formatCompetitionDateRange({ startDate, endDate })}</Text>
                 </LinkCard>
               ))
             ) : (

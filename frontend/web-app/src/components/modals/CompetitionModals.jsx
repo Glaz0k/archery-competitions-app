@@ -4,7 +4,12 @@ import { useForm } from "@mantine/form";
 import Stage from "../../enums/stage";
 import { stageToTitle } from "../../helper/competitons";
 
-export function CompetitionAddModal({ opened = false, onClose, handleSubmit, loading = false }) {
+export function CompetitionAddModal({
+  opened = false,
+  onClose = () => {},
+  handleSubmit = (_competitionFormValues) => true,
+  loading = false,
+}) {
   const competitionForm = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -61,28 +66,18 @@ export function CompetitionAddModal({ opened = false, onClose, handleSubmit, loa
 
 export function CompetitionDeleteModal({
   opened = false,
-  onClose,
-  onDeny,
-  onConfirm,
+  onClose = () => {},
+  onConfirm = () => {},
   loading = false,
 }) {
-  const actionsOnClose = () => {
-    onDeny();
-    onClose();
-  };
-
-  const actionsOnSubmit = () => {
-    onConfirm();
-  };
-
   return (
-    <Modal opened={opened} onClose={actionsOnClose} title="Удаление соревнования" centered>
+    <Modal opened={opened} onClose={onClose} title="Удаление соревнования" centered>
       <Stack align="end">
         <Text w="100%">
           Вы уверены, что хотите удалить соревнование. Вместе с ним удалятся также все связанные
           группы.
         </Text>
-        <Button loading={loading} onClick={actionsOnSubmit}>
+        <Button loading={loading} onClick={onConfirm}>
           Удалить
         </Button>
       </Stack>
