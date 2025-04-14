@@ -26,7 +26,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
-import { formatCompetitionDateRange, stageToTitle } from "../../helper/competitons";
+import { formatCompetitionDateRange } from "../../helper/competitons";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
 import { CompetitionAddModal, CompetitionDeleteModal } from "../modals/CompetitionModals";
@@ -245,9 +245,16 @@ export default function CupPage() {
             >
               Назад
             </Button>
-            <Title order={2} contentEditable={isCupEditing}>
-              {isCupEditing ? editedCup.title : cup.title}
-            </Title>
+            {isCupEditing ? (
+              <TextInput
+                w="100%"
+                label="Название"
+                value={editedCup.title}
+                onChange={(e) => setEditedCup({ ...editedCup, title: e.currentTarget.value })}
+              />
+            ) : (
+              <Title order={2}>{cup.title}</Title>
+            )}
             <TextInput
               w="100%"
               disabled={!isCupEditing}
@@ -264,12 +271,11 @@ export default function CupPage() {
             />
             <Group w="100%">
               <Group flex={1}>
-                {!isCupEditing && (
+                {!isCupEditing ? (
                   <ActionIcon onClick={handleCupEditing}>
                     <IconEdit />
                   </ActionIcon>
-                )}
-                {isCupEditing && (
+                ) : (
                   <>
                     <ActionIcon onClick={handleCupEditingSubmit}>
                       <IconCheck />
@@ -309,8 +315,8 @@ export default function CupPage() {
               competitions.map(({ id, stage, startDate, endDate, isEnded }, index) => (
                 <LinkCard
                   key={index}
-                  title={stageToTitle(stage)}
-                  to={"/competitions/" + id}
+                  title={stage.textValue}
+                  to={"/cups/" + cupId + "/competitions/" + id}
                   tag={isEnded ? <Badge leftSection={<IconCheck />}>Завершено</Badge> : null}
                   onExport={isEnded ? handleExport : null}
                   onDelete={() => {

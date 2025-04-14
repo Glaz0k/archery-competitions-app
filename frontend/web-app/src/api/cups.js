@@ -1,4 +1,5 @@
 import { parseISO } from "date-fns";
+import CompetitionStage from "../enums/CompetitionStage";
 import apiMock from "./mocks";
 
 export async function postCup({ title, address, season }) {
@@ -12,15 +13,15 @@ export async function postCup({ title, address, season }) {
   return cup;
 }
 
-export async function getCup(cupId) {
+export async function getCup(id) {
   await apiMock();
   const cup = {
-    id: cupId,
+    id: id,
     title: "Стрелы парадокса",
     address: 'г. Санкт-Петербург, ЛК "Парадокс Лучника"',
     season: "2023/2024",
   };
-  return { ...cup };
+  return cup;
 }
 
 export async function getCups() {
@@ -147,7 +148,16 @@ export async function getCups() {
       season: null,
     },
   ];
-  return data.slice();
+  return data.map(mapToCup);
+}
+
+function mapToCup({ id, title, address, season }) {
+  return {
+    id: Number(id),
+    title: String(title),
+    address: String(address),
+    season: String(season),
+  };
 }
 
 export async function putCup({ id, title, address, season }) {
@@ -161,8 +171,8 @@ export async function putCup({ id, title, address, season }) {
   return cup;
 }
 
-export async function deleteCup(cupId) {
-  console.log(cupId);
+export async function deleteCup(id) {
+  console.log(id);
   await apiMock();
   return true;
 }
@@ -180,8 +190,8 @@ export async function postCompetition({ id, stage, startDate, endDate }) {
   return competition;
 }
 
-export async function getCompetitions(cupId) {
-  console.log(cupId);
+export async function getCompetitions(id) {
+  console.log(id);
   await apiMock(1.1);
   const data = [
     {
@@ -218,10 +228,10 @@ export async function getCompetitions(cupId) {
 
 function mapToCompetition({ id, stage, start_date, end_date, is_ended }) {
   return {
-    id: id,
-    stage: stage,
+    id: Number(id),
+    stage: CompetitionStage.valueOf(stage),
     startDate: start_date != null ? parseISO(start_date) : null,
     endDate: end_date != null ? parseISO(end_date) : null,
-    isEnded: is_ended,
+    isEnded: Boolean(is_ended),
   };
 }

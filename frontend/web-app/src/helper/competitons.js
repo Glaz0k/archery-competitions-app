@@ -1,23 +1,4 @@
 import { format } from "date-fns";
-import Stage from "../enums/stage";
-
-export function stageToTitle(stage) {
-  let title = "Error";
-  switch (stage) {
-    case Stage.STAGE_1:
-    case Stage.STAGE_2:
-    case Stage.STAGE_3:
-      title = stage + " этап";
-      break;
-    case Stage.FINAL:
-      title = "Финал";
-      break;
-    default: {
-      console.error("Cannot convert stage :" + stage + " to title");
-    }
-  }
-  return title;
-}
 
 export function formatCompetitionDateRange({ startDate, endDate }) {
   if (startDate === null && endDate === null) {

@@ -1,8 +1,7 @@
 import { Button, Modal, NativeSelect, Stack, Text } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
-import Stage from "../../enums/stage";
-import { stageToTitle } from "../../helper/competitons";
+import CompetitionStage from "../../enums/CompetitionStage";
 
 export function CompetitionAddModal({
   opened = false,
@@ -10,10 +9,12 @@ export function CompetitionAddModal({
   handleSubmit = (_competitionFormValues) => true,
   loading = false,
 }) {
+  console.log(Object.values(CompetitionStage).length);
+
   const competitionForm = useForm({
     mode: "uncontrolled",
     initialValues: {
-      stage: Stage.STAGE_1,
+      stage: CompetitionStage.STAGE_1,
       startDate: null,
       endDate: null,
     },
@@ -35,12 +36,12 @@ export function CompetitionAddModal({
       <form onSubmit={competitionForm.onSubmit(actionsOnSubmit)}>
         <NativeSelect
           label="Этап"
-          data={[
-            { label: stageToTitle(Stage.STAGE_1), value: Stage.STAGE_1 },
-            { label: stageToTitle(Stage.STAGE_2), value: Stage.STAGE_2 },
-            { label: stageToTitle(Stage.STAGE_3), value: Stage.STAGE_3 },
-            { label: stageToTitle(Stage.FINAL), value: Stage.FINAL },
-          ]}
+          data={Object.values(CompetitionStage).map((stage) => {
+            return {
+              label: stage.textValue,
+              value: stage.value,
+            };
+          })}
           key={competitionForm.key("stage")}
           {...competitionForm.getInputProps("stage")}
         />
