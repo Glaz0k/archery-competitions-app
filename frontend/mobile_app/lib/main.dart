@@ -7,7 +7,7 @@ import 'package:mobile_app/page/widgets/profile_widget.dart';
 import 'package:mobile_app/page/widgets/text_box.dart';
 
 void main() {
-  runApp(const EditProfilePage());
+  runApp(const AuthPage());
 }
 
 class AuthPage extends StatelessWidget {
@@ -17,10 +17,15 @@ class AuthPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/profile_page': (context) => ProfilePage(),
+        '/edit_profile_page': (context) => EditProfilePage(),
+      },
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: LoginPage(),
     );
   }
 }
@@ -29,7 +34,7 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPage createState() => _LoginPage();
+  State<LoginPage> createState() => _LoginPage();
 }
 
 class _LoginPage extends State<LoginPage> {
@@ -44,7 +49,6 @@ class _LoginPage extends State<LoginPage> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
     myController.dispose();
     super.dispose();
   }
@@ -109,7 +113,9 @@ class _LoginPage extends State<LoginPage> {
                 Padding(
                   padding: EdgeInsets.only(top: 25.0),
                   child: ElevatedButton(
-                    onPressed: null,
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/profile_page');
+                    },
                     style: ButtonStyle(
                       minimumSize: WidgetStateProperty.all(const Size(200, 40)),
                       backgroundColor: WidgetStateProperty.all(Colors.green),
@@ -131,7 +137,7 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
@@ -139,19 +145,21 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Colors.green.shade300),
-      home: Scaffold(
-        appBar: buildAppBar(context),
-        body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              children: [
+    return KeyboardDismisser(
+      gestures: [
+        GestureType.onTap
+      ],
+      child: GestureDetector(
+        child: Scaffold(
+          appBar: buildAppBar(context),
+          body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
 
-                    Card(
+                  Card(
                     margin: EdgeInsets.symmetric(
                       vertical: 10.0,
                       horizontal: 25.0,
@@ -163,90 +171,93 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
 
-                Card(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
+                  Card(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
+                    ),
+                    child: ListTile(
+                      title: Text("Имя"),
+                      subtitle: Text(user.name),
+                      leading: Icon(Icons.account_circle_sharp, color: Colors.teal),
+                    ),
                   ),
-                  child: ListTile(
-                    title: Text("Имя"),
-                    subtitle: Text(user.name),
-                    leading: Icon(Icons.account_circle_sharp, color: Colors.teal),
-                  ),
-                ),
 
-                Card(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  child: ListTile(
-                    title: Text("Отчество"),
-                    subtitle: Text(user.middleName),
-                    leading: Icon(Icons.account_circle_sharp, color: Colors.teal),
-                  ),
-                ),
-                Card(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  child: ListTile(
-                    title: Text("Логин"),
-                    subtitle: Text(user.login),
-                    leading: Icon(Icons.login_sharp, color: Colors.teal),
-                  ),
-                ),
-                Card(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  child: ListTile(
-                    title: Text("Номер телефона"),
-                    subtitle: Text(user.phoneNumber),
-                    leading: Icon(Icons.phone, color: Colors.teal),
-                  ),
-                ),
-                Card(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  child: ListTile(
-                    title: Text("Город"),
-                    subtitle: Text(user.city),
-                    leading: Icon(Icons.location_city, color: Colors.teal),
-                  ),
-                ),
-                Card(
-                  margin: EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 25.0,
-                  ),
-                  child: ListTile(
-                    title: Text("Клуб"),
-                    subtitle: Text(user.club),
-                    leading: Icon(CupertinoIcons.sportscourt_fill, color: Colors.teal),
-                  ),
-                ),
-                ProfileWidget(onClicked: () async {}),
-                SizedBox(height: 30),
-                SizedBox(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      side: BorderSide.none,
-                      shape: StadiumBorder(),
+                  Card(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
                     ),
-                    child: const Text(
-                      "Редактировать",
-                      style: TextStyle(color: Colors.white),
+                    child: ListTile(
+                      title: Text("Отчество"),
+                      subtitle: Text(user.middleName),
+                      leading: Icon(Icons.account_circle_sharp, color: Colors.teal),
                     ),
                   ),
-                ),
-              ],
+                  Card(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
+                    ),
+                    child: ListTile(
+                      title: Text("Логин"),
+                      subtitle: Text(user.login),
+                      leading: Icon(Icons.login_sharp, color: Colors.teal),
+                    ),
+                  ),
+                  Card(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
+                    ),
+                    child: ListTile(
+                      title: Text("Номер телефона"),
+                      subtitle: Text(user.phoneNumber),
+                      leading: Icon(Icons.phone, color: Colors.teal),
+                    ),
+                  ),
+                  Card(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
+                    ),
+                    child: ListTile(
+                      title: Text("Город"),
+                      subtitle: Text(user.city),
+                      leading: Icon(Icons.location_city, color: Colors.teal),
+                    ),
+                  ),
+                  Card(
+                    margin: EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 25.0,
+                    ),
+                    child: ListTile(
+                      title: Text("Клуб"),
+                      subtitle: Text(user.club),
+                      leading: Icon(CupertinoIcons.sportscourt_fill, color: Colors.teal),
+                    ),
+                  ),
+                  ProfileWidget(onClicked: () async {}),
+                  SizedBox(height: 30),
+                  SizedBox(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/edit_profile_page', arguments: user);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        side: BorderSide.none,
+                        shape: StadiumBorder(),
+                      ),
+                      child: const Text(
+                        "Редактировать",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -259,29 +270,47 @@ class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _EditProfilePage();
+  State<EditProfilePage> createState() => _EditProfilePage();
 }
 
 class _EditProfilePage extends State<EditProfilePage> {
-  final loginController = TextEditingController();
-  final numberController = TextEditingController();
+  var loginController = TextEditingController();
+  var nameController = TextEditingController();
+  var surnameController = TextEditingController();
+  var middleNameController = TextEditingController();
+  var numberController = TextEditingController();
+  var user = UserPreferences.myUser;
 
   @override
   void initState() {
     super.initState();
-    loginController.addListener(() => setState(() {}));
+    loginController.text = user.login;
+    numberController.text = user.phoneNumber;
+    nameController.text = user.name;
+    surnameController.text = user.surname;
+    middleNameController.text = user.middleName;
+  }
+
+  @override
+  void dispose() {
+    loginController.dispose();
+    numberController.dispose();
+    nameController.dispose();
+    surnameController.dispose();
+    middleNameController.dispose();
+    super.dispose();
   }
 
   Widget buildNumber() {
     return TextFormField(
           controller: numberController,
           maxLength: 12,
-          validator: (val) {
-            if(numberController.text.length < 11) {
-              return "Введите корректный номер телефона";
-            }
-            return null;
-          },
+          // validator: (val) {
+          //   if(numberController.text.length < 11) {
+          //     return "Введите корректный номер телефона";
+          //   }
+          //   return null;
+          // },
           decoration: InputDecoration(
               label: Text("Номер телефона", style: TextStyle(color: Colors.green),),
               hintText: "Введите номер телефона",
@@ -308,6 +337,7 @@ class _EditProfilePage extends State<EditProfilePage> {
     return TextFormField(
       controller: loginController,
       decoration: InputDecoration(
+
           label: Text("Логин", style: TextStyle(),),
           prefixIcon: Icon(Icons.login_sharp),
           suffixIcon: loginController.text.isEmpty ? Container(width: 1,) : IconButton(onPressed: () => loginController.clear(), icon: Icon(Icons.clear)),
@@ -320,7 +350,17 @@ class _EditProfilePage extends State<EditProfilePage> {
   }
 
   Widget buildFIO(String str) {
+    TextEditingController controller;
+
+    if (str == "Фамилия") {
+      controller = surnameController;
+    } else if (str == "Имя") {
+      controller = nameController;
+    } else {
+      controller = middleNameController;
+    }
     return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
           label: Text(str, style: TextStyle(),),
           prefixIcon: Icon(Icons.person),
@@ -333,48 +373,60 @@ class _EditProfilePage extends State<EditProfilePage> {
   }
 
   Widget buildEditProfilePage(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(brightness: Brightness.light),
-      //darkTheme: ThemeData(brightness: Brightness.dark),
-      //themeMode: ThemeMode.system,
-      debugShowCheckedModeBanner: false,
-      home: KeyboardDismisser(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Редактирование профиля", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
+        centerTitle: true,
+      ),
+      body: KeyboardDismisser(
         gestures: [
-          GestureType.onTap,
+          GestureType.onTap
         ],
         child: GestureDetector(
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text("Редактирование профиля", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
-              centerTitle: true,
-
-
-            ),
-            body: SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Form(child: Column(
-                        children: [
-                          buildFIO("Фамилия"),
-                          SizedBox(height: 7,),
-                          buildFIO("Имя"),
-                          SizedBox(height: 7,),
-                          buildFIO("Отчество"),
-                          SizedBox(height: 7,),
-                          buildLogin(),
-                          SizedBox(height: 7,),
-                          buildNumber(),
-                        ],
-                      )
-                      ),
-                    )
-
-                  ],
-                ),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        buildFIO("Фамилия"),
+                        SizedBox(height: 7,),
+                        buildFIO("Имя"),
+                        SizedBox(height: 7,),
+                        buildFIO("Отчество"),
+                        SizedBox(height: 7,),
+                        buildLogin(),
+                        SizedBox(height: 7,),
+                        buildNumber(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(onPressed: () {
+                              Navigator.pushNamed(context, "/profile_page");
+                            },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                side: BorderSide.none,
+                                shape: StadiumBorder(),
+                              ), child: const Text("Отменить", style: TextStyle(color: Colors.white)),
+                            ),
+                            ElevatedButton(onPressed: () {
+                            },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                side: BorderSide.none,
+                                shape: StadiumBorder(),
+                              ), child: const Text("Сохранить", style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
           ),
@@ -382,5 +434,4 @@ class _EditProfilePage extends State<EditProfilePage> {
       )
     );
   }
-
 }

@@ -13,7 +13,7 @@ class UserPreferences {
   static const myUser = User(name: "Danil",
       surname: "Novo",
       middleName: "God",
-      phoneNumber: "321421",
+      phoneNumber: "+79242607282",
       city: "SPB",
       login: "login",
       club: "Polytech",
