@@ -13,6 +13,8 @@ import App from "./App.jsx";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 const theme = createTheme({
   components: {
     DatePickerInput: {
@@ -23,22 +25,26 @@ const theme = createTheme({
   },
 });
 
+const queryClient = new QueryClient();
+
 setDefaultOptions({ locale: ru });
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <DatesProvider
-        settings={{
-          locale: "ru",
-          firstDayOfWeek: 1,
-          weekendDays: [0, 6],
-        }}
-      >
-        <MantineProvider theme={theme}>
-          <App />
-        </MantineProvider>
-      </DatesProvider>
+      <QueryClientProvider client={queryClient}>
+        <DatesProvider
+          settings={{
+            locale: "ru",
+            firstDayOfWeek: 1,
+            weekendDays: [0, 6],
+          }}
+        >
+          <MantineProvider theme={theme}>
+            <App />
+          </MantineProvider>
+        </DatesProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>
 );

@@ -154,9 +154,9 @@ export async function getCups() {
 function mapToCup({ id, title, address, season }) {
   return {
     id: Number(id),
-    title: String(title),
-    address: String(address),
-    season: String(season),
+    title: title,
+    address: address,
+    season: season,
   };
 }
 

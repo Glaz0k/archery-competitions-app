@@ -30,7 +30,7 @@ import { formatCompetitionDateRange } from "../../helper/competitons";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
 import { CompetitionAddModal, CompetitionDeleteModal } from "../modals/CompetitionModals";
-import { CupDeleteModal } from "../modals/CupModals";
+import { CupDeleteModal } from "../modals/DeleteCupModal";
 
 export default function CupPage() {
   const { cupId } = useParams();
