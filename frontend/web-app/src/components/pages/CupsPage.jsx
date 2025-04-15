@@ -112,16 +112,13 @@ export default function CupsPage() {
       />
 
       <Flex direction="column" flex={1}>
-        <MainBar title={"Кубки"} onAdd={addControl.open}>
+        <MainBar title={"Кубки"} onRefresh={handleRefresh} onAdd={addControl.open}>
           <TextInput
             placeholder="Название"
             value={searchTerm}
             onChange={(e) => handleSearch(e.currentTarget.value)}
             rightSection={<CloseButton onClick={() => handleSearch("")} />}
           />
-          <ActionIcon onClick={handleRefresh}>
-            <IconRefresh />
-          </ActionIcon>
         </MainBar>
         <Stack flex={1}>
           {isCupsLoading ? (

@@ -117,11 +117,11 @@ export default function GroupsContent() {
         isLoading={isGroupDeleting}
       />
       <Stack flex={1} h="100%">
-        <MainBar title={"Индивидуальные группы"} onAdd={groupAddControl.open}>
-          <ActionIcon onClick={refetchGroups}>
-            <IconRefresh />
-          </ActionIcon>
-        </MainBar>
+        <MainBar
+          title={"Индивидуальные группы"}
+          onRefresh={refetchGroups}
+          onAdd={groupAddControl.open}
+        ></MainBar>
         <Stack flex={1}>
           {isGroupsLoading ? (
             Array(SKELETON_LENGTH)

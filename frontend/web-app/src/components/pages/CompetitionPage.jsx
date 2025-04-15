@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
-import { Link, Outlet, useNavigate, useParams } from "react-router";
+import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { Button, Group, LoadingOverlay, NativeSelect, Stack, Text, Title } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
@@ -44,7 +44,7 @@ export default function CompetitionPage() {
 
   const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
 
-  const [isMainPage, setMainPage] = useState(true);
+  const isCompetitorsPage = useLocation().pathname.endsWith("/competitors");
   const [individualGroupFilter, setIndividualGroupFilter] = useState({
     bow: "default",
     identity: "default",
@@ -109,15 +109,18 @@ export default function CompetitionPage() {
   useEffect(() => {
     let title = "ArcheryManager - ";
     if (cup && competition) {
-      title += cup.title + "/" + competition.stage.textValue;
+      title += cup.title + " | " + competition.stage.textValue;
       if (competition.isEnded) {
         title += " - Завершён";
+      }
+      if (isCompetitorsPage) {
+        title += " | Участники";
       }
     } else {
       title += "Кубок";
     }
     setWebTitle(title);
-  }, [cup, competition]);
+  }, [cup, competition, isCompetitorsPage]);
 
   if (cup == null || competition == null) {
     return <LoadingOverlay visible={true} />;
@@ -133,7 +136,7 @@ export default function CompetitionPage() {
       />
 
       <LoadingOverlay visible={isMainInfoLoading} />
-      <Group align="start" flex={1}>
+      <Group align="start" display="flex" flex={1}>
         <Stack>
           <MainCard
             onBack={() => navigate("../")}
@@ -163,7 +166,7 @@ export default function CompetitionPage() {
               onChange={(date) => setEditedCompetition({ ...editedCompetition, endDate: date })}
             />
           </MainCard>
-          {isMainPage && (
+          {!isCompetitorsPage && (
             <Stack w={300} align="start" pos="relative">
               <NativeSelect
                 w="100%"
@@ -213,13 +216,20 @@ export default function CompetitionPage() {
             </Stack>
           )}
           <Stack w={300} align="start" pos="relative">
-            {isMainPage ? (
+            {isCompetitorsPage ? (
+              <Button
+                w="100%"
+                component={Link}
+                to={"/cups/" + cupId + "/competitions/" + competitionId}
+              >
+                {"Список индивидульных групп"}
+              </Button>
+            ) : (
               <>
                 <Button
                   w="100%"
                   component={Link}
                   to={"/cups/" + cupId + "/competitions/" + competitionId + "/competitors"}
-                  onClick={() => setMainPage(false)}
                 >
                   {"Таблица участников"}
                 </Button>
@@ -232,15 +242,6 @@ export default function CompetitionPage() {
                   {"Завершить"}
                 </Button>
               </>
-            ) : (
-              <Button
-                w="100%"
-                component={Link}
-                to={"/cups/" + cupId + "/competitions/" + competitionId}
-                onClick={() => setMainPage(true)}
-              >
-                {"Список индивидульных групп"}
-              </Button>
             )}
           </Stack>
         </Stack>

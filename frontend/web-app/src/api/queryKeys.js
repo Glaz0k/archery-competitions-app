@@ -17,3 +17,8 @@ export const INDIVIDUAL_GROUP_QUERY_KEYS = {
     ...INDIVIDUAL_GROUP_QUERY_KEYS.all,
   ],
 };
+
+export const COMPETITOR_QUERY_KEYS = {
+  all: ["competitors"],
+  allByCompetition: (competitionId) => [...COMPETITOR_QUERY_KEYS.all, competitionId],
+};

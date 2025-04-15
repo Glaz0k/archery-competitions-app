@@ -207,11 +207,11 @@ export default function CupPage() {
           />
         </MainCard>
         <Flex direction="column" flex={1} h="100%">
-          <MainBar title={"Соревнования"} onAdd={competitionAddControl.open}>
-            <ActionIcon onClick={refetchCompetitions}>
-              <IconRefresh />
-            </ActionIcon>
-          </MainBar>
+          <MainBar
+            title={"Соревнования"}
+            onRefresh={refetchCompetitions}
+            onAdd={competitionAddControl.open}
+          />
           <Stack flex={1}>
             {isCompetitionsLoading ? (
               Array(SKELETON_LENGTH)
