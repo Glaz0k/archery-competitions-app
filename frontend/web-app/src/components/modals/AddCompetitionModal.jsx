@@ -7,7 +7,7 @@ export default function AddCompetitionModal({ isOpened, onClose, onSubmit, isLoa
   const competitionForm = useForm({
     mode: "uncontrolled",
     initialValues: {
-      stage: CompetitionStage.STAGE_1,
+      stage: CompetitionStage.STAGE_1.value,
       startDate: null,
       endDate: null,
     },
@@ -19,7 +19,11 @@ export default function AddCompetitionModal({ isOpened, onClose, onSubmit, isLoa
   };
 
   const actionsOnSubmit = async (competitionFormValues) => {
-    if (await onSubmit(competitionFormValues)) {
+    const normalizedValues = {
+      ...competitionFormValues,
+      stage: CompetitionStage.valueOf(competitionFormValues.stage),
+    };
+    if (await onSubmit(normalizedValues)) {
       competitionForm.reset();
     }
   };

@@ -23,7 +23,7 @@ export function LinkCard({ title, to, tag = null, onExport = null, onDelete = nu
           <Title order={3}>
             <Link to={to}>{title}</Link>
           </Title>
-          <Stack>{children}</Stack>
+          {children && <Stack>{children}</Stack>}
         </Stack>
         {tag}
         {onExport && (
@@ -61,7 +61,7 @@ export function LinkCardSkeleton({
         <Skeleton circle height={iconSize} />
         <Stack flex={1}>
           <Skeleton height={rem(theme.headings.sizes.h3.fontSize)} width={200} />
-          <Stack>{children}</Stack>
+          {children && <Stack>{children}</Stack>}
         </Stack>
         {isTagged && <Skeleton width={tagSize.width} height={tagSize.height} />}
         {isExport && <Skeleton circle height={iconSize} />}

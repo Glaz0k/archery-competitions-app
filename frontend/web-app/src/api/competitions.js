@@ -34,7 +34,7 @@ export async function deleteCompetition(id) {
   return true;
 }
 
-export async function endCompetition(id) {
+export async function postEndCompetition(id) {
   await apiMock();
   const competition = {
     id: id,
@@ -46,13 +46,13 @@ export async function endCompetition(id) {
   return competition;
 }
 
-export async function postIndividualGroup({ competitionId, bow, identity }) {
+export async function postIndividualGroup(id, { bow, identity }) {
   await apiMock();
   const individualGroup = {
     id: Math.floor(Math.random() * 10000),
-    competitionId: competitionId,
-    bow: bow,
-    identity: identity,
+    competitionId: id,
+    bow: BowClass.valueOf(bow),
+    identity: GroupGender.valueOf(identity),
     state: GroupState.CREATED,
   };
   return individualGroup;
@@ -64,7 +64,7 @@ export async function getIndividualGroups(id) {
     {
       bow: "classic",
       identity: "male",
-      state: "compelted",
+      state: "completed",
     },
     {
       bow: "classic",
@@ -91,9 +91,9 @@ export async function getIndividualGroups(id) {
       identity: null,
       state: "completed",
     },
-  ].map((entry) => {
+  ].map((entry, index) => {
     return {
-      id: Math.floor(Math.random() * 10000),
+      id: index,
       competition_id: id,
       ...entry,
     };

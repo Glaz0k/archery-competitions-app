@@ -1,33 +1,27 @@
 import { useEffect, useState } from "react";
-import { IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
-import {
-  ActionIcon,
-  Button,
-  Group,
-  LoadingOverlay,
-  NativeSelect,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Link, Outlet, useNavigate, useParams } from "react-router";
+import { Button, Group, LoadingOverlay, NativeSelect, Stack, Text, Title } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
-import { deleteCompetition, getCompetition, putCompetition } from "../../api/competitions";
+import {
+  deleteCompetition,
+  getCompetition,
+  postEndCompetition,
+  putCompetition,
+} from "../../api/competitions";
 import { getCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import BowClass from "../../enums/BowClass";
 import GroupGender from "../../enums/GroupGender";
 import GroupState from "../../enums/GroupState";
-import MainBar from "../bars/MainBar";
 import MainCard from "../cards/MainCard";
 import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 
 function defaultAndEnumValues(enumObj) {
   return [
     {
-      value: null,
+      value: "default",
       textValue: "Не указано",
     },
     ...Object.values(enumObj),
@@ -49,6 +43,13 @@ export default function CompetitionPage() {
   });
 
   const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
+
+  const [isMainPage, setMainPage] = useState(true);
+  const [individualGroupFilter, setIndividualGroupFilter] = useState({
+    bow: "default",
+    identity: "default",
+    state: "default",
+  });
 
   const [webTitle, setWebTitle] = useState(null);
   useDocumentTitle(webTitle);
@@ -87,6 +88,13 @@ export default function CompetitionPage() {
     },
   });
 
+  const { mutate: endCompetition, isPending: isCompetitionEnding } = useMutation({
+    mutationFn: () => postEndCompetition(competitionId),
+    onSuccess: (endedCompetiton) => {
+      queryClient.setQueryData(COMPETITION_QUERY_KEYS.element(competitionId), endedCompetiton);
+    },
+  });
+
   const handleCompetitionEditing = () => {
     setEditedCompetition({ ...competition });
     setCompetitionEditing(true);
@@ -99,11 +107,16 @@ export default function CompetitionPage() {
   }, [isMainInfoLoadError, mainQuery, navigate]);
 
   useEffect(() => {
+    let title = "ArcheryManager - ";
     if (cup && competition) {
-      setWebTitle("ArcheryManager - " + cup.title + "/" + competition.stage.textValue);
+      title += cup.title + "/" + competition.stage.textValue;
+      if (competition.isEnded) {
+        title += " - Завершён";
+      }
     } else {
-      setWebTitle("ArcheryManager - Кубок");
+      title += "Кубок";
     }
+    setWebTitle(title);
   }, [cup, competition]);
 
   if (cup == null || competition == null) {
@@ -123,7 +136,7 @@ export default function CompetitionPage() {
       <Group align="start" flex={1}>
         <Stack>
           <MainCard
-            onBack={() => navigate("/cups/" + cupId)}
+            onBack={() => navigate("../")}
             onEdit={handleCompetitionEditing}
             isEditing={isCompetitionEditing}
             isLoading={isEditedCompetitionSubmitting}
@@ -150,50 +163,88 @@ export default function CompetitionPage() {
               onChange={(date) => setEditedCompetition({ ...editedCompetition, endDate: date })}
             />
           </MainCard>
+          {isMainPage && (
+            <Stack w={300} align="start" pos="relative">
+              <NativeSelect
+                w="100%"
+                label="Тип лука"
+                data={defaultAndEnumValues(BowClass).map((bowClass) => {
+                  return {
+                    label: bowClass.textValue,
+                    value: bowClass.value,
+                  };
+                })}
+                onChange={(e) =>
+                  setIndividualGroupFilter({ ...individualGroupFilter, bow: e.currentTarget.value })
+                }
+              />
+              <NativeSelect
+                w="100%"
+                label="Пол"
+                data={defaultAndEnumValues(GroupGender).map((gender) => {
+                  return {
+                    label: gender.textValue,
+                    value: gender.value,
+                  };
+                })}
+                onChange={(e) =>
+                  setIndividualGroupFilter({
+                    ...individualGroupFilter,
+                    identity: e.currentTarget.value,
+                  })
+                }
+              />
+              <NativeSelect
+                w="100%"
+                label="Состояние"
+                data={defaultAndEnumValues(GroupState).map((state) => {
+                  return {
+                    label: state.textValue,
+                    value: state.value,
+                  };
+                })}
+                onChange={(e) =>
+                  setIndividualGroupFilter({
+                    ...individualGroupFilter,
+                    state: e.currentTarget.value,
+                  })
+                }
+              />
+            </Stack>
+          )}
           <Stack w={300} align="start" pos="relative">
-            <NativeSelect
-              w="100%"
-              label="Тип лука"
-              data={defaultAndEnumValues(BowClass).map((bowClass) => {
-                return {
-                  label: bowClass.textValue,
-                  value: bowClass.value,
-                };
-              })}
-            />
-            <NativeSelect
-              w="100%"
-              label="Пол"
-              data={defaultAndEnumValues(GroupGender).map((gender) => {
-                return {
-                  label: gender.textValue,
-                  value: gender.value,
-                };
-              })}
-            />
-            <NativeSelect
-              w="100%"
-              label="Состояние"
-              data={defaultAndEnumValues(GroupState).map((state) => {
-                return {
-                  label: state.textValue,
-                  value: state.value,
-                };
-              })}
-            />
-          </Stack>
-          <Stack w={300} align="start" pos="relative">
-            <Button w="100%">{"Таблица участников"}</Button>
-            <Button w="100%">{"Завершить"}</Button>
+            {isMainPage ? (
+              <>
+                <Button
+                  w="100%"
+                  component={Link}
+                  to={"/cups/" + cupId + "/competitions/" + competitionId + "/competitors"}
+                  onClick={() => setMainPage(false)}
+                >
+                  {"Таблица участников"}
+                </Button>
+                <Button
+                  w="100%"
+                  disabled={competition.isEnded}
+                  onClick={endCompetition}
+                  loading={isCompetitionEnding}
+                >
+                  {"Завершить"}
+                </Button>
+              </>
+            ) : (
+              <Button
+                w="100%"
+                component={Link}
+                to={"/cups/" + cupId + "/competitions/" + competitionId}
+                onClick={() => setMainPage(true)}
+              >
+                {"Список индивидульных групп"}
+              </Button>
+            )}
           </Stack>
         </Stack>
-        <Stack flex={1}>
-          <MainBar title={"Индивидуальные группы"}>
-            <ActionIcon>
-              <IconRefresh />
-            </ActionIcon>
-          </MainBar>
-        </Stack>
+        <Outlet context={individualGroupFilter} />
       </Group>
     </>
   );

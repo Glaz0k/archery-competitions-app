@@ -29,7 +29,7 @@ import AddCompetitionModal from "../modals/AddCompetitionModal";
 import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 import DeleteCupModal from "../modals/DeleteCupModal";
 
-const PLACEHOLDER_LENGTH = 4;
+const SKELETON_LENGTH = 4;
 
 export default function CupPage() {
   const { cupId } = useParams();
@@ -113,7 +113,7 @@ export default function CupPage() {
     },
   });
 
-  const handleExport = () => {
+  const handleExport = (_id) => {
     console.warn("handleExport temporary unavailable");
   };
 
@@ -214,7 +214,7 @@ export default function CupPage() {
           </MainBar>
           <Stack flex={1}>
             {isCompetitionsLoading ? (
-              Array(PLACEHOLDER_LENGTH)
+              Array(SKELETON_LENGTH)
                 .fill(0)
                 .map((_, index) => (
                   <LinkCardSkeleton key={index} isTagged isExport isDelete>
@@ -228,7 +228,7 @@ export default function CupPage() {
                   title={stage.textValue}
                   to={"/cups/" + cupId + "/competitions/" + id}
                   tag={isEnded ? <Badge leftSection={<IconCheck />}>{"Завершено"}</Badge> : null}
-                  onExport={isEnded ? handleExport : null}
+                  onExport={isEnded ? () => handleExport(id) : null}
                   onDelete={() => confirmCompetitionDeletion(id)}
                 >
                   <Text>{formatCompetitionDateRange({ startDate, endDate })}</Text>

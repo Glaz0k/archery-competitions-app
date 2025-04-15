@@ -1,14 +1,15 @@
 export function createEnum(enumValues) {
   const enumObj = {};
-  const valueToKeyMap = {};
+  const valueToEntryMap = {};
 
   for (const [key, { value, textValue }] of Object.entries(enumValues)) {
-    enumObj[key] = { value, textValue };
-    valueToKeyMap[value] = key;
+    const entry = { value, textValue };
+    enumObj[key] = entry;
+    valueToEntryMap[value] = entry;
   }
 
   Object.defineProperty(enumObj, "valueOf", {
-    value: (value) => enumObj[valueToKeyMap[value]],
+    value: (value) => valueToEntryMap[value],
     enumerable: false,
     configurable: false,
     writable: false,
