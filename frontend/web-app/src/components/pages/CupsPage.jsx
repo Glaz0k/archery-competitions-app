@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { deleteCup, getCups, postCup } from "../../api/cups";
+import { CUP_QUERY_KEYS } from "../../api/queryKeys";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
@@ -22,7 +23,6 @@ import AddCupModal from "../modals/AddCupModal";
 import DeleteCupModal from "../modals/DeleteCupModal";
 
 const CUPS_PER_PAGE = 5;
-const CUPS_QUERY = "cups";
 
 export default function CupsPage() {
   const queryClient = useQueryClient();
@@ -39,7 +39,7 @@ export default function CupsPage() {
   const { mutateAsync: createCup, isPending: isCupSubmitting } = useMutation({
     mutationFn: (newCup) => postCup(newCup),
     onSuccess: (createdCup) => {
-      queryClient.setQueryData([CUPS_QUERY], (old) => [createdCup, ...(old || [])]);
+      queryClient.setQueryData(CUP_QUERY_KEYS.all, (old) => [createdCup, ...(old || [])]);
       addControl.close();
       setActivePage(1);
     },
@@ -50,7 +50,7 @@ export default function CupsPage() {
     isFetching: isCupsLoading,
     refetch: refetchCups,
   } = useQuery({
-    queryKey: [CUPS_QUERY],
+    queryKey: CUP_QUERY_KEYS.all,
     queryFn: getCups,
     initialData: [],
   });
@@ -58,7 +58,7 @@ export default function CupsPage() {
   const { mutate: removeCup, isPending: isCupDeleting } = useMutation({
     mutationFn: () => deleteCup(cupDeletionId),
     onSuccess: () => {
-      queryClient.setQueryData([CUPS_QUERY], (old) =>
+      queryClient.setQueryData(CUP_QUERY_KEYS.all, (old) =>
         old.filter((cup) => cup.id !== cupDeletionId)
       );
       denyCupDeletion();
@@ -141,8 +141,14 @@ export default function CupsPage() {
                 onDelete={() => confirmCupDeletion(cup.id)}
                 to={"/cups/" + cup.id}
               >
-                <Text>Адрес: {cup.address !== null ? cup.address : "Не указан"}</Text>
-                <Text>Сезон: {cup.season !== null ? cup.season : "Не указан"}</Text>
+                <Text>
+                  {"Адрес: "}
+                  {cup.address !== null ? cup.address : "Не указан"}
+                </Text>
+                <Text>
+                  {"Сезон: "}
+                  {cup.season !== null ? cup.season : "Не указан"}
+                </Text>
               </LinkCard>
             ))
           ) : (

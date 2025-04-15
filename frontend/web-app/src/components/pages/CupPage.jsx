@@ -19,6 +19,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
+import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import { formatCompetitionDateRange } from "../../helper/competitons";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
@@ -29,8 +30,6 @@ import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 import DeleteCupModal from "../modals/DeleteCupModal";
 
 const PLACEHOLDER_LENGTH = 4;
-const CUP_QUERY = "cup";
-const COMPETITIONS_QUERY = "competitions";
 
 export default function CupPage() {
   const queryClient = useQueryClient();
@@ -59,25 +58,15 @@ export default function CupPage() {
     isError: isCupReadError,
     error: cupReadError,
   } = useQuery({
-    queryKey: [CUP_QUERY, cupId],
+    queryKey: CUP_QUERY_KEYS.element(cupId),
     queryFn: () => getCup(cupId),
     initialData: null,
-  });
-
-  const {
-    data: competitions,
-    isFetching: isCompetitionsLoading,
-    refetch: refetchCompetitions,
-  } = useQuery({
-    queryKey: [COMPETITIONS_QUERY, cupId],
-    queryFn: () => getCompetitions(cupId),
-    initialData: [],
   });
 
   const { mutate: editCup, isPending: isEditedCupSubmitting } = useMutation({
     mutationFn: () => putCup(editedCup),
     onSuccess: (editedCup) => {
-      queryClient.setQueryData([CUP_QUERY, cupId], editedCup);
+      queryClient.setQueryData(CUP_QUERY_KEYS.element(cupId), editedCup);
       setCupEditing(false);
     },
   });
@@ -90,25 +79,35 @@ export default function CupPage() {
     },
   });
 
-  const { mutate: removeCompetition, isPending: isCompetitionDeleting } = useMutation({
-    mutationFn: () => deleteCompetition(competitionDeletingId),
-    onSuccess: () => {
-      queryClient.setQueryData([COMPETITIONS_QUERY, cupId], (old) => {
-        return old.filter((competition) => competition.id !== competitionDeletingId);
-      });
-      competitionDelControl.close();
-      setCompetitionDeletingId(null);
-    },
-  });
-
   const { mutateAsync: createCompetition, isPending: isCompetitonSubmitting } = useMutation({
     mutationFn: (newCompetition) => postCompetition(cupId, newCompetition),
     onSuccess: (createdCompetition) => {
-      queryClient.setQueryData([COMPETITIONS_QUERY, cupId], (old) => [
+      queryClient.setQueryData(COMPETITION_QUERY_KEYS.allByCup(cupId), (old) => [
         createdCompetition,
         ...(old || []),
       ]);
       competitionAddControl.close();
+    },
+  });
+
+  const {
+    data: competitions,
+    isFetching: isCompetitionsLoading,
+    refetch: refetchCompetitions,
+  } = useQuery({
+    queryKey: COMPETITION_QUERY_KEYS.allByCup(cupId),
+    queryFn: () => getCompetitions(cupId),
+    initialData: [],
+  });
+
+  const { mutate: removeCompetition, isPending: isCompetitionDeleting } = useMutation({
+    mutationFn: () => deleteCompetition(competitionDeletingId),
+    onSuccess: () => {
+      queryClient.setQueryData(COMPETITION_QUERY_KEYS.allByCup(cupId), (old) => {
+        return old.filter((competition) => competition.id !== competitionDeletingId);
+      });
+      competitionDelControl.close();
+      setCompetitionDeletingId(null);
     },
   });
 
@@ -168,7 +167,7 @@ export default function CupPage() {
           onEdit={handleCupEditing}
           isEditing={isCupEditing}
           isLoading={isEditedCupSubmitting}
-          onEditSubnit={editCup}
+          onEditSubmit={editCup}
           onEditCancel={() => setCupEditing(false)}
           onDelete={cupDelControl.open}
         >
@@ -218,7 +217,7 @@ export default function CupPage() {
                   key={index}
                   title={stage.textValue}
                   to={"/cups/" + cupId + "/competitions/" + id}
-                  tag={isEnded ? <Badge leftSection={<IconCheck />}>Завершено</Badge> : null}
+                  tag={isEnded ? <Badge leftSection={<IconCheck />}>{"Завершено"}</Badge> : null}
                   onExport={isEnded ? handleExport : null}
                   onDelete={() => confirmCompetitionDeletion(id)}
                 >

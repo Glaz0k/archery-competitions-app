@@ -15,6 +15,9 @@ export async function postCup({ title, address, season }) {
 
 export async function getCup(id) {
   await apiMock();
+  if (id == 1) {
+    throw { response: { status: 404 } };
+  }
   const cup = {
     id: id,
     title: "Стрелы парадокса",

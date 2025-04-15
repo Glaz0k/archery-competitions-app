@@ -6,7 +6,7 @@ export default function MainCard({
   onEdit,
   isEditing,
   isLoading,
-  onEditSubnit,
+  onEditSubmit,
   onEditCancel,
   onDelete,
   children,
@@ -26,7 +26,7 @@ export default function MainCard({
             </ActionIcon>
           ) : (
             <>
-              <ActionIcon onClick={onEditSubnit}>
+              <ActionIcon onClick={onEditSubmit}>
                 <IconCheck />
               </ActionIcon>
               <ActionIcon onClick={onEditCancel}>
