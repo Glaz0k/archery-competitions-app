@@ -16,7 +16,7 @@ import {
   Title,
   useMantineTheme,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
@@ -32,11 +32,10 @@ import DeleteCupModal from "../modals/DeleteCupModal";
 const PLACEHOLDER_LENGTH = 4;
 
 export default function CupPage() {
+  const { cupId } = useParams();
   const queryClient = useQueryClient();
   const theme = useMantineTheme();
   const navigate = useNavigate();
-
-  const { cupId } = useParams();
 
   const [competitionDeletingId, setCompetitionDeletingId] = useState(null);
 
@@ -51,6 +50,9 @@ export default function CupPage() {
   const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
   const [isOpenedCompetitionAdd, competitionAddControl] = useDisclosure(false);
   const [isOpenedCupDel, cupDelControl] = useDisclosure(false);
+
+  const [webTitle, setWebTitle] = useState(null);
+  useDocumentTitle(webTitle);
 
   const {
     data: cup,
@@ -135,6 +137,14 @@ export default function CupPage() {
       navigate("/not-found");
     }
   }, [isCupReadError, cupReadError, navigate]);
+
+  useEffect(() => {
+    if (cup) {
+      setWebTitle("ArcheryManager - " + cup.title);
+    } else {
+      setWebTitle("ArcheryManager - Кубок");
+    }
+  }, [cup]);
 
   if (cup == null) {
     return <LoadingOverlay visible={true} />;

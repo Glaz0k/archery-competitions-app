@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  IconArrowLeft,
-  IconCheck,
-  IconEdit,
-  IconPlus,
-  IconRefresh,
-  IconTrashX,
-  IconX,
-} from "@tabler/icons-react";
+import { IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -21,7 +13,8 @@ import {
   Title,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { getCompetition, putCompetition } from "../../api/competitions";
+import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
+import { deleteCompetition, getCompetition, putCompetition } from "../../api/competitions";
 import { getCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import BowClass from "../../enums/BowClass";
@@ -29,8 +22,9 @@ import GroupGender from "../../enums/GroupGender";
 import GroupState from "../../enums/GroupState";
 import MainBar from "../bars/MainBar";
 import MainCard from "../cards/MainCard";
+import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 
-const defaultAndEnumValues = (enumObj) => {
+function defaultAndEnumValues(enumObj) {
   return [
     {
       value: null,
@@ -38,12 +32,12 @@ const defaultAndEnumValues = (enumObj) => {
     },
     ...Object.values(enumObj),
   ];
-};
+}
 
 export default function CompetitionPage() {
   const { cupId, competitionId } = useParams();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [isCompetitionEditing, setCompetitionEditing] = useState(false);
   const [editedCompetition, setEditedCompetition] = useState({
@@ -53,6 +47,11 @@ export default function CompetitionPage() {
     endDate: null,
     isEnded: null,
   });
+
+  const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
+
+  const [webTitle, setWebTitle] = useState(null);
+  useDocumentTitle(webTitle);
 
   const mainQuery = useQueries({
     queries: [
@@ -80,6 +79,14 @@ export default function CompetitionPage() {
     },
   });
 
+  const { mutate: removeCompetition, isPending: isCompetitionDeleting } = useMutation({
+    mutationFn: () => deleteCompetition(competitionId),
+    onSuccess: () => {
+      navigate("/cups/" + cupId);
+      competitionDelControl.close();
+    },
+  });
+
   const handleCompetitionEditing = () => {
     setEditedCompetition({ ...competition });
     setCompetitionEditing(true);
@@ -91,12 +98,27 @@ export default function CompetitionPage() {
     }
   }, [isMainInfoLoadError, mainQuery, navigate]);
 
+  useEffect(() => {
+    if (cup && competition) {
+      setWebTitle("ArcheryManager - " + cup.title + "/" + competition.stage.textValue);
+    } else {
+      setWebTitle("ArcheryManager - Кубок");
+    }
+  }, [cup, competition]);
+
   if (cup == null || competition == null) {
     return <LoadingOverlay visible={true} />;
   }
 
   return (
     <>
+      <DeleteCompetitionModal
+        isOpened={isOpenedCompetitionDel}
+        onClose={competitionDelControl.close}
+        onConfirm={removeCompetition}
+        isLoading={isCompetitionDeleting}
+      />
+
       <LoadingOverlay visible={isMainInfoLoading} />
       <Group align="start" flex={1}>
         <Stack>
@@ -107,7 +129,7 @@ export default function CompetitionPage() {
             isLoading={isEditedCompetitionSubmitting}
             onEditSubmit={editCompetition}
             onEditCancel={() => setCompetitionEditing(false)}
-            onDelete={() => console.log("TODO")}
+            onDelete={competitionDelControl.open}
           >
             <Title order={2}>{competition.stage.textValue}</Title>
             <Text>
@@ -161,8 +183,8 @@ export default function CompetitionPage() {
             />
           </Stack>
           <Stack w={300} align="start" pos="relative">
-            <Button w="100%">Таблица участников</Button>
-            <Button w="100%">Завершить</Button>
+            <Button w="100%">{"Таблица участников"}</Button>
+            <Button w="100%">{"Завершить"}</Button>
           </Stack>
         </Stack>
         <Stack flex={1}>
