@@ -51,7 +51,7 @@ export function LinkCardSkeleton({
 
   const iconSize = 40;
   const tagSize = {
-    width: 150,
+    width: 140,
     height: 30,
   };
 

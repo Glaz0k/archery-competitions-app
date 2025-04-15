@@ -1,16 +1,9 @@
-import { Button, Modal, NativeSelect, Stack, Text } from "@mantine/core";
+import { Button, Modal, NativeSelect } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import CompetitionStage from "../../enums/CompetitionStage";
 
-export function CompetitionAddModal({
-  opened = false,
-  onClose = () => {},
-  handleSubmit = (_competitionFormValues) => true,
-  loading = false,
-}) {
-  console.log(Object.values(CompetitionStage).length);
-
+export default function AddCompetitionModal({ isOpened, onClose, onSubmit, isLoading }) {
   const competitionForm = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -22,17 +15,17 @@ export function CompetitionAddModal({
 
   const actionsOnClose = () => {
     competitionForm.reset();
-    onClose();
+    onClose?.();
   };
 
   const actionsOnSubmit = async (competitionFormValues) => {
-    if (await handleSubmit(competitionFormValues)) {
+    if (await onSubmit(competitionFormValues)) {
       competitionForm.reset();
     }
   };
 
   return (
-    <Modal opened={opened} onClose={actionsOnClose} title="Новое соревнование" centered>
+    <Modal opened={isOpened} onClose={actionsOnClose} title="Новое соревнование" centered>
       <form onSubmit={competitionForm.onSubmit(actionsOnSubmit)}>
         <NativeSelect
           label="Этап"
@@ -57,31 +50,10 @@ export function CompetitionAddModal({
           key={competitionForm.key("endDate")}
           {...competitionForm.getInputProps("endDate")}
         />
-        <Button type="submit" loading={loading} loaderProps={{ type: "dots" }}>
+        <Button type="submit" loading={isLoading} loaderProps={{ type: "dots" }}>
           Добавить
         </Button>
       </form>
-    </Modal>
-  );
-}
-
-export function CompetitionDeleteModal({
-  opened = false,
-  onClose = () => {},
-  onConfirm = () => {},
-  loading = false,
-}) {
-  return (
-    <Modal opened={opened} onClose={onClose} title="Удаление соревнования" centered>
-      <Stack align="end">
-        <Text w="100%">
-          Вы уверены, что хотите удалить соревнование. Вместе с ним удалятся также все связанные
-          группы.
-        </Text>
-        <Button loading={loading} onClick={onConfirm}>
-          Удалить
-        </Button>
-      </Stack>
     </Modal>
   );
 }

@@ -1,18 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  IconArrowLeft,
-  IconCheck,
-  IconEdit,
-  IconPlus,
-  IconRefresh,
-  IconTrashX,
-  IconX,
-} from "@tabler/icons-react";
+import { IconCheck, IconRefresh } from "@tabler/icons-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import {
   ActionIcon,
   Badge,
-  Button,
+  Flex,
   Group,
   LoadingOverlay,
   rem,
@@ -27,22 +20,26 @@ import { useDisclosure } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { formatCompetitionDateRange } from "../../helper/competitons";
+import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
+import MainCard from "../cards/MainCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
-import { CompetitionAddModal, CompetitionDeleteModal } from "../modals/CompetitionModals";
-import { CupDeleteModal } from "../modals/DeleteCupModal";
+import AddCompetitionModal from "../modals/AddCompetitionModal";
+import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
+import DeleteCupModal from "../modals/DeleteCupModal";
+
+const PLACEHOLDER_LENGTH = 4;
+const CUP_QUERY = "cup";
+const COMPETITIONS_QUERY = "competitions";
 
 export default function CupPage() {
+  const queryClient = useQueryClient();
+  const theme = useMantineTheme();
+  const navigate = useNavigate();
+
   const { cupId } = useParams();
-  const [cup, setCup] = useState(null);
-  const [cupLoading, setCupLoading] = useState(true);
 
-  const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
-  const [competitionDeletion, setCompetitionDeletion] = useState(false);
-  const [competitionDeletionId, setCompetitionDeletionId] = useState(null);
-
-  const [isOpenedCompetitionAdd, competitionAddControl] = useDisclosure(false);
-  const [competitionSubmission, setCompetitionSubmission] = useState(false);
+  const [competitionDeletingId, setCompetitionDeletingId] = useState(null);
 
   const [isCupEditing, setCupEditing] = useState(false);
   const [editedCup, setEditedCup] = useState({
@@ -51,138 +48,82 @@ export default function CupPage() {
     address: null,
     season: null,
   });
-  const [isEditedCupSubmitting, setEditedCupSubmitting] = useState(false);
 
+  const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
+  const [isOpenedCompetitionAdd, competitionAddControl] = useDisclosure(false);
   const [isOpenedCupDel, cupDelControl] = useDisclosure(false);
-  const [cupDeletion, setCupDeletion] = useState(false);
 
-  const [competitions, setCompetitions] = useState([]);
-  const [competitionsLoading, setCompetitionsLoading] = useState(true);
+  const {
+    data: cup,
+    isFetching: isCupLoading,
+    isError: isCupReadError,
+    error: cupReadError,
+  } = useQuery({
+    queryKey: [CUP_QUERY, cupId],
+    queryFn: () => getCup(cupId),
+    initialData: null,
+  });
 
-  const navigate = useNavigate();
+  const {
+    data: competitions,
+    isFetching: isCompetitionsLoading,
+    refetch: refetchCompetitions,
+  } = useQuery({
+    queryKey: [COMPETITIONS_QUERY, cupId],
+    queryFn: () => getCompetitions(cupId),
+    initialData: [],
+  });
 
-  const theme = useMantineTheme();
+  const { mutate: editCup, isPending: isEditedCupSubmitting } = useMutation({
+    mutationFn: () => putCup(editedCup),
+    onSuccess: (editedCup) => {
+      queryClient.setQueryData([CUP_QUERY, cupId], editedCup);
+      setCupEditing(false);
+    },
+  });
 
-  const readCup = async (cupId) => {
-    try {
-      setCupLoading(true);
-      const data = await getCup(cupId);
-      setCup(data);
-    } catch (err) {
-      console.error(err);
-      return false;
-    } finally {
-      setCupLoading(false);
-    }
-    return true;
-  };
-
-  const editCup = async () => {
-    try {
-      setEditedCupSubmitting(true);
-      const data = await putCup(editedCup);
-      setCup(data);
-    } catch (err) {
-      console.error(err);
-      return false;
-    } finally {
-      setEditedCupSubmitting(false);
-    }
-    return true;
-  };
-
-  const removeCup = async () => {
-    try {
-      setCupDeletion(true);
-      await deleteCup(cupId);
+  const { mutate: removeCup, isPending: isCupDeleting } = useMutation({
+    mutationFn: () => deleteCup(cupId),
+    onSuccess: () => {
       navigate("/cups");
-    } catch (err) {
-      console.error(err);
-      return false;
-    } finally {
-      setCupDeletion(false);
-    }
-  };
+      cupDelControl.close();
+    },
+  });
 
-  const readCompetitions = async (cupId) => {
-    try {
-      setCompetitionsLoading(true);
-      const data = await getCompetitions(cupId);
-      setCompetitions(data);
-    } catch (err) {
-      console.error(err);
-      return false;
-    } finally {
-      setCompetitionsLoading(false);
-    }
-    return true;
-  };
-
-  const removeCompetition = async () => {
-    try {
-      setCompetitionDeletion(true);
-      await deleteCompetition(competitionDeletionId);
-      setCompetitions(
-        competitions.filter((competition) => competition.id !== competitionDeletionId)
-      );
-    } catch (err) {
-      console.log(err);
-      return false;
-    } finally {
-      setCompetitionDeletion(false);
-    }
-    return true;
-  };
-
-  const createCompetition = async (newCompetition) => {
-    try {
-      setCompetitionSubmission(true);
-      const createdCompetition = await postCompetition({
-        cupId: cupId,
-        ...newCompetition,
+  const { mutate: removeCompetition, isPending: isCompetitionDeleting } = useMutation({
+    mutationFn: () => deleteCompetition(competitionDeletingId),
+    onSuccess: () => {
+      queryClient.setQueryData([COMPETITIONS_QUERY, cupId], (old) => {
+        return old.filter((competition) => competition.id !== competitionDeletingId);
       });
-      setCompetitions([createdCompetition, ...competitions]);
-      competitionAddControl.close();
-    } catch (err) {
-      console.log(err);
-      return false;
-    } finally {
-      setCompetitionSubmission(false);
-    }
-    return true;
-  };
+      competitionDelControl.close();
+      setCompetitionDeletingId(null);
+    },
+  });
 
-  const handleRefresh = () => {
-    readCompetitions(cupId);
-  };
+  const { mutateAsync: createCompetition, isPending: isCompetitonSubmitting } = useMutation({
+    mutationFn: (newCompetition) => postCompetition(cupId, newCompetition),
+    onSuccess: (createdCompetition) => {
+      queryClient.setQueryData([COMPETITIONS_QUERY, cupId], (old) => [
+        createdCompetition,
+        ...(old || []),
+      ]);
+      competitionAddControl.close();
+    },
+  });
 
   const handleExport = () => {
     console.warn("handleExport temporary unavailable");
   };
 
-  const handleCompetitionDeletion = async () => {
-    if (await removeCompetition()) {
-      competitionDelControl.close();
-    }
-  };
-
   const confirmCompetitionDeletion = (competitionId) => {
-    setCompetitionDeletionId(competitionId);
+    setCompetitionDeletingId(competitionId);
     competitionDelControl.open();
   };
 
-  const closeCompetitionDeletion = () => {
-    setCompetitionDeletionId(null);
+  const denyCompetitionDeletion = () => {
     competitionDelControl.close();
-  };
-
-  const handleCompetitionSubmission = async ({ stage, startDate, endDate }) => {
-    const newCompetition = {
-      stage: stage,
-      startDate: startDate,
-      endDate: endDate,
-    };
-    await createCompetition(newCompetition);
+    setCompetitionDeletingId(null);
   };
 
   const handleCupEditing = () => {
@@ -190,125 +131,85 @@ export default function CupPage() {
     setCupEditing(true);
   };
 
-  const handleCupEditingSubmit = async () => {
-    if (await editCup()) {
-      setCupEditing(false);
-    }
-  };
-
-  const handleCupDeletion = async () => {
-    if (await removeCup()) {
-      cupDelControl.close();
-    }
-  };
-
   useEffect(() => {
-    readCup(cupId);
-    readCompetitions(cupId);
-  }, [cupId]);
+    if (isCupReadError && cupReadError.response?.status === 404) {
+      navigate("/not-found");
+    }
+  }, [isCupReadError, cupReadError, navigate]);
 
-  const skeletonLength = 4;
+  if (cup == null) {
+    return <LoadingOverlay visible={true} />;
+  }
 
   return (
     <>
-      <CompetitionDeleteModal
-        opened={isOpenedCompetitionDel}
-        onClose={closeCompetitionDeletion}
-        onConfirm={handleCompetitionDeletion}
-        loading={competitionDeletion}
+      <DeleteCompetitionModal
+        isOpened={isOpenedCompetitionDel}
+        onClose={denyCompetitionDeletion}
+        onConfirm={removeCompetition}
+        isLoading={isCompetitionDeleting}
       />
-
-      <CompetitionAddModal
-        opened={isOpenedCompetitionAdd}
+      <AddCompetitionModal
+        isOpened={isOpenedCompetitionAdd}
         onClose={competitionAddControl.close}
-        handleSubmit={handleCompetitionSubmission}
-        loading={competitionSubmission}
+        onSubmit={createCompetition}
+        isLoading={isCompetitonSubmitting}
       />
-
-      <CupDeleteModal
-        opened={isOpenedCupDel}
+      <DeleteCupModal
+        isOpened={isOpenedCupDel}
         onClose={cupDelControl.close}
-        onConfirm={handleCupDeletion}
-        loading={cupDeletion}
+        onConfirm={removeCup}
+        isLoading={isCupDeleting}
       />
-
-      <LoadingOverlay visible={cupLoading} />
-      {cup && (
-        <Group align="start" flex={1}>
-          <Stack w={300} align="start" pos="relative">
-            <LoadingOverlay visible={isEditedCupSubmitting} />
-            <Button
-              onClick={() => {
-                navigate("/cups");
-              }}
-              leftSection={<IconArrowLeft />}
-            >
-              Назад
-            </Button>
-            {isCupEditing ? (
-              <TextInput
-                w="100%"
-                label="Название"
-                value={editedCup.title}
-                onChange={(e) => setEditedCup({ ...editedCup, title: e.currentTarget.value })}
-              />
-            ) : (
-              <Title order={2}>{cup.title}</Title>
-            )}
+      <LoadingOverlay visible={isCupLoading} />
+      <Group align="start" flex={1}>
+        <MainCard
+          onBack={() => navigate("/cups")}
+          onEdit={handleCupEditing}
+          isEditing={isCupEditing}
+          isLoading={isEditedCupSubmitting}
+          onEditSubnit={editCup}
+          onEditCancel={() => setCupEditing(false)}
+          onDelete={cupDelControl.open}
+        >
+          {isCupEditing ? (
             <TextInput
               w="100%"
-              disabled={!isCupEditing}
-              label="Адрес"
-              value={isCupEditing ? editedCup.address : cup.address}
-              onChange={(e) => setEditedCup({ ...editedCup, address: e.currentTarget.value })}
+              label="Название"
+              value={editedCup.title}
+              onChange={(e) => setEditedCup({ ...editedCup, title: e.currentTarget.value })}
             />
-            <TextInput
-              w="100%"
-              disabled={!isCupEditing}
-              label="Сезон"
-              value={isCupEditing ? editedCup.season : cup.season}
-              onChange={(e) => setEditedCup({ ...editedCup, season: e.currentTarget.value })}
-            />
-            <Group w="100%">
-              <Group flex={1}>
-                {!isCupEditing ? (
-                  <ActionIcon onClick={handleCupEditing}>
-                    <IconEdit />
-                  </ActionIcon>
-                ) : (
-                  <>
-                    <ActionIcon onClick={handleCupEditingSubmit}>
-                      <IconCheck />
-                    </ActionIcon>
-                    <ActionIcon onClick={() => setCupEditing(false)}>
-                      <IconX />
-                    </ActionIcon>
-                  </>
-                )}
-              </Group>
-              <ActionIcon onClick={cupDelControl.open}>
-                <IconTrashX />
-              </ActionIcon>
-            </Group>
-          </Stack>
+          ) : (
+            <Title order={2}>{cup.title}</Title>
+          )}
+          <TextInput
+            w="100%"
+            disabled={!isCupEditing}
+            label="Адрес"
+            value={isCupEditing ? editedCup.address : cup.address}
+            onChange={(e) => setEditedCup({ ...editedCup, address: e.currentTarget.value })}
+          />
+          <TextInput
+            w="100%"
+            disabled={!isCupEditing}
+            label="Сезон"
+            value={isCupEditing ? editedCup.season : cup.season}
+            onChange={(e) => setEditedCup({ ...editedCup, season: e.currentTarget.value })}
+          />
+        </MainCard>
+        <Flex direction="column" flex={1} h="100%">
+          <MainBar title={"Соревнования"} onAdd={competitionAddControl.open}>
+            <ActionIcon onClick={refetchCompetitions}>
+              <IconRefresh />
+            </ActionIcon>
+          </MainBar>
           <Stack flex={1}>
-            <Group>
-              <Title order={2} flex={1}>
-                Соревнования
-              </Title>
-              <ActionIcon onClick={handleRefresh}>
-                <IconRefresh />
-              </ActionIcon>
-              <ActionIcon onClick={competitionAddControl.open}>
-                <IconPlus />
-              </ActionIcon>
-            </Group>
-            {competitionsLoading ? (
-              Array(skeletonLength)
+            {isCompetitionsLoading ? (
+              Array(PLACEHOLDER_LENGTH)
                 .fill(0)
                 .map((_, index) => (
                   <LinkCardSkeleton key={index} isTagged isExport isDelete>
-                    <Skeleton height={rem(theme.fontSizes.md)} width={400} />
+                    <Skeleton height={rem(theme.fontSizes.md)} width={250} />
                   </LinkCardSkeleton>
                 ))
             ) : competitions.length > 0 ? (
@@ -319,9 +220,7 @@ export default function CupPage() {
                   to={"/cups/" + cupId + "/competitions/" + id}
                   tag={isEnded ? <Badge leftSection={<IconCheck />}>Завершено</Badge> : null}
                   onExport={isEnded ? handleExport : null}
-                  onDelete={() => {
-                    confirmCompetitionDeletion(id);
-                  }}
+                  onDelete={() => confirmCompetitionDeletion(id)}
                 >
                   <Text>{formatCompetitionDateRange({ startDate, endDate })}</Text>
                 </LinkCard>
@@ -330,8 +229,8 @@ export default function CupPage() {
               <EmptyCardSpace label="Соревнования не найдены" />
             )}
           </Stack>
-        </Group>
-      )}
+        </Flex>
+      </Group>
     </>
   );
 }

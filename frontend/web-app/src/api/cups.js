@@ -177,7 +177,7 @@ export async function deleteCup(id) {
   return true;
 }
 
-export async function postCompetition({ id, stage, startDate, endDate }) {
+export async function postCompetition(id, { stage, startDate, endDate }) {
   console.log(id);
   await apiMock();
   const competition = {
