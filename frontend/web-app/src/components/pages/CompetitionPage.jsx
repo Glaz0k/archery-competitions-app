@@ -15,7 +15,7 @@ import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import BowClass from "../../enums/BowClass";
 import GroupGender from "../../enums/GroupGender";
 import GroupState from "../../enums/GroupState";
-import MainCard from "../cards/MainCard";
+import { MainCard } from "../cards/MainCard";
 import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 
 function defaultAndEnumValues(enumObj) {
@@ -134,15 +134,13 @@ export default function CompetitionPage() {
         onConfirm={removeCompetition}
         isLoading={isCompetitionDeleting}
       />
-
-      <LoadingOverlay visible={isMainInfoLoading} />
-      <Group align="start" display="flex" flex={1}>
+      <Group align="start" display="flex" flex={1} style={{ overflow: "hidden" }}>
         <Stack>
           <MainCard
-            onBack={() => navigate("../")}
+            onBack={() => navigate("/cups/" + cupId)}
             onEdit={handleCompetitionEditing}
             isEditing={isCompetitionEditing}
-            isLoading={isEditedCompetitionSubmitting}
+            isLoading={isMainInfoLoading || isEditedCompetitionSubmitting}
             onEditSubmit={editCompetition}
             onEditCancel={() => setCompetitionEditing(false)}
             onDelete={competitionDelControl.open}

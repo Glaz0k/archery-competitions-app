@@ -1,8 +1,7 @@
 import { IconArrowLeft, IconCheck, IconEdit, IconTrashX, IconX } from "@tabler/icons-react";
-import { ActionIcon, Button, Group, LoadingOverlay, Stack } from "@mantine/core";
+import { ActionIcon, Button, Group, LoadingOverlay, Skeleton, Stack } from "@mantine/core";
 
-export default function MainCard({
-  onBack,
+export function MainCard({
   onEdit,
   isEditing,
   isLoading,
@@ -14,30 +13,59 @@ export default function MainCard({
   return (
     <Stack w={300} align="start" pos="relative">
       <LoadingOverlay visible={isLoading} />
-      <Button onClick={onBack} leftSection={<IconArrowLeft />}>
-        {"Назад"}
-      </Button>
+      <form onSubmit={onEditSubmit}>
+        {children}
+        <Group w="100%">
+          <Group flex={1}>
+            {!isEditing ? (
+              <ActionIcon onClick={onEdit}>
+                <IconEdit />
+              </ActionIcon>
+            ) : (
+              <>
+                <ActionIcon type="submit">
+                  <IconCheck />
+                </ActionIcon>
+                <ActionIcon onClick={onEditCancel}>
+                  <IconX />
+                </ActionIcon>
+              </>
+            )}
+          </Group>
+          <ActionIcon onClick={onDelete}>
+            <IconTrashX />
+          </ActionIcon>
+        </Group>
+      </form>
+    </Stack>
+  );
+}
+
+export function MainCardSkeleton({ children }) {
+  return (
+    <Stack w={300} align="start">
+      <Skeleton visible w={200}>
+        <Button>{"Назад"}</Button>
+      </Skeleton>
       {children}
       <Group w="100%">
         <Group flex={1}>
-          {!isEditing ? (
-            <ActionIcon onClick={onEdit}>
-              <IconEdit />
+          <Skeleton visible>
+            <ActionIcon>
+              <IconTrashX />
             </ActionIcon>
-          ) : (
-            <>
-              <ActionIcon onClick={onEditSubmit}>
-                <IconCheck />
-              </ActionIcon>
-              <ActionIcon onClick={onEditCancel}>
-                <IconX />
-              </ActionIcon>
-            </>
-          )}
+          </Skeleton>
+          <Skeleton visible>
+            <ActionIcon>
+              <IconTrashX />
+            </ActionIcon>
+          </Skeleton>
         </Group>
-        <ActionIcon onClick={onDelete}>
-          <IconTrashX />
-        </ActionIcon>
+        <Skeleton visible>
+          <ActionIcon>
+            <IconTrashX />
+          </ActionIcon>
+        </Skeleton>
       </Group>
     </Stack>
   );

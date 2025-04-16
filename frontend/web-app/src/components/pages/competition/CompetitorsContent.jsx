@@ -1,19 +1,9 @@
-import { IconFileUpload } from "@tabler/icons-react";
+import { IconCheck, IconFileUpload, IconTrashX, IconX } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useParams } from "react-router";
-import {
-  ActionIcon,
-  Box,
-  Checkbox,
-  LoadingOverlay,
-  ScrollArea,
-  Stack,
-  Table,
-  TableScrollContainer,
-} from "@mantine/core";
-import { useSet } from "@mantine/hooks";
+import { ActionIcon, LoadingOverlay, Skeleton, Stack, Table } from "@mantine/core";
 import { getCompetitorsFromCompetition } from "../../../api/competitors/competition";
 import { COMPETITOR_QUERY_KEYS } from "../../../api/queryKeys";
 import MainBar from "../../bars/MainBar";
@@ -21,8 +11,6 @@ import EmptyCardSpace from "../../misc/EmptyCardSpace";
 
 export default function CompetitorsContent() {
   const { competitionId } = useParams();
-
-  const selectedCompetitorIds = useSet([]);
 
   const {
     data: competitorDetails,
@@ -51,12 +39,13 @@ export default function CompetitorsContent() {
       region: competitor?.region,
       federation: competitor?.federation,
       club: competitor?.club,
+      isActive: competitorDetail.isActive,
     };
   });
 
   const tableHead = (
     <Table.Tr>
-      <Table.Th w={40} />
+      <Table.Th />
       <Table.Th>{"Отметка времени (МСК)"}</Table.Th>
       <Table.Th>{"Фамилия, Имя"}</Table.Th>
       <Table.Th>{"Дата рождения"}</Table.Th>
@@ -66,20 +55,21 @@ export default function CompetitorsContent() {
       <Table.Th>{"Регион"}</Table.Th>
       <Table.Th>{"Членство в спортивной федерации"}</Table.Th>
       <Table.Th>{"Клубная принадлежность"}</Table.Th>
+      <Table.Th />
     </Table.Tr>
   );
 
   const tableRows = tableData.map((rowElement) => (
     <Table.Tr key={rowElement.id}>
       <Table.Td>
-        <Checkbox
-          checked={selectedCompetitorIds.has(rowElement.id)}
-          onChange={(event) => {
-            event.currentTarget.checked
-              ? selectedCompetitorIds.add(rowElement.id)
-              : selectedCompetitorIds.delete(rowElement.id);
-          }}
-        />
+        <ActionIcon.Group>
+          <ActionIcon disabled={rowElement.isActive}>
+            <IconCheck />
+          </ActionIcon>
+          <ActionIcon disabled={!rowElement.isActive}>
+            <IconX />
+          </ActionIcon>
+        </ActionIcon.Group>
       </Table.Td>
       <Table.Td>{rowElement.timeMoscow}</Table.Td>
       <Table.Td>{rowElement.fullName}</Table.Td>
@@ -90,11 +80,16 @@ export default function CompetitorsContent() {
       <Table.Td>{rowElement.region || "Не указан"}</Table.Td>
       <Table.Td>{rowElement.federation || "Отсутствует"}</Table.Td>
       <Table.Td>{rowElement.club || "Отсутствует"}</Table.Td>
+      <Table.Td>
+        <ActionIcon>
+          <IconTrashX />
+        </ActionIcon>
+      </Table.Td>
     </Table.Tr>
   ));
 
   return (
-    <Stack flex={1}>
+    <Stack flex={1} style={{ overflow: "hidden" }}>
       <MainBar
         title="Участники соревнования"
         onRefresh={() => {
@@ -106,9 +101,10 @@ export default function CompetitorsContent() {
           <IconFileUpload />
         </ActionIcon>
       </MainBar>
-      <Stack pos="relative">
-        <LoadingOverlay visible={isCompetitorDetailsLoading} />
-        {competitorDetails.length !== 0 ? (
+      <Stack pos="relative" style={{ overflow: "hidden" }}>
+        {isCompetitorDetailsLoading ? (
+          <Skeleton h={400} />
+        ) : competitorDetails.length !== 0 ? (
           <Table.ScrollContainer>
             <Table tabularNums withColumnBorders>
               <Table.Thead>{tableHead}</Table.Thead>

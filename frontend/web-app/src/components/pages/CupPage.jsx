@@ -1,29 +1,28 @@
 import { useEffect, useState } from "react";
-import { IconCheck, IconRefresh } from "@tabler/icons-react";
+import { IconCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import {
-  ActionIcon,
   Badge,
   Flex,
   Group,
   LoadingOverlay,
-  rem,
   Skeleton,
   Stack,
   Text,
   TextInput,
   Title,
-  useMantineTheme,
 } from "@mantine/core";
+import { isNotEmpty, useForm } from "@mantine/form";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import { formatCompetitionDateRange } from "../../helper/competitons";
+import { isEmptyString, isValidSeasonString } from "../../helper/validation";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
-import MainCard from "../cards/MainCard";
+import { MainCard } from "../cards/MainCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
 import AddCompetitionModal from "../modals/AddCompetitionModal";
 import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
@@ -34,18 +33,11 @@ const SKELETON_LENGTH = 4;
 export default function CupPage() {
   const { cupId } = useParams();
   const queryClient = useQueryClient();
-  const theme = useMantineTheme();
   const navigate = useNavigate();
 
   const [competitionDeletingId, setCompetitionDeletingId] = useState(null);
 
   const [isCupEditing, setCupEditing] = useState(false);
-  const [editedCup, setEditedCup] = useState({
-    id: null,
-    title: null,
-    address: null,
-    season: null,
-  });
 
   const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
   const [isOpenedCompetitionAdd, competitionAddControl] = useDisclosure(false);
@@ -66,7 +58,7 @@ export default function CupPage() {
   });
 
   const { mutate: editCup, isPending: isEditedCupSubmitting } = useMutation({
-    mutationFn: () => putCup(editedCup),
+    mutationFn: (editedCup) => putCup(editedCup),
     onSuccess: (editedCup) => {
       queryClient.setQueryData(CUP_QUERY_KEYS.element(cupId), editedCup);
       setCupEditing(false);
@@ -128,7 +120,7 @@ export default function CupPage() {
   };
 
   const handleCupEditing = () => {
-    setEditedCup({ ...cup });
+    editCupForm.setValues({ ...cup });
     setCupEditing(true);
   };
 
@@ -146,9 +138,40 @@ export default function CupPage() {
     }
   }, [cup]);
 
-  if (cup == null) {
-    return <LoadingOverlay visible={true} />;
-  }
+  const editCupForm = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      id: cupId,
+      title: "",
+      address: "",
+      season: "",
+    },
+    validate: {
+      title: isNotEmpty("Название не должно быть пустым"),
+      season: (value) =>
+        isEmptyString(value) || isValidSeasonString(value) ? null : "Неверный сезон",
+    },
+  });
+
+  const editCupFormStructure = (
+    <>
+      <TextInput
+        label="Название"
+        key={editCupForm.key("title")}
+        {...editCupForm.getInputProps("title")}
+      />
+      <TextInput
+        label="Адрес"
+        key={editCupForm.key("address")}
+        {...editCupForm.getInputProps("address")}
+      />
+      <TextInput
+        label="Сезон"
+        key={editCupForm.key("season")}
+        {...editCupForm.getInputProps("season")}
+      />
+    </>
+  );
 
   return (
     <>
@@ -170,47 +193,31 @@ export default function CupPage() {
         onConfirm={removeCup}
         isLoading={isCupDeleting}
       />
-      <LoadingOverlay visible={isCupLoading} />
       <Group align="start" flex={1}>
         <MainCard
-          onBack={() => navigate("/cups")}
           onEdit={handleCupEditing}
           isEditing={isCupEditing}
-          isLoading={isEditedCupSubmitting}
-          onEditSubmit={editCup}
+          isLoading={isCupLoading || isEditedCupSubmitting}
+          onEditSubmit={editCupForm.onSubmit((values) => editCup(values))}
           onEditCancel={() => setCupEditing(false)}
           onDelete={cupDelControl.open}
         >
           {isCupEditing ? (
-            <TextInput
-              w="100%"
-              label="Название"
-              value={editedCup.title}
-              onChange={(e) => setEditedCup({ ...editedCup, title: e.currentTarget.value })}
-            />
+            editCupFormStructure
           ) : (
-            <Title order={2}>{cup.title}</Title>
+            <>
+              <Title order={2}>{cup?.title || "Название"}</Title>
+              <TextInput disabled label="Адрес" defaultValue={cup?.address || ""} />
+              <TextInput disabled label="Сезон" defaultValue={cup?.season || ""} />
+            </>
           )}
-          <TextInput
-            w="100%"
-            disabled={!isCupEditing}
-            label="Адрес"
-            value={isCupEditing ? editedCup.address : cup.address}
-            onChange={(e) => setEditedCup({ ...editedCup, address: e.currentTarget.value })}
-          />
-          <TextInput
-            w="100%"
-            disabled={!isCupEditing}
-            label="Сезон"
-            value={isCupEditing ? editedCup.season : cup.season}
-            onChange={(e) => setEditedCup({ ...editedCup, season: e.currentTarget.value })}
-          />
         </MainCard>
         <Flex direction="column" flex={1} h="100%">
           <MainBar
             title={"Соревнования"}
             onRefresh={refetchCompetitions}
             onAdd={competitionAddControl.open}
+            onBack={() => navigate("/cups")}
           />
           <Stack flex={1}>
             {isCompetitionsLoading ? (
@@ -218,7 +225,9 @@ export default function CupPage() {
                 .fill(0)
                 .map((_, index) => (
                   <LinkCardSkeleton key={index} isTagged isExport isDelete>
-                    <Skeleton height={rem(theme.fontSizes.md)} width={250} />
+                    <Skeleton width={250} visible>
+                      <Text>{"placeholder"}</Text>
+                    </Skeleton>
                   </LinkCardSkeleton>
                 ))
             ) : competitions.length > 0 ? (

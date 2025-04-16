@@ -41,6 +41,12 @@ export function LinkCard({ title, to, tag = null, onExport = null, onDelete = nu
   );
 }
 
+const iconSize = 40;
+const tagSize = {
+  width: 140,
+  height: 30,
+};
+
 export function LinkCardSkeleton({
   isTagged = false,
   isExport = false,
@@ -48,13 +54,6 @@ export function LinkCardSkeleton({
   children,
 }) {
   const theme = useMantineTheme();
-
-  const iconSize = 40;
-  const tagSize = {
-    width: 140,
-    height: 30,
-  };
-
   return (
     <Card>
       <Group>
