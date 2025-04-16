@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/page/competition_page.dart';
 import 'package:mobile_app/page/profile_page.dart';
 import 'package:mobile_app/page/series_page.dart';
+import 'package:provider/provider.dart';
+
+import 'model/series_model.dart';
 
 void main() => runApp(
   MaterialApp(
@@ -11,12 +14,21 @@ void main() => runApp(
         secondary: Colors.red,
       ),
     ),
-    home: Onion(),
+    home: MultiProvider(
+      providers: [ChangeNotifierProvider(create: (context) => SeriesModel())],
+      child: Onion(),
+    ),
   ),
 );
 
 class Onion extends StatefulWidget {
-  const Onion({super.key});
+  Onion({super.key});
+
+  final List<Widget> _mainPages = [
+    CompetitionPage(),
+    SeriesPage(),
+    ProfilePage(),
+  ];
 
   @override
   State<StatefulWidget> createState() => _OnionState();
@@ -40,19 +52,13 @@ class _OnionState extends State<Onion> {
       label: 'Профиль',
     ),
   ];
-  late final List<Widget> _mainPages;
-  int _currentPage = 1;
 
-  @override
-  void initState() {
-    super.initState();
-    _mainPages = [CompetitionPage(), SeriesPage(), ProfilePage()];
-  }
+  int _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _mainPages[_currentPage],
+      body: widget._mainPages[_currentPage],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentPage,
         destinations: _destinations,

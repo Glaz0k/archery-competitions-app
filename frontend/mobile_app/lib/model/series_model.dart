@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
 
 class SeriesModel extends ChangeNotifier {
@@ -17,7 +18,9 @@ class SeriesModel extends ChangeNotifier {
     notifyListeners();
   }
   void addNewSeries() {
+    log('Added new series. All series: $_seriesList');
     _seriesList.add(Series([]));
+    notifyListeners();
   }
 }
 

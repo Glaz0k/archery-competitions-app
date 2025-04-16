@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,8 +15,12 @@ class SeriesPage extends StatelessWidget {
     return Consumer<SeriesModel>(
       builder:
           (context, seriesModel, _) => Scaffold(
+            appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(title)),
             floatingActionButton: FloatingActionButton(
               onPressed: seriesModel.addNewSeries,
+              child: Icon(Icons.add),
             ),
             body: ListView(
               scrollDirection: Axis.vertical,
@@ -84,22 +90,28 @@ class _SeriesCardState extends State<SeriesCard> {
       FloatingActionButton(onPressed: widget.onAdd, child: Icon(Icons.add)),
     ];
     var selected = _selected;
-    return Column(
-      children: [
-        ListView(scrollDirection: Axis.horizontal, children: body),
-        AnimatedContainer(
-          duration: Duration(microseconds: 200),
-          child:
-              selected != null
-                  ? Slider(
-                    value: widget.series.scores[selected].toDouble(),
-                    divisions: 10,
-                    onChanged:
-                        (score) => widget.onChange(selected, score.round()),
-                  )
-                  : SizedBox.shrink(),
-        ),
-      ],
+
+    return Card(
+      child: Column(
+        children: [
+          //ListView(scrollDirection: Axis.horizontal, children: body),
+          Row(children: body,),
+          AnimatedContainer(
+            duration: Duration(microseconds: 200),
+            child:
+                selected != null
+                    ? Slider(
+                      min: 0.0,
+                      max: 10.0,
+                      value: widget.series.scores[selected].toDouble(),
+                      divisions: 10,
+                      onChanged:
+                          (score) => widget.onChange(selected, score.round()),
+                    )
+                    : SizedBox.shrink(),
+          ),
+        ],
+      ),
     );
   }
 
