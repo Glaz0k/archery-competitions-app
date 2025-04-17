@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ActionIcon,
+  Center,
   CloseButton,
   Flex,
   Pagination,
@@ -19,8 +18,8 @@ import { CUP_QUERY_KEYS } from "../../api/queryKeys";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
-import AddCupModal from "../modals/AddCupModal";
-import DeleteCupModal from "../modals/DeleteCupModal";
+import AddCupModal from "../modals/cup/AddCupModal";
+import DeleteCupModal from "../modals/cup/DeleteCupModal";
 
 const CUPS_PER_PAGE = 5;
 
@@ -111,7 +110,7 @@ export default function CupsPage() {
         isLoading={isCupDeleting}
       />
 
-      <Flex direction="column" flex={1}>
+      <Flex direction="column" flex={1} gap="lg">
         <MainBar title={"Кубки"} onRefresh={handleRefresh} onAdd={addControl.open}>
           <TextInput
             placeholder="Название"
@@ -120,14 +119,14 @@ export default function CupsPage() {
             rightSection={<CloseButton onClick={() => handleSearch("")} />}
           />
         </MainBar>
-        <Stack flex={1}>
+        <Stack flex={1} gap="md">
           {isCupsLoading ? (
             Array(CUPS_PER_PAGE)
               .fill(0)
               .map((_, index) => (
                 <LinkCardSkeleton key={index} isDelete>
-                  <Skeleton height={rem(theme.fontSizes.md)} width={400} />
-                  <Skeleton height={rem(theme.fontSizes.md)} width={150} />
+                  <Skeleton height={rem(theme.fontSizes.sm)} width={400} />
+                  <Skeleton height={rem(theme.fontSizes.sm)} width={150} />
                 </LinkCardSkeleton>
               ))
           ) : paginatedCups.length > 0 ? (
@@ -138,11 +137,11 @@ export default function CupsPage() {
                 onDelete={() => confirmCupDeletion(cup.id)}
                 to={"/cups/" + cup.id}
               >
-                <Text>
+                <Text size="sm">
                   {"Адрес: "}
                   {cup.address !== null ? cup.address : "Не указан"}
                 </Text>
-                <Text>
+                <Text size="sm">
                   {"Сезон: "}
                   {cup.season !== null ? cup.season : "Не указан"}
                 </Text>
@@ -152,11 +151,13 @@ export default function CupsPage() {
             <EmptyCardSpace label="Кубки не найдены" />
           )}
         </Stack>
-        <Pagination
-          value={activePage}
-          onChange={setActivePage}
-          total={isCupsLoading ? 0 : totalPages}
-        />
+        <Center>
+          <Pagination
+            value={activePage}
+            onChange={setActivePage}
+            total={isCupsLoading ? 0 : totalPages}
+          />
+        </Center>
       </Flex>
     </>
   );

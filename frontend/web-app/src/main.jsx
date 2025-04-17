@@ -3,8 +3,8 @@ import { setDefaultOptions } from "date-fns";
 import { ru } from "date-fns/locale";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
-import { createTheme, MantineProvider } from "@mantine/core";
-import { DatePickerInput, DatesProvider } from "@mantine/dates";
+import { MantineProvider } from "@mantine/core";
+import { DatesProvider } from "@mantine/dates";
 
 import "dayjs/locale/ru";
 
@@ -14,16 +14,7 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const theme = createTheme({
-  components: {
-    DatePickerInput: {
-      defaultProps: {
-        valueFormat: "D MMMM YYYY",
-      },
-    },
-  },
-});
+import theme from "./theme.js";
 
 const queryClient = new QueryClient();
 

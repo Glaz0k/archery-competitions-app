@@ -16,6 +16,7 @@ import BowClass from "../../enums/BowClass";
 import GroupGender from "../../enums/GroupGender";
 import GroupState from "../../enums/GroupState";
 import { MainCard } from "../cards/MainCard";
+import PrimaryCard from "../cards/PrimaryCard";
 import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 
 function defaultAndEnumValues(enumObj) {
@@ -165,83 +166,90 @@ export default function CompetitionPage() {
             />
           </MainCard>
           {!isCompetitorsPage && (
-            <Stack w={300} align="start" pos="relative">
-              <NativeSelect
-                w="100%"
-                label="Тип лука"
-                data={defaultAndEnumValues(BowClass).map((bowClass) => {
-                  return {
-                    label: bowClass.textValue,
-                    value: bowClass.value,
-                  };
-                })}
-                onChange={(e) =>
-                  setIndividualGroupFilter({ ...individualGroupFilter, bow: e.currentTarget.value })
-                }
-              />
-              <NativeSelect
-                w="100%"
-                label="Пол"
-                data={defaultAndEnumValues(GroupGender).map((gender) => {
-                  return {
-                    label: gender.textValue,
-                    value: gender.value,
-                  };
-                })}
-                onChange={(e) =>
-                  setIndividualGroupFilter({
-                    ...individualGroupFilter,
-                    identity: e.currentTarget.value,
-                  })
-                }
-              />
-              <NativeSelect
-                w="100%"
-                label="Состояние"
-                data={defaultAndEnumValues(GroupState).map((state) => {
-                  return {
-                    label: state.textValue,
-                    value: state.value,
-                  };
-                })}
-                onChange={(e) =>
-                  setIndividualGroupFilter({
-                    ...individualGroupFilter,
-                    state: e.currentTarget.value,
-                  })
-                }
-              />
-            </Stack>
+            <PrimaryCard>
+              <Stack w={300} align="start" pos="relative">
+                <NativeSelect
+                  w="100%"
+                  label="Тип лука"
+                  data={defaultAndEnumValues(BowClass).map((bowClass) => {
+                    return {
+                      label: bowClass.textValue,
+                      value: bowClass.value,
+                    };
+                  })}
+                  onChange={(e) =>
+                    setIndividualGroupFilter({
+                      ...individualGroupFilter,
+                      bow: e.currentTarget.value,
+                    })
+                  }
+                />
+                <NativeSelect
+                  w="100%"
+                  label="Пол"
+                  data={defaultAndEnumValues(GroupGender).map((gender) => {
+                    return {
+                      label: gender.textValue,
+                      value: gender.value,
+                    };
+                  })}
+                  onChange={(e) =>
+                    setIndividualGroupFilter({
+                      ...individualGroupFilter,
+                      identity: e.currentTarget.value,
+                    })
+                  }
+                />
+                <NativeSelect
+                  w="100%"
+                  label="Состояние"
+                  data={defaultAndEnumValues(GroupState).map((state) => {
+                    return {
+                      label: state.textValue,
+                      value: state.value,
+                    };
+                  })}
+                  onChange={(e) =>
+                    setIndividualGroupFilter({
+                      ...individualGroupFilter,
+                      state: e.currentTarget.value,
+                    })
+                  }
+                />
+              </Stack>
+            </PrimaryCard>
           )}
-          <Stack w={300} align="start" pos="relative">
-            {isCompetitorsPage ? (
-              <Button
-                w="100%"
-                component={Link}
-                to={"/cups/" + cupId + "/competitions/" + competitionId}
-              >
-                {"Список индивидульных групп"}
-              </Button>
-            ) : (
-              <>
+          <PrimaryCard>
+            <Stack w={300} align="start" pos="relative">
+              {isCompetitorsPage ? (
                 <Button
                   w="100%"
                   component={Link}
-                  to={"/cups/" + cupId + "/competitions/" + competitionId + "/competitors"}
+                  to={"/cups/" + cupId + "/competitions/" + competitionId}
                 >
-                  {"Таблица участников"}
+                  {"Список индивидульных групп"}
                 </Button>
-                <Button
-                  w="100%"
-                  disabled={competition.isEnded}
-                  onClick={endCompetition}
-                  loading={isCompetitionEnding}
-                >
-                  {"Завершить"}
-                </Button>
-              </>
-            )}
-          </Stack>
+              ) : (
+                <>
+                  <Button
+                    w="100%"
+                    component={Link}
+                    to={"/cups/" + cupId + "/competitions/" + competitionId + "/competitors"}
+                  >
+                    {"Таблица участников"}
+                  </Button>
+                  <Button
+                    w="100%"
+                    disabled={competition.isEnded}
+                    onClick={endCompetition}
+                    loading={isCompetitionEnding}
+                  >
+                    {"Завершить"}
+                  </Button>
+                </>
+              )}
+            </Stack>
+          </PrimaryCard>
         </Stack>
         <Outlet context={individualGroupFilter} />
       </Group>

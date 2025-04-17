@@ -2,31 +2,20 @@ import { useEffect, useState } from "react";
 import { IconCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-import {
-  Badge,
-  Flex,
-  Group,
-  LoadingOverlay,
-  Skeleton,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-} from "@mantine/core";
-import { isNotEmpty, useForm } from "@mantine/form";
+import { Badge, Flex, Group, Skeleton, Stack, Text, TextInput, Title } from "@mantine/core";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import { formatCompetitionDateRange } from "../../helper/competitons";
-import { isEmptyString, isValidSeasonString } from "../../helper/validation";
+import useCupForm from "../../hooks/useCupForm";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import { MainCard } from "../cards/MainCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
 import AddCompetitionModal from "../modals/AddCompetitionModal";
+import DeleteCupModal from "../modals/cup/DeleteCupModal";
 import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
-import DeleteCupModal from "../modals/DeleteCupModal";
 
 const SKELETON_LENGTH = 4;
 
@@ -138,34 +127,24 @@ export default function CupPage() {
     }
   }, [cup]);
 
-  const editCupForm = useForm({
-    mode: "uncontrolled",
-    initialValues: {
-      id: cupId,
-      title: "",
-      address: "",
-      season: "",
-    },
-    validate: {
-      title: isNotEmpty("Название не должно быть пустым"),
-      season: (value) =>
-        isEmptyString(value) || isValidSeasonString(value) ? null : "Неверный сезон",
-    },
-  });
+  const editCupForm = useCupForm();
 
   const editCupFormStructure = (
     <>
       <TextInput
+        w="100%"
         label="Название"
         key={editCupForm.key("title")}
         {...editCupForm.getInputProps("title")}
       />
       <TextInput
+        w="100%"
         label="Адрес"
         key={editCupForm.key("address")}
         {...editCupForm.getInputProps("address")}
       />
       <TextInput
+        w="100%"
         label="Сезон"
         key={editCupForm.key("season")}
         {...editCupForm.getInputProps("season")}
@@ -198,7 +177,7 @@ export default function CupPage() {
           onEdit={handleCupEditing}
           isEditing={isCupEditing}
           isLoading={isCupLoading || isEditedCupSubmitting}
-          onEditSubmit={editCupForm.onSubmit((values) => editCup(values))}
+          onEditSubmit={editCupForm.onSubmit((values) => editCup({ id: cupId, ...values }))}
           onEditCancel={() => setCupEditing(false)}
           onDelete={cupDelControl.open}
         >
@@ -207,8 +186,8 @@ export default function CupPage() {
           ) : (
             <>
               <Title order={2}>{cup?.title || "Название"}</Title>
-              <TextInput disabled label="Адрес" defaultValue={cup?.address || ""} />
-              <TextInput disabled label="Сезон" defaultValue={cup?.season || ""} />
+              <TextInput w="100%" disabled label="Адрес" defaultValue={cup?.address || ""} />
+              <TextInput w="100%" disabled label="Сезон" defaultValue={cup?.season || ""} />
             </>
           )}
         </MainCard>

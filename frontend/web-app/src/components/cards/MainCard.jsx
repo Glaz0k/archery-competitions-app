@@ -1,5 +1,6 @@
 import { IconArrowLeft, IconCheck, IconEdit, IconTrashX, IconX } from "@tabler/icons-react";
 import { ActionIcon, Button, Group, LoadingOverlay, Skeleton, Stack } from "@mantine/core";
+import PrimaryCard from "./PrimaryCard";
 
 export function MainCard({
   onEdit,
@@ -11,33 +12,35 @@ export function MainCard({
   children,
 }) {
   return (
-    <Stack w={300} align="start" pos="relative">
+    <PrimaryCard>
       <LoadingOverlay visible={isLoading} />
       <form onSubmit={onEditSubmit}>
-        {children}
-        <Group w="100%">
-          <Group flex={1}>
-            {!isEditing ? (
-              <ActionIcon onClick={onEdit}>
-                <IconEdit />
-              </ActionIcon>
-            ) : (
-              <>
-                <ActionIcon type="submit">
-                  <IconCheck />
+        <Stack w={300} align="start" pos="relative" gap="md">
+          {children}
+          <Group w="100%">
+            <Group flex={1}>
+              {!isEditing ? (
+                <ActionIcon onClick={onEdit}>
+                  <IconEdit />
                 </ActionIcon>
-                <ActionIcon onClick={onEditCancel}>
-                  <IconX />
-                </ActionIcon>
-              </>
-            )}
+              ) : (
+                <>
+                  <ActionIcon type="submit">
+                    <IconCheck />
+                  </ActionIcon>
+                  <ActionIcon onClick={onEditCancel}>
+                    <IconX />
+                  </ActionIcon>
+                </>
+              )}
+            </Group>
+            <ActionIcon onClick={onDelete}>
+              <IconTrashX />
+            </ActionIcon>
           </Group>
-          <ActionIcon onClick={onDelete}>
-            <IconTrashX />
-          </ActionIcon>
-        </Group>
+        </Stack>
       </form>
-    </Stack>
+    </PrimaryCard>
   );
 }
 

@@ -2,6 +2,7 @@ import { IconFileTypePdf, IconInfoCircle, IconTrashX } from "@tabler/icons-react
 import { Link } from "react-router";
 import {
   ActionIcon,
+  Anchor,
   Card,
   Group,
   rem,
@@ -15,15 +16,13 @@ import {
 export function LinkCard({ title, to, tag = null, onExport = null, onDelete = null, children }) {
   return (
     <Card>
-      <Group>
-        <ThemeIcon>
-          <IconInfoCircle />
-        </ThemeIcon>
-        <Stack flex={1}>
-          <Title order={3}>
-            <Link to={to}>{title}</Link>
-          </Title>
-          {children && <Stack>{children}</Stack>}
+      <Group gap="md">
+        <LinkCardIcon />
+        <Stack flex={1} gap="xs" align="flex-start">
+          <Anchor component={Link} to={to}>
+            <Title order={3}>{title}</Title>
+          </Anchor>
+          {children && <Stack gap={0}>{children}</Stack>}
         </Stack>
         {tag}
         {onExport && (
@@ -41,11 +40,12 @@ export function LinkCard({ title, to, tag = null, onExport = null, onDelete = nu
   );
 }
 
-const iconSize = 40;
+const iconSize = "2.5rem";
 const tagSize = {
   width: 140,
   height: 30,
 };
+const buttonSize = "3rem";
 
 export function LinkCardSkeleton({
   isTagged = false,
@@ -58,14 +58,20 @@ export function LinkCardSkeleton({
     <Card>
       <Group>
         <Skeleton circle height={iconSize} />
-        <Stack flex={1}>
-          <Skeleton height={rem(theme.headings.sizes.h3.fontSize)} width={200} />
-          {children && <Stack>{children}</Stack>}
+        <Stack flex={1} gap="md">
+          <Skeleton height={rem(theme.headings.sizes.h3.fontSize)} width={200}>
+            <Title>{"placeholder"}</Title>
+          </Skeleton>
+          {children && <Stack gap="sm">{children}</Stack>}
         </Stack>
         {isTagged && <Skeleton width={tagSize.width} height={tagSize.height} />}
-        {isExport && <Skeleton circle height={iconSize} />}
-        {isDelete && <Skeleton circle height={iconSize} />}
+        {isExport && <Skeleton circle height={buttonSize} />}
+        {isDelete && <Skeleton circle height={buttonSize} />}
       </Group>
     </Card>
   );
+}
+
+function LinkCardIcon() {
+  return <IconInfoCircle size={iconSize} />;
 }
