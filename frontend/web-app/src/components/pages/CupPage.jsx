@@ -2,20 +2,31 @@ import { useEffect, useState } from "react";
 import { IconCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-import { Badge, Flex, Group, Skeleton, Stack, Text, TextInput, Title } from "@mantine/core";
+import {
+  Badge,
+  Flex,
+  Group,
+  Skeleton,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
 import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
+import CompetitionStage from "../../enums/CompetitionStage";
 import { formatCompetitionDateRange } from "../../helper/competitons";
 import useCupForm from "../../hooks/useCupForm";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import { MainCard } from "../cards/MainCard";
 import EmptyCardSpace from "../misc/EmptyCardSpace";
-import AddCompetitionModal from "../modals/AddCompetitionModal";
+import AddCompetitionModal from "../modals/competiton/AddCompetitionModal";
+import DeleteCompetitionModal from "../modals/competiton/DeleteCompetitionModal";
 import DeleteCupModal from "../modals/cup/DeleteCupModal";
-import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
 
 const SKELETON_LENGTH = 4;
 
@@ -23,6 +34,7 @@ export default function CupPage() {
   const { cupId } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const theme = useMantineTheme();
 
   const [competitionDeletingId, setCompetitionDeletingId] = useState(null);
 
@@ -163,7 +175,12 @@ export default function CupPage() {
       <AddCompetitionModal
         isOpened={isOpenedCompetitionAdd}
         onClose={competitionAddControl.close}
-        onSubmit={createCompetition}
+        onSubmit={({ stage, ...others }) => {
+          createCompetition({
+            stage: CompetitionStage.valueOf(stage),
+            ...others,
+          });
+        }}
         isLoading={isCompetitonSubmitting}
       />
       <DeleteCupModal
@@ -172,7 +189,7 @@ export default function CupPage() {
         onConfirm={removeCup}
         isLoading={isCupDeleting}
       />
-      <Group align="start" flex={1}>
+      <Group align="start" flex={1} gap="lg">
         <MainCard
           onEdit={handleCupEditing}
           isEditing={isCupEditing}
@@ -191,7 +208,7 @@ export default function CupPage() {
             </>
           )}
         </MainCard>
-        <Flex direction="column" flex={1} h="100%">
+        <Flex direction="column" flex={1} h="100%" gap="lg">
           <MainBar
             title={"Соревнования"}
             onRefresh={refetchCompetitions}
@@ -204,9 +221,7 @@ export default function CupPage() {
                 .fill(0)
                 .map((_, index) => (
                   <LinkCardSkeleton key={index} isTagged isExport isDelete>
-                    <Skeleton width={250} visible>
-                      <Text>{"placeholder"}</Text>
-                    </Skeleton>
+                    <Skeleton height={theme.fontSizes.sm} width={250} />
                   </LinkCardSkeleton>
                 ))
             ) : competitions.length > 0 ? (
@@ -215,11 +230,17 @@ export default function CupPage() {
                   key={index}
                   title={stage.textValue}
                   to={"/cups/" + cupId + "/competitions/" + id}
-                  tag={isEnded ? <Badge leftSection={<IconCheck />}>{"Завершено"}</Badge> : null}
+                  tag={
+                    isEnded ? (
+                      <Badge leftSection={<IconCheck />}>
+                        <Text tt="capitalize">{"Завершено"}</Text>
+                      </Badge>
+                    ) : null
+                  }
                   onExport={isEnded ? () => handleExport(id) : null}
                   onDelete={() => confirmCompetitionDeletion(id)}
                 >
-                  <Text>{formatCompetitionDateRange({ startDate, endDate })}</Text>
+                  <Text size="sm">{formatCompetitionDateRange({ startDate, endDate })}</Text>
                 </LinkCard>
               ))
             ) : (

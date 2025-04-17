@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Anchor,
   AppShellHeader,
+  Badge,
   Button,
   Card,
   colorsTuple,
@@ -15,6 +16,7 @@ import {
   Pagination,
   Paper,
   rem,
+  Skeleton,
   Text,
   TextInput,
   ThemeIcon,
@@ -183,6 +185,18 @@ const theme = createTheme({
     DatePickerInput: DatePickerInput.extend({
       defaultProps: {
         valueFormat: "D MMMM YYYY",
+      },
+    }),
+    Skeleton: Skeleton.extend({
+      defaultProps: {
+        opacity: 0.7,
+      },
+    }),
+    Badge: Badge.extend({
+      defaultProps: {
+        size: "xl",
+        variant: "white",
+        color: "green.8",
       },
     }),
   },

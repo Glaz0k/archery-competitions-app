@@ -17,7 +17,7 @@ import GroupGender from "../../enums/GroupGender";
 import GroupState from "../../enums/GroupState";
 import { MainCard } from "../cards/MainCard";
 import PrimaryCard from "../cards/PrimaryCard";
-import DeleteCompetitionModal from "../modals/DeleteCompetitionModal";
+import DeleteCompetitionModal from "../modals/competiton/DeleteCompetitionModal";
 
 function defaultAndEnumValues(enumObj) {
   return [
