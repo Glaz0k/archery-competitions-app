@@ -28,14 +28,8 @@ export default function AddFormModal({
         <Stack gap="lg">
           <Stack gap="md">{children}</Stack>
           <Group gap="md" justify="flex-end">
-            <CancelButton size="sm" label="Отменить" onClick={actionsOnClose} />
-            <ConfirmButton
-              size="sm"
-              label="Добавить"
-              type="submit"
-              loading={isLoading}
-              loaderProps={{ type: "dots" }}
-            />
+            <CancelButton size="sm" label="Отменить" onClick={actionsOnClose} loading={isLoading} />
+            <ConfirmButton size="sm" label="Добавить" type="submit" loading={isLoading} />
           </Group>
         </Stack>
       </form>

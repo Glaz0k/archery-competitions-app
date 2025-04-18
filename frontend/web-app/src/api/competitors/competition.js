@@ -4,7 +4,7 @@ import Gender from "../../enums/competitor/Gender";
 import SportsRank from "../../enums/competitor/SportsRank";
 import apiMock from "../mocks";
 
-export async function addCompetitorToCompetition(competitionId, { competitorId }) {
+export async function addCompetitor(competitionId, competitorId) {
   await apiMock();
   const data = {
     competitionId: competitionId,
@@ -25,7 +25,7 @@ export async function addCompetitorToCompetition(competitionId, { competitorId }
   return data;
 }
 
-export async function getCompetitorsFromCompetition(competitionId) {
+export async function getCompetitors(competitionId) {
   await apiMock();
   const data = [
     {
@@ -110,4 +110,30 @@ export async function getCompetitorsFromCompetition(competitionId) {
     },
   ];
   return data;
+}
+
+export async function putCompetitor(competitionId, competitorId, isActive) {
+  console.log(competitorId);
+  await apiMock();
+  return {
+    competitionId: competitionId,
+    competitor: {
+      id: competitorId,
+      fullName: "Изменен Изменнов",
+      birthDate: new Date(1999, 8, 24),
+      identity: Gender.MALE,
+      bow: null,
+      rank: null,
+      region: null,
+      federation: null,
+      club: null,
+    },
+    isActive: isActive,
+    createdAt: parseISO("2024-04-09T18:31:42+03"),
+  };
+}
+
+export async function deleteCompetitor(_competitionId, _competitorId) {
+  await apiMock();
+  return true;
 }

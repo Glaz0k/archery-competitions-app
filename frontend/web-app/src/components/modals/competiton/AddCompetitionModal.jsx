@@ -24,18 +24,21 @@ export default function AddCompetitionModal({ isOpened, onClose, onSubmit, isLoa
             value: stage.value,
           };
         })}
+        disabled={isLoading}
         key={competitionForm.key("stage")}
         {...competitionForm.getInputProps("stage")}
       />
       <DatePickerInput
         label="Дата начала"
         clearable
+        disabled={isLoading}
         key={competitionForm.key("startDate")}
         {...competitionForm.getInputProps("startDate")}
       />
       <DatePickerInput
         label="Дата окончания"
         clearable
+        disabled={isLoading}
         key={competitionForm.key("endDate")}
         {...competitionForm.getInputProps("endDate")}
       />

@@ -1,6 +1,6 @@
 import { Card, Center, Title } from "@mantine/core";
 
-export default function EmptyCardSpace({ label }) {
+export default function NotFoundCard({ label }) {
   return (
     <Center flex={1}>
       <Card>

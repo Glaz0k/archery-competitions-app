@@ -24,17 +24,19 @@ export function LinkCard({ title, to, tag = null, onExport = null, onDelete = nu
           </Anchor>
           {children && <Stack gap={0}>{children}</Stack>}
         </Stack>
-        {tag}
-        {onExport && (
-          <ActionIcon onClick={onExport}>
-            <IconFileTypePdf />
-          </ActionIcon>
-        )}
-        {onDelete && (
-          <ActionIcon onClick={onDelete}>
-            <IconTrashX />
-          </ActionIcon>
-        )}
+        <Group gap="md" wrap="nowrap">
+          {tag}
+          {onExport && (
+            <ActionIcon onClick={onExport}>
+              <IconFileTypePdf />
+            </ActionIcon>
+          )}
+          {onDelete && (
+            <ActionIcon onClick={onDelete}>
+              <IconTrashX />
+            </ActionIcon>
+          )}
+        </Group>
       </Group>
     </Card>
   );

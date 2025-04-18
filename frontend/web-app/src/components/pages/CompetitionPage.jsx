@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router";
-import { Button, Group, LoadingOverlay, NativeSelect, Stack, Text, Title } from "@mantine/core";
+import { Group, LoadingOverlay, NativeSelect, Stack, Text, Title } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
 import {
@@ -15,19 +15,12 @@ import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import BowClass from "../../enums/BowClass";
 import GroupGender from "../../enums/GroupGender";
 import GroupState from "../../enums/GroupState";
+import { DEFAULT_ENUM_VALUE, defaultAndEnumValues } from "../../helper/defaultAndEnumValues";
+import useCompetitionForm from "../../hooks/useCompetitionForm";
+import { TextButton } from "../buttons/TextButton";
 import { MainCard } from "../cards/MainCard";
 import PrimaryCard from "../cards/PrimaryCard";
 import DeleteCompetitionModal from "../modals/competiton/DeleteCompetitionModal";
-
-function defaultAndEnumValues(enumObj) {
-  return [
-    {
-      value: "default",
-      textValue: "Не указано",
-    },
-    ...Object.values(enumObj),
-  ];
-}
 
 export default function CompetitionPage() {
   const { cupId, competitionId } = useParams();
@@ -35,21 +28,14 @@ export default function CompetitionPage() {
   const navigate = useNavigate();
 
   const [isCompetitionEditing, setCompetitionEditing] = useState(false);
-  const [editedCompetition, setEditedCompetition] = useState({
-    id: null,
-    stage: null,
-    startDate: null,
-    endDate: null,
-    isEnded: null,
-  });
 
   const [isOpenedCompetitionDel, competitionDelControl] = useDisclosure(false);
 
   const isCompetitorsPage = useLocation().pathname.endsWith("/competitors");
   const [individualGroupFilter, setIndividualGroupFilter] = useState({
-    bow: "default",
-    identity: "default",
-    state: "default",
+    bow: DEFAULT_ENUM_VALUE,
+    identity: DEFAULT_ENUM_VALUE,
+    state: DEFAULT_ENUM_VALUE,
   });
 
   const [webTitle, setWebTitle] = useState(null);
@@ -72,9 +58,10 @@ export default function CompetitionPage() {
   const [{ data: cup }, { data: competition }] = mainQuery;
   const isMainInfoLoading = mainQuery.some((query) => query.isFetching);
   const isMainInfoLoadError = mainQuery.some((query) => query.isError);
+  const isMainInfoNotFound = mainQuery.some((query) => query.error?.response?.status === 404);
 
   const { mutate: editCompetition, isPending: isEditedCompetitionSubmitting } = useMutation({
-    mutationFn: () => putCompetition(editedCompetition),
+    mutationFn: (editedCompetition) => putCompetition(editedCompetition),
     onSuccess: (editedCompetition) => {
       queryClient.setQueryData(COMPETITION_QUERY_KEYS.element(competitionId), editedCompetition);
       setCompetitionEditing(false);
@@ -97,15 +84,19 @@ export default function CompetitionPage() {
   });
 
   const handleCompetitionEditing = () => {
-    setEditedCompetition({ ...competition });
+    const { stage, ...others } = competition;
+    editCompetitionForm.setValues({
+      stage: stage.value,
+      ...others,
+    });
     setCompetitionEditing(true);
   };
 
   useEffect(() => {
-    if (isMainInfoLoadError && mainQuery.some((query) => query.error.response?.status === 404)) {
+    if (isMainInfoLoadError && isMainInfoNotFound) {
       navigate("/not-found");
     }
-  }, [isMainInfoLoadError, mainQuery, navigate]);
+  }, [isMainInfoLoadError, isMainInfoNotFound, navigate]);
 
   useEffect(() => {
     let title = "ArcheryManager - ";
@@ -123,9 +114,23 @@ export default function CompetitionPage() {
     setWebTitle(title);
   }, [cup, competition, isCompetitorsPage]);
 
-  if (cup == null || competition == null) {
-    return <LoadingOverlay visible={true} />;
-  }
+  const editCompetitionForm = useCompetitionForm();
+  const editCompetitionFormStructure = (
+    <>
+      <DatePickerInput
+        w="100%"
+        label="Дата начала"
+        key={editCompetitionForm.key("startDate")}
+        {...editCompetitionForm.getInputProps("startDate")}
+      />
+      <DatePickerInput
+        w="100%"
+        label="Дата окончания"
+        key={editCompetitionForm.key("endDate")}
+        {...editCompetitionForm.getInputProps("endDate")}
+      />
+    </>
+  );
 
   return (
     <>
@@ -135,42 +140,55 @@ export default function CompetitionPage() {
         onConfirm={removeCompetition}
         isLoading={isCompetitionDeleting}
       />
-      <Group align="start" display="flex" flex={1} style={{ overflow: "hidden" }}>
-        <Stack>
+      <Group align="start" display="flex" flex={1} style={{ overflow: "hidden" }} gap="lg">
+        <Stack gap="md">
           <MainCard
-            onBack={() => navigate("/cups/" + cupId)}
             onEdit={handleCompetitionEditing}
             isEditing={isCompetitionEditing}
             isLoading={isMainInfoLoading || isEditedCompetitionSubmitting}
-            onEditSubmit={editCompetition}
+            onEditSubmit={editCompetitionForm.onSubmit((values) =>
+              editCompetition({
+                id: competitionId,
+                ...values,
+              })
+            )}
             onEditCancel={() => setCompetitionEditing(false)}
             onDelete={competitionDelControl.open}
           >
-            <Title order={2}>{competition.stage.textValue}</Title>
-            <Text>
-              {cup.title}, сезон {cup.season ? cup.season : "не указан"}
-            </Text>
-            <DatePickerInput
-              w="100%"
-              label="Дата начала"
-              disabled={!isCompetitionEditing}
-              value={isCompetitionEditing ? editedCompetition.startDate : competition.startDate}
-              onChange={(date) => setEditedCompetition({ ...editedCompetition, startDate: date })}
-            />
-            <DatePickerInput
-              w="100%"
-              label="Дата окончания"
-              disabled={!isCompetitionEditing}
-              value={isCompetitionEditing ? editedCompetition.endDate : competition.endDate}
-              onChange={(date) => setEditedCompetition({ ...editedCompetition, endDate: date })}
-            />
+            <Stack gap={0}>
+              <Title order={2}>{competition?.stage.textValue || "Этап"}</Title>
+              <Text>
+                {cup?.title || "Название"}
+                {cup?.season && ", сезон " + cup.season}
+              </Text>
+            </Stack>
+            {isCompetitionEditing ? (
+              editCompetitionFormStructure
+            ) : (
+              <>
+                <DatePickerInput
+                  w="100%"
+                  disabled
+                  label="Дата начала"
+                  value={competition?.startDate}
+                  onChange={() => {}}
+                />
+                <DatePickerInput
+                  w="100%"
+                  disabled
+                  label="Дата окончания"
+                  value={competition?.endDate}
+                  onChange={() => {}}
+                />
+              </>
+            )}
           </MainCard>
           {!isCompetitorsPage && (
             <PrimaryCard>
               <Stack w={300} align="start" pos="relative">
                 <NativeSelect
                   w="100%"
-                  label="Тип лука"
+                  label="Класс лука"
                   data={defaultAndEnumValues(BowClass).map((bowClass) => {
                     return {
                       label: bowClass.textValue,
@@ -219,37 +237,26 @@ export default function CompetitionPage() {
               </Stack>
             </PrimaryCard>
           )}
-          <PrimaryCard>
-            <Stack w={300} align="start" pos="relative">
-              {isCompetitorsPage ? (
-                <Button
+          {!isCompetitorsPage && (
+            <PrimaryCard>
+              <LoadingOverlay visible={isMainInfoLoading || isEditedCompetitionSubmitting} />
+              <Stack w={300} align="start" pos="relative">
+                <TextButton
+                  label="Таблица участников"
                   w="100%"
                   component={Link}
-                  to={"/cups/" + cupId + "/competitions/" + competitionId}
-                >
-                  {"Список индивидульных групп"}
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    w="100%"
-                    component={Link}
-                    to={"/cups/" + cupId + "/competitions/" + competitionId + "/competitors"}
-                  >
-                    {"Таблица участников"}
-                  </Button>
-                  <Button
-                    w="100%"
-                    disabled={competition.isEnded}
-                    onClick={endCompetition}
-                    loading={isCompetitionEnding}
-                  >
-                    {"Завершить"}
-                  </Button>
-                </>
-              )}
-            </Stack>
-          </PrimaryCard>
+                  to={"/cups/" + cupId + "/competitions/" + competitionId + "/competitors"}
+                />
+                <TextButton
+                  label="Завершить"
+                  w="100%"
+                  disabled={competition?.isEnded}
+                  onClick={endCompetition}
+                  loading={isCompetitionEnding}
+                />
+              </Stack>
+            </PrimaryCard>
+          )}
         </Stack>
         <Outlet context={individualGroupFilter} />
       </Group>

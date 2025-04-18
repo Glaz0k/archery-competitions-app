@@ -1,12 +1,20 @@
 import { IconCheck, IconDots } from "@tabler/icons-react";
-import { Badge } from "@mantine/core";
+import { Badge, Text } from "@mantine/core";
 import GroupState from "../../enums/GroupState";
 
 export default function GroupStateBadge({ state }) {
-  switch (state) {
-    case GroupState.COMPLETED:
-      return <Badge leftSection={<IconCheck />}>{state.textValue}</Badge>;
+  switch (state?.value) {
+    case GroupState.COMPLETED.value:
+      return (
+        <Badge leftSection={<IconCheck />} color="green.8">
+          <Text tt="capitalize">{state?.textValue}</Text>
+        </Badge>
+      );
     default:
-      return <Badge leftSection={<IconDots />}>{state.textValue}</Badge>;
+      return (
+        <Badge leftSection={<IconDots />} color="dark.8">
+          <Text tt="capitalize">{state?.textValue}</Text>
+        </Badge>
+      );
   }
 }

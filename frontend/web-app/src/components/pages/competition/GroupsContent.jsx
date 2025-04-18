@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { IconRefresh } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useOutletContext, useParams } from "react-router";
-import { ActionIcon, Stack } from "@mantine/core";
+import { useNavigate, useOutletContext, useParams } from "react-router";
+import { Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { getIndividualGroups, postIndividualGroup } from "../../../api/competitions";
 import { deleteIndividualGroup } from "../../../api/individualGroups";
@@ -10,19 +9,20 @@ import { INDIVIDUAL_GROUP_QUERY_KEYS } from "../../../api/queryKeys";
 import BowClass from "../../../enums/BowClass";
 import GroupGender from "../../../enums/GroupGender";
 import GroupState from "../../../enums/GroupState";
+import { DEFAULT_ENUM_VALUE } from "../../../helper/defaultAndEnumValues";
 import MainBar from "../../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../../cards/LinkCard";
-import EmptyCardSpace from "../../misc/EmptyCardSpace";
+import NotFoundCard from "../../cards/NotFoundCard";
 import GroupStateBadge from "../../misc/GroupStateBadge";
-import AddIndividualGroupModal from "../../modals/AddIndividualGroupModal";
-import DeleteIndividualGroupModal from "../../modals/DeleteIndividualGroupModal";
+import AddIndividualGroupModal from "../../modals/individual-group/AddIndividualGroupModal";
+import DeleteIndividualGroupModal from "../../modals/individual-group/DeleteIndividualGroupModal";
 
 const SKELETON_LENGTH = 7;
 
 function isExported(groupState) {
-  switch (groupState) {
-    case GroupState.CREATED:
-    case GroupState.QUAL_START:
+  switch (groupState?.value) {
+    case GroupState.CREATED.value:
+    case GroupState.QUAL_START.value:
       return false;
     default:
       return true;
@@ -32,7 +32,8 @@ function isExported(groupState) {
 export default function GroupsContent() {
   const groupsFilter = useOutletContext();
   const queryClient = useQueryClient();
-  const { competitionId } = useParams();
+  const { cupId, competitionId } = useParams();
+  const navigate = useNavigate();
 
   const [isOpenedGroupAdd, groupAddControl] = useDisclosure(false);
   const [isOpenedGroupDel, groupDelControl] = useDisclosure(false);
@@ -84,19 +85,16 @@ export default function GroupsContent() {
   };
 
   const filteredGroups = groups.filter((group) => {
-    if (groupsFilter.bow !== "default" && group.bow !== BowClass.valueOf(groupsFilter.bow)) {
+    if (groupsFilter.bow !== DEFAULT_ENUM_VALUE && groupsFilter.bow !== group?.bow?.value) {
       return false;
     }
     if (
-      groupsFilter.identity !== "default" &&
-      group.identity !== GroupGender.valueOf(groupsFilter.identity)
+      groupsFilter.identity !== DEFAULT_ENUM_VALUE &&
+      groupsFilter.identity !== group?.identity?.value
     ) {
       return false;
     }
-    if (
-      groupsFilter.state !== "default" &&
-      group.state !== GroupState.valueOf(groupsFilter.state)
-    ) {
+    if (groupsFilter.state !== DEFAULT_ENUM_VALUE && groupsFilter.state !== group?.state?.value) {
       return false;
     }
     return true;
@@ -107,7 +105,12 @@ export default function GroupsContent() {
       <AddIndividualGroupModal
         isOpened={isOpenedGroupAdd}
         onClose={groupAddControl.close}
-        onSubmit={createGroup}
+        onSubmit={({ bow, identity }) =>
+          createGroup({
+            bow: BowClass.valueOf(bow),
+            identity: GroupGender.valueOf(identity),
+          })
+        }
         isLoading={isGroupSubmitting}
       />
       <DeleteIndividualGroupModal
@@ -116,12 +119,13 @@ export default function GroupsContent() {
         onConfirm={removeGroup}
         isLoading={isGroupDeleting}
       />
-      <Stack flex={1} h="100%">
+      <Stack flex={1} h="100%" gap="lg" miw={500}>
         <MainBar
           title={"Индивидуальные группы"}
           onRefresh={refetchGroups}
           onAdd={groupAddControl.open}
-        ></MainBar>
+          onBack={() => navigate("/cups/" + cupId)}
+        />
         <Stack flex={1}>
           {isGroupsLoading ? (
             Array(SKELETON_LENGTH)
@@ -141,7 +145,7 @@ export default function GroupsContent() {
               );
             })
           ) : (
-            <EmptyCardSpace label={"Группы не найдены"} />
+            <NotFoundCard label={"Группы не найдены"} />
           )}
         </Stack>
       </Stack>

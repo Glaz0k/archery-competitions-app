@@ -18,12 +18,12 @@ import { deleteCompetition } from "../../api/competitions";
 import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
 import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
 import CompetitionStage from "../../enums/CompetitionStage";
-import { formatCompetitionDateRange } from "../../helper/competitons";
+import { formatCompetitionDateRange } from "../../helper/formatCompetitionDateRange";
 import useCupForm from "../../hooks/useCupForm";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import { MainCard } from "../cards/MainCard";
-import EmptyCardSpace from "../misc/EmptyCardSpace";
+import NotFoundCard from "../cards/NotFoundCard";
 import AddCompetitionModal from "../modals/competiton/AddCompetitionModal";
 import DeleteCompetitionModal from "../modals/competiton/DeleteCompetitionModal";
 import DeleteCupModal from "../modals/cup/DeleteCupModal";
@@ -203,8 +203,20 @@ export default function CupPage() {
           ) : (
             <>
               <Title order={2}>{cup?.title || "Название"}</Title>
-              <TextInput w="100%" disabled label="Адрес" defaultValue={cup?.address || ""} />
-              <TextInput w="100%" disabled label="Сезон" defaultValue={cup?.season || ""} />
+              <TextInput
+                w="100%"
+                disabled
+                label="Адрес"
+                value={cup?.address || ""}
+                onChange={() => {}}
+              />
+              <TextInput
+                w="100%"
+                disabled
+                label="Сезон"
+                value={cup?.season || ""}
+                onChange={() => {}}
+              />
             </>
           )}
         </MainCard>
@@ -232,7 +244,7 @@ export default function CupPage() {
                   to={"/cups/" + cupId + "/competitions/" + id}
                   tag={
                     isEnded ? (
-                      <Badge leftSection={<IconCheck />}>
+                      <Badge leftSection={<IconCheck />} color={"green.8"}>
                         <Text tt="capitalize">{"Завершено"}</Text>
                       </Badge>
                     ) : null
@@ -244,7 +256,7 @@ export default function CupPage() {
                 </LinkCard>
               ))
             ) : (
-              <EmptyCardSpace label="Соревнования не найдены" />
+              <NotFoundCard label="Соревнования не найдены" />
             )}
           </Stack>
         </Flex>

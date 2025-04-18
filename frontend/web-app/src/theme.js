@@ -10,6 +10,7 @@ import {
   Input,
   InputLabel,
   InputWrapper,
+  LoadingOverlay,
   Modal,
   ModalBase,
   ModalBaseBody,
@@ -112,7 +113,12 @@ const theme = createTheme({
         bg: "primary.9",
         c: "white.0",
         p: "md",
-        bd: "none",
+        zIndex: 200,
+      },
+    }),
+    LoadingOverlay: LoadingOverlay.extend({
+      defaultProps: {
+        zIndex: 100,
       },
     }),
     Text: Text.extend({
@@ -196,7 +202,6 @@ const theme = createTheme({
       defaultProps: {
         size: "xl",
         variant: "white",
-        color: "green.8",
       },
     }),
   },

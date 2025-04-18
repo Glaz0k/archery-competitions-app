@@ -17,7 +17,7 @@ import { deleteCup, getCups, postCup } from "../../api/cups";
 import { CUP_QUERY_KEYS } from "../../api/queryKeys";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
-import EmptyCardSpace from "../misc/EmptyCardSpace";
+import NotFoundCard from "../cards/NotFoundCard";
 import AddCupModal from "../modals/cup/AddCupModal";
 import DeleteCupModal from "../modals/cup/DeleteCupModal";
 
@@ -148,7 +148,7 @@ export default function CupsPage() {
               </LinkCard>
             ))
           ) : (
-            <EmptyCardSpace label="Кубки не найдены" />
+            <NotFoundCard label="Кубки не найдены" />
           )}
         </Stack>
         <Center>

@@ -51,10 +51,11 @@ export async function postIndividualGroup(id, { bow, identity }) {
   const individualGroup = {
     id: Math.floor(Math.random() * 10000),
     competitionId: id,
-    bow: BowClass.valueOf(bow),
-    identity: GroupGender.valueOf(identity),
+    bow: bow,
+    identity: identity,
     state: GroupState.CREATED,
   };
+  console.log(individualGroup);
   return individualGroup;
 }
 
@@ -98,7 +99,9 @@ export async function getIndividualGroups(id) {
       ...entry,
     };
   });
-  return data.map(mapToIndividualGroup);
+  let test = data.map(mapToIndividualGroup);
+  // console.log(test);
+  return test;
 }
 
 function mapToIndividualGroup({ id, competition_id, bow, identity, state }) {
