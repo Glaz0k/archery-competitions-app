@@ -1,4 +1,4 @@
-import { Button, Modal, Stack, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
 import DeletionModal from "../DeletionModal";
 
 export default function DeleteCupModal({ isOpened, onClose, onConfirm, isLoading }) {

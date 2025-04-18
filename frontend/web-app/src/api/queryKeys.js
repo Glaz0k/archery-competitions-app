@@ -1,24 +1,24 @@
 export const CUP_QUERY_KEYS = {
   all: ["cups"],
-  element: (id) => [...CUP_QUERY_KEYS.all, id],
+  element: (cupId) => [...CUP_QUERY_KEYS.all, Number(cupId)],
 };
 
 export const COMPETITION_QUERY_KEYS = {
   all: ["competitions"],
-  allByCup: (cupId) => [...CUP_QUERY_KEYS.all, cupId, ...COMPETITION_QUERY_KEYS.all],
-  element: (id) => [...COMPETITION_QUERY_KEYS.all, id],
+  allByCup: (cupId) => [...CUP_QUERY_KEYS.all, Number(cupId), ...COMPETITION_QUERY_KEYS.all],
+  element: (competitionId) => [...COMPETITION_QUERY_KEYS.all, Number(competitionId)],
 };
 
 export const INDIVIDUAL_GROUP_QUERY_KEYS = {
   all: ["individual_groups"],
   allByCompetition: (competitionId) => [
     ...COMPETITION_QUERY_KEYS.all,
-    competitionId,
+    Number(competitionId),
     ...INDIVIDUAL_GROUP_QUERY_KEYS.all,
   ],
 };
 
 export const COMPETITOR_QUERY_KEYS = {
   all: ["competitors"],
-  allByCompetition: (competitionId) => [...COMPETITOR_QUERY_KEYS.all, competitionId],
+  allByCompetition: (competitionId) => [...COMPETITOR_QUERY_KEYS.all, Number(competitionId)],
 };

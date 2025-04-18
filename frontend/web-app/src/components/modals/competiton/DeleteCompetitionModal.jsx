@@ -1,5 +1,4 @@
 import { Text } from "@mantine/core";
-import CompetitionStage from "../../../enums/CompetitionStage";
 import DeletionModal from "../DeletionModal";
 
 export default function DeleteCompetitionModal({ isOpened, onClose, onConfirm, isLoading }) {

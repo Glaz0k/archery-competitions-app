@@ -1,16 +1,26 @@
-import { IconCheck, IconFileUpload, IconTrashX, IconX } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { IconFileUpload } from "@tabler/icons-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
-import { useParams } from "react-router";
-import { ActionIcon, LoadingOverlay, Skeleton, Stack, Table } from "@mantine/core";
-import { getCompetitorsFromCompetition } from "../../../api/competitors/competition";
+import { useNavigate, useParams } from "react-router";
+import { ActionIcon, Card, LoadingOverlay, Stack, Table } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { deleteCompetitor, getCompetitors } from "../../../api/competitors/competition";
 import { COMPETITOR_QUERY_KEYS } from "../../../api/queryKeys";
 import MainBar from "../../bars/MainBar";
-import EmptyCardSpace from "../../misc/EmptyCardSpace";
+import NotFoundCard from "../../cards/NotFoundCard";
+import DeleteCompetitorModal from "../../modals/competitor/DeleteCompetitorModal";
+import CompetitorRow from "../../tables/CompetitorRow";
 
 export default function CompetitorsContent() {
-  const { competitionId } = useParams();
+  const { cupId, competitionId } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [competitorDeletingId, setCompetitorDeletingId] = useState(null);
+
+  const [isOpenedCompetitorDel, competitorDelControl] = useDisclosure();
 
   const {
     data: competitorDetails,
@@ -18,13 +28,40 @@ export default function CompetitorsContent() {
     refetch: refetchCompetitorDetails,
   } = useQuery({
     queryKey: COMPETITOR_QUERY_KEYS.allByCompetition(competitionId),
-    queryFn: () => getCompetitorsFromCompetition(competitionId),
+    queryFn: () => getCompetitors(competitionId),
     initialData: [],
   });
+
+  const { mutate: removeCompetitor, isPending: isCompetitorDeleting } = useMutation({
+    mutationFn: () => deleteCompetitor(competitionId, competitorDeletingId),
+    onSuccess: () => {
+      queryClient.setQueryData(COMPETITOR_QUERY_KEYS.allByCompetition(competitionId), (old) =>
+        old.filter((detail) => detail?.competitor?.id !== competitorDeletingId)
+      );
+      setCompetitorDeletingId(null);
+      competitorDelControl.close();
+    },
+  });
+
+  const handleCompetitorDeleting = (id) => {
+    setCompetitorDeletingId(id);
+    competitorDelControl.open();
+  };
+
+  const handleCompetitorAdd = () => {
+    // TODO
+    console.warn("handleCompetitorAdd temporary unavailable");
+  };
+
+  const handleExcelTableUpload = () => {
+    // TODO
+    console.warn("handleExcelTableUpload temporary unavailable");
+  };
 
   const tableData = competitorDetails.map((competitorDetail) => {
     const competitor = competitorDetail?.competitor;
     return {
+      competitionId: Number(competitionId),
       id: competitor?.id,
       timeMoscow: formatInTimeZone(
         competitorDetail?.createdAt,
@@ -40,6 +77,8 @@ export default function CompetitorsContent() {
       federation: competitor?.federation,
       club: competitor?.club,
       isActive: competitorDetail.isActive,
+      onDelete: () => handleCompetitorDeleting(competitorDetail?.competitor?.id),
+      isDeleting: competitorDetail?.competitor?.id === competitorDeletingId && isCompetitorDeleting,
     };
   });
 
@@ -51,70 +90,55 @@ export default function CompetitorsContent() {
       <Table.Th>{"Дата рождения"}</Table.Th>
       <Table.Th>{"Пол"}</Table.Th>
       <Table.Th>{"Класс лука"}</Table.Th>
-      <Table.Th>{"Спортивный разряд/звание"}</Table.Th>
+      <Table.Th>{"Разряд"}</Table.Th>
       <Table.Th>{"Регион"}</Table.Th>
-      <Table.Th>{"Членство в спортивной федерации"}</Table.Th>
-      <Table.Th>{"Клубная принадлежность"}</Table.Th>
+      <Table.Th>{"Федерация"}</Table.Th>
+      <Table.Th>{"Клуб"}</Table.Th>
       <Table.Th />
     </Table.Tr>
   );
 
   const tableRows = tableData.map((rowElement) => (
-    <Table.Tr key={rowElement.id}>
-      <Table.Td>
-        <ActionIcon.Group>
-          <ActionIcon disabled={rowElement.isActive}>
-            <IconCheck />
-          </ActionIcon>
-          <ActionIcon disabled={!rowElement.isActive}>
-            <IconX />
-          </ActionIcon>
-        </ActionIcon.Group>
-      </Table.Td>
-      <Table.Td>{rowElement.timeMoscow}</Table.Td>
-      <Table.Td>{rowElement.fullName}</Table.Td>
-      <Table.Td>{rowElement.birthDate}</Table.Td>
-      <Table.Td>{rowElement.identity}</Table.Td>
-      <Table.Td>{rowElement.bow || "Не указан"}</Table.Td>
-      <Table.Td>{rowElement.rank || "б/р"}</Table.Td>
-      <Table.Td>{rowElement.region || "Не указан"}</Table.Td>
-      <Table.Td>{rowElement.federation || "Отсутствует"}</Table.Td>
-      <Table.Td>{rowElement.club || "Отсутствует"}</Table.Td>
-      <Table.Td>
-        <ActionIcon>
-          <IconTrashX />
-        </ActionIcon>
-      </Table.Td>
-    </Table.Tr>
+    <CompetitorRow key={rowElement.id} {...rowElement} />
   ));
 
   return (
-    <Stack flex={1} style={{ overflow: "hidden" }}>
-      <MainBar
-        title="Участники соревнования"
-        onRefresh={() => {
-          refetchCompetitorDetails();
-          console.log("xui");
-        }}
-      >
-        <ActionIcon>
-          <IconFileUpload />
-        </ActionIcon>
-      </MainBar>
-      <Stack pos="relative" style={{ overflow: "hidden" }}>
-        {isCompetitorDetailsLoading ? (
-          <Skeleton h={400} />
-        ) : competitorDetails.length !== 0 ? (
-          <Table.ScrollContainer>
-            <Table tabularNums withColumnBorders>
-              <Table.Thead>{tableHead}</Table.Thead>
-              <Table.Tbody>{tableRows}</Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
+    <>
+      <DeleteCompetitorModal
+        isOpened={isOpenedCompetitorDel}
+        onClose={competitorDelControl.close}
+        onConfirm={removeCompetitor}
+        isLoading={isCompetitorDeleting}
+      />
+      <Stack flex={1} style={{ overflow: "hidden" }} gap="lg" miw={500}>
+        <MainBar
+          title="Участники соревнования"
+          onRefresh={refetchCompetitorDetails}
+          onAdd={handleCompetitorAdd}
+          onBack={() => navigate("/cups/" + cupId + "/competitions/" + competitionId)}
+        >
+          <ActionIcon onClick={handleExcelTableUpload}>
+            <IconFileUpload />
+          </ActionIcon>
+        </MainBar>
+        {competitorDetails.length !== 0 ? (
+          <Card p={0} pos="relative">
+            <LoadingOverlay visible={isCompetitorDetailsLoading} />
+            <Table.ScrollContainer>
+              <Table tabularNums withColumnBorders>
+                <Table.Thead>{tableHead}</Table.Thead>
+                <Table.Tbody>{tableRows}</Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+          </Card>
+        ) : isCompetitorDetailsLoading ? (
+          <Card h={500} pos="relative">
+            <LoadingOverlay visible />
+          </Card>
         ) : (
-          <EmptyCardSpace label="Участники не найдены" />
+          <NotFoundCard label="Участники не найдены" />
         )}
       </Stack>
-    </Stack>
+    </>
   );
 }
