@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
@@ -166,14 +167,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String formatDate(DateTime date) {
     try {
-      final format = DateFormat('dd MMMM yyyy', 'ru_RU');
+      final format = DateFormat('dd.MM.yyyy', 'ru_RU');
       return format.format(date);
     } catch (e) {
-      const months = [
-        'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
-        'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'
-      ];
-      return '${date.day} ${months[date.month - 1]} ${date.year}';
+      return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';;
     }
   }
 
@@ -236,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: ListTile(
                       title: const Text("Лук"),
-                      subtitle: Text(user.bow.getBowClass),
+                      subtitle: Text(user.bow!.getBowClass),
                       leading: Icon(Icons.dangerous, color: Colors.teal),
                     ),
                   ),
@@ -247,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     child: ListTile(
                       title: const Text("Спортивный разряд"),
-                      subtitle: Text(user.rank.getSportsRank),
+                      subtitle: Text(user.rank!.getSportsRank),
                       leading: Icon(Icons.star, color: Colors.teal),
                     ),
                   ),
@@ -319,6 +316,10 @@ class _EditProfilePage extends State<EditProfilePage> {
   late TextEditingController fullNameController;
   late TextEditingController regionController;
   late TextEditingController clubController;
+  String? chosenGender;
+  String? chosenBow;
+  String? chosenRank;
+  late DateTime chosenTime;
 
   @override
   void initState() {
@@ -327,6 +328,10 @@ class _EditProfilePage extends State<EditProfilePage> {
     fullNameController = TextEditingController(text: user.fullName);
     regionController = TextEditingController(text: user.region);
     clubController = TextEditingController(text: user.club);
+    chosenGender = user.identity.getGender;
+    chosenBow = user.bow?.getBowClass;
+    chosenRank = user.rank?.getSportsRank;
+    chosenTime = user.dateOfBirth;
   }
 
   @override
@@ -365,11 +370,76 @@ class _EditProfilePage extends State<EditProfilePage> {
                           children: [
                             buildMyField(),
                             SizedBox(height: 7),
+                            DropdownButtonFormField<String>(
+                              value: chosenGender,
+                              decoration: InputDecoration(
+                                labelText: 'Пол',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: ['Мужчина', 'Женщина'].map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (newVal) {
+                                setState(() {
+                                  chosenGender = newVal;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 7),
+                            DropdownButtonFormField<String>(
+                              value: chosenBow,
+                              decoration: InputDecoration(
+                                labelText: 'Класс лука',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: ['Классический', 'Блочный',"КЛ(новички)","3Д-классический лук","3Д-составной лук","3Д-длинный лук","Периферийный лук","Периферийный лук(с кольцом)"].map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (newVal) {
+                                setState(() {
+                                  chosenBow = newVal;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 7),
+                            DropdownButtonFormField<String>(
+                              value: chosenRank,
+                              decoration: InputDecoration(
+                                labelText: 'Спортивный разряд/звание',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: ['Мастер спорта', 'Кандидат мастера спорта',"Первый разряд","Второй разряд","Третий разряд","Международный магистр","Периферийный лук","Заслуженный мастер спорта"].map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (newVal) {
+                                setState(() {
+                                  chosenRank = newVal;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 7),
+
+                            SizedBox(height: 7),
                             buildRegion(),
                             SizedBox(height: 7),
                             buildClub(),
                             SizedBox(height: 7),
-                            //buildLogin(),
+                            SizedBox(
+                              width: double.infinity, // Растягивает на всю ширину
+                              child: OutlinedButton(
+                                onPressed: () => chooseDate(context),
+                                child: Text('Изменить дату рождения',style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
+                              ),
+                            ),
                             SizedBox(height: 7),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -398,6 +468,10 @@ class _EditProfilePage extends State<EditProfilePage> {
                                     );
                                     userProvider.updateRegion(regionController.text);
                                     userProvider.updateClub(clubController.text);
+                                    chosenGender == "Мужчина" ? userProvider.updateGender(Gender.male) : userProvider.updateGender(Gender.female);
+                                    userProvider.updateBow(BowExtension.setBowClass(chosenBow));
+                                    userProvider.updateRank(SportsRankExtension.setSportsRank(chosenRank));
+                                    userProvider.updateDateOfBirth(chosenTime);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         behavior: SnackBarBehavior.floating,
@@ -475,6 +549,17 @@ class _EditProfilePage extends State<EditProfilePage> {
   //   );
   // }
 
+  Future chooseDate(BuildContext context) async{
+    final newDate = await showDatePicker(context: context,
+      initialDate: chosenTime,
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),);
+    if (newDate == null) return;
+    setState(() {
+      chosenTime = newDate;
+    });
+  }
+
   Widget buildMyField() {
     return TextFormField(
       controller: fullNameController,
@@ -512,20 +597,5 @@ class _EditProfilePage extends State<EditProfilePage> {
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.text,
     );
-  }
-
-  selectDate() async {
-    var user = Provider.of<UserProvider>(context).userPref;
-    final DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: user.dateOfBirth,
-      firstDate: DateTime(1950),
-      lastDate: DateTime(2025),
-    );
-    if (selectedDate != user.dateOfBirth) {
-      setState(() {
-        user.dateOfBirth = selectedDate!;
-      });
-    }
   }
 }
