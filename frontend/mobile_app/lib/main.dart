@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/page/competition_page.dart';
 import 'package:mobile_app/page/profile_page.dart';
-import 'package:mobile_app/page/series_page.dart';
+import 'package:mobile_app/page/range_input_page.dart';
 import 'package:provider/provider.dart';
 
-import 'model/series_model.dart';
+import 'model/range_model.dart';
 
 void main() => runApp(
   MaterialApp(
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
-        secondary: Colors.red,
+        seedColor: Colors.green,
       ),
     ),
     home: MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => SeriesModel())],
+      providers: [ChangeNotifierProvider(create: (context) => RangeModel([], 3, 3, false))],
       child: Onion(),
     ),
   ),
