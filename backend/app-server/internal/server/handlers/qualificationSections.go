@@ -92,6 +92,13 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	for i := 1; i <= 3; i++ {
+		_, err = tx.Exec(context.Background(), `INSERT INTO shots (shot_ordinal, score) VALUE ($1, $2)`, i, nil)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create shot: %v", err)})
+		}
+	}
+
 	var competitorIDs []int
 	rows, err := tx.Query(context.Background(), `SELECT competitor_id  FROM competitor_group_details 
          WHERE group_id = $1`, individualGroupID)

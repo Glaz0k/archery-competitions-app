@@ -39,7 +39,9 @@ func Create() *mux.Router {
 
 	SyncIndividualGroupsRoutes(adminRouter)
 
+	GetCompetitorsFromCompetitionRoutes(commonRouter)
 	GetIndividualGroupCompetitorsRoutes(commonRouter)
+	GetFinalGrid(commonRouter)
 
 	GetQualificationTableRoutes(userRouter)
 	GetQualificationTableRoutes(adminRouter)

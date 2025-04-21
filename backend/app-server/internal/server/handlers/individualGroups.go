@@ -40,19 +40,21 @@ func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if role == "user" {
-		id, err := tools.GetUserIDFromContext(r)
+		userID, err := tools.GetUserIDFromContext(r)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
 			return
 		}
-		var check bool
-		err = conn.QueryRow(context.Background(), `SELECT EXISTS(
-			SELECT 1 FROM competitor_group_details 
-			WHERE group_id = $1 AND competitor_id = $2
-		)`, groupId, id).Scan(&check)
 
-		if err != nil || !check {
-			tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "insufficient access rights"})
+		var registered bool
+		err = conn.QueryRow(context.Background(), `SELECT EXISTS(SELECT 1 FROM competitor_group_details 
+			WHERE group_id = $1 AND competitor_id = $2)`, groupId, userID).Scan(&registered)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		if !registered {
+			tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 			return
 		}
 	}
@@ -157,15 +159,13 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	defer tx.Rollback(context.Background())
 
 	var competitionID int
-	err = tx.QueryRow(context.Background(),
-		"SELECT competition_id FROM individual_groups WHERE id = $1", groupID).Scan(&competitionID)
+	err = tx.QueryRow(context.Background(), "SELECT competition_id FROM individual_groups WHERE id = $1", groupID).Scan(&competitionID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "GROUP NOT FOUND"})
 		return
 	}
 
-	_, err = tx.Exec(context.Background(),
-		"DELETE FROM competitor_group_details WHERE group_id = $1", groupID)
+	_, err = tx.Exec(context.Background(), "DELETE FROM competitor_group_details WHERE group_id = $1", groupID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete old competitors: %v", err)})
 		return
@@ -257,6 +257,10 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to commit transaction: %v", err)})
 		return
+	}
+
+	if result == nil {
+		tools.WriteJSON(w, http.StatusOK, []interface{}{})
 	}
 
 	tools.WriteJSON(w, http.StatusOK, result)
@@ -529,6 +533,15 @@ func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx)
 
+	exists, err := tools.ExistsInDB(context.Background(), conn, `SELECT * FROM individual_groups WHERE group_id = $1`, groupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, "failed to check if group exists")
+		return
+	}
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, "group not found")
+		return
+	}
 	if err := deleteAllGroupData(ctx, tx, groupID); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, fmt.Sprintf("failed to delete group data: %v", err))
 		return
@@ -588,4 +601,226 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 	}
 
 	return nil
+}
+
+func GetFinalGrid(w http.ResponseWriter, r *http.Request) {
+	groupID, err := tools.ParseParamToInt(r, "group_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid group_id"})
+		return
+	}
+
+	exists, err := tools.ExistsInDB(r.Context(), conn,
+		"SELECT 1 FROM individual_groups WHERE id = $1", groupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "database error"})
+		return
+	}
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "group not found"})
+		return
+	}
+
+	var finalGrid models.FinalGrid
+	finalGrid.GroupID = groupID
+
+	err = getQuarterfinals(r.Context(), groupID, &finalGrid.Quarterfinal)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get quarterfinals"})
+		return
+	}
+
+	err = getSemifinals(r.Context(), groupID, &finalGrid.Semifinal)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
+		return
+	}
+
+	err = getFinals(r.Context(), groupID, &finalGrid.Final)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get finals"})
+		return
+	}
+
+	tools.WriteJSON(w, http.StatusOK, finalGrid)
+}
+
+func getSparringFromRows(ctx context.Context, rows pgx.Rows) ([]models.Sparring, error) {
+	var tmp []models.Sparring
+	for rows.Next() {
+		var sparring models.Sparring
+		var topPlace, botPlace models.SparringPlace
+		var topComp, botComp models.CompetitorShrinked
+
+		err := rows.Scan(
+			&sparring.ID, &sparring.State,
+			&topPlace.ID, &topComp.ID, &topComp.FullName,
+			&botPlace.ID, &botComp.ID, &botComp.FullName,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		topPlace.Competitor = topComp
+		botPlace.Competitor = botComp
+
+		err = loadRangeGroupAndShots(ctx, &topPlace)
+		if err != nil {
+			return nil, err
+		}
+
+		err = loadRangeGroupAndShots(ctx, &botPlace)
+		if err != nil {
+			return nil, err
+		}
+
+		sparring.TopPlace = topPlace
+		sparring.BotPlace = botPlace
+
+		tmp = append(tmp, sparring)
+	}
+	return tmp, rows.Err()
+}
+
+func getQuarterfinals(ctx context.Context, groupID int, qf *models.Quarterfinal) error {
+	rows, err := conn.Query(ctx, `
+        SELECT s.id, s.state, sp_top.id, sp_top.competitor_id, c.full_name, sp_bot.id, sp_bot.competitor_id, c2.full_name
+        FROM quarterfinals q
+        JOIN sparrings s ON q.sparring1_id = s.id OR q.sparring2_id = s.id OR q.sparring3_id = s.id OR q.sparring4_id = s.id
+        JOIN sparring_places sp_top ON s.top_place_id = sp_top.id
+        JOIN competitors c ON sp_top.competitor_id = c.id
+        JOIN sparring_places sp_bot ON s.bot_place_id = sp_bot.id
+        JOIN competitors c2 ON sp_bot.competitor_id = c2.id
+        WHERE q.group_id = $1`, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to get quarterfinals: %v", err)
+	}
+	defer rows.Close()
+
+	tmp, err := getSparringFromRows(ctx, rows)
+	if err != nil {
+		return fmt.Errorf("failed to get sparring from rows: %v", err)
+	}
+	qf.Sparring1 = tmp[0]
+	qf.Sparring2 = tmp[1]
+	qf.Sparring3 = tmp[2]
+	qf.Sparring4 = tmp[3]
+
+	return nil
+}
+
+func getSemifinals(ctx context.Context, groupID int, sf *models.Semifinal) error {
+	rows, err := conn.Query(ctx, `
+        SELECT s.id, s.state, sp_top.id, sp_top.competitor_id, c.full_name, sp_bot.id, sp_bot.competitor_id, c2.full_name
+        FROM semifinals sm
+        JOIN sparrings s ON sm.sparring5_id = s.id OR sm.sparring6_id = s.id
+        JOIN sparring_places sp_top ON s.top_place_id = sp_top.id
+        JOIN competitors c ON sp_top.competitor_id = c.id
+        JOIN sparring_places sp_bot ON s.bot_place_id = sp_bot.id
+        JOIN competitors c2 ON sp_bot.competitor_id = c2.id
+        WHERE sm.group_id = $1`, groupID)
+	if err != nil {
+		return fmt.Errorf("query semifinals: %w", err)
+	}
+	defer rows.Close()
+
+	tmp, err := getSparringFromRows(ctx, rows)
+	if err != nil {
+		return fmt.Errorf("rows error: %w", err)
+	}
+	sf.Sparring5 = tmp[0]
+	sf.Sparring6 = tmp[1]
+
+	return nil
+}
+
+func getFinals(ctx context.Context, groupID int, f *models.Final) error {
+	rows, err := conn.Query(ctx, `
+        SELECT s.id, s.state, sp_top.id, sp_top.competitor_id, c.full_name, sp_bot.id, sp_bot.competitor_id, c2.full_name
+        FROM finals fl
+        JOIN sparrings s ON fl.sparring_gold_id = s.id OR fl.sparring_bronze_id = s.id
+        JOIN sparring_places sp_top ON s.top_place_id = sp_top.id
+        JOIN competitors c ON sp_top.competitor_id = c.id
+        JOIN sparring_places sp_bot ON s.bot_place_id = sp_bot.id
+        JOIN competitors c2 ON sp_bot.competitor_id = c2.id
+        WHERE fl.group_id = $1`, groupID)
+	if err != nil {
+		return fmt.Errorf("query finals: %w", err)
+	}
+	defer rows.Close()
+
+	tmp, err := getSparringFromRows(ctx, rows)
+	if err != nil {
+		return fmt.Errorf("rows error: %w", err)
+	}
+	f.SparringGold = tmp[0]
+	f.SparringBronze = tmp[1]
+
+	return nil
+}
+
+func loadRangeGroupAndShots(ctx context.Context, place *models.SparringPlace) error {
+	var rg models.RangeGroup
+	err := conn.QueryRow(ctx, `
+        SELECT rg.id, rg.ranges_max_count, rg.range_size
+        FROM range_groups rg
+        JOIN sparring_places sp ON sp.range_group_id = rg.id
+        WHERE sp.id = $1`, place.ID).Scan(&rg.ID, &rg.RangesMaxCount, &rg.RangeSize)
+	if err != nil {
+		return fmt.Errorf("query range group: %w", err)
+	}
+
+	rows, err := conn.Query(ctx, `
+        SELECT r.id, r.range_ordinal, r.is_active
+        FROM ranges r
+        WHERE r.group_id = $1
+        ORDER BY r.range_ordinal`, rg.ID)
+	if err != nil {
+		return fmt.Errorf("query ranges: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r models.Range
+		err := rows.Scan(&r.ID, &r.RangeNumber, &r.IsOngoing)
+		if err != nil {
+			return fmt.Errorf("scan range: %w", err)
+		}
+
+		if err := loadShotsForRange(ctx, &r); err != nil {
+			return fmt.Errorf("load shots: %w", err)
+		}
+
+		rg.Ranges = append(rg.Ranges, r)
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("rows error: %w", err)
+	}
+
+	place.RangeGroup = rg
+	return nil
+}
+
+func loadShotsForRange(ctx context.Context, r *models.Range) error {
+	rows, err := conn.Query(ctx, `
+        SELECT s.shot_ordinal, s.score
+        FROM shots s
+        WHERE s.range_id = $1
+        ORDER BY s.shot_ordinal`, r.ID)
+	if err != nil {
+		return fmt.Errorf("query shots: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var s models.Shot
+		err := rows.Scan(&s.ShotNumber, &s.Score)
+		if err != nil {
+			return fmt.Errorf("scan shot: %w", err)
+		}
+		r.Shots = append(r.Shots, s)
+	}
+
+	return rows.Err()
 }

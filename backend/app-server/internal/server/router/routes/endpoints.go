@@ -6,6 +6,7 @@ const (
 	StartQualification                 = "/api/individual_groups/{group_id}/qualification/start"
 	EndQualification                   = "/api/individual_groups/{group_id}/qualification/end"
 	UpdateIndividualGroup              = "/api/individual_groups/{group_id}/competitors/sync"
+	FinalGrid                          = "/api/individual_groups/{group_id}/final_grid"
 
 	EndCompetition              = "/api/competitions/{competition_id}/end"
 	CompetitionEndpoint         = "/api/competitions/{competition_id}"
