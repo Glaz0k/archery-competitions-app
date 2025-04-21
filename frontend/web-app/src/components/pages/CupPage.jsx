@@ -225,7 +225,7 @@ export default function CupPage() {
             title={"Соревнования"}
             onRefresh={refetchCompetitions}
             onAdd={competitionAddControl.open}
-            onBack={() => navigate("/cups")}
+            onBack={() => navigate("..")}
           />
           <Stack flex={1}>
             {isCompetitionsLoading ? (

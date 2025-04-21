@@ -1,6 +1,16 @@
-import { IconLogout } from "@tabler/icons-react";
+import { IconHome, IconLogout } from "@tabler/icons-react";
 import { Link, Outlet } from "react-router";
-import { ActionIcon, AppShell, Box, Button, Flex, Group, Text, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  AppShell,
+  Box,
+  Button,
+  Flex,
+  Group,
+  Text,
+  Title,
+  Tooltip,
+} from "@mantine/core";
 
 export default function ContentLayout() {
   return (
@@ -11,12 +21,16 @@ export default function ContentLayout() {
             ArcheryManager
           </Title>
           <Group>
-            <Button size="lg" component={Link} to={"/cups"}>
-              <Title order={2}>{"Кубки"}</Title>
-            </Button>
-            <ActionIcon>
-              <IconLogout />
-            </ActionIcon>
+            <Tooltip label="Домашняя - Кубки">
+              <ActionIcon component={Link} to={"/cups"}>
+                <IconHome />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Выйти">
+              <ActionIcon>
+                <IconLogout />
+              </ActionIcon>
+            </Tooltip>
           </Group>
         </Group>
       </AppShell.Header>

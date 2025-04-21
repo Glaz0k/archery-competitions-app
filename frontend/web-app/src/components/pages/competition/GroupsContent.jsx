@@ -32,7 +32,7 @@ function isExported(groupState) {
 export default function GroupsContent() {
   const groupsFilter = useOutletContext();
   const queryClient = useQueryClient();
-  const { cupId, competitionId } = useParams();
+  const { competitionId } = useParams();
   const navigate = useNavigate();
 
   const [isOpenedGroupAdd, groupAddControl] = useDisclosure(false);
@@ -124,7 +124,7 @@ export default function GroupsContent() {
           title={"Индивидуальные группы"}
           onRefresh={refetchGroups}
           onAdd={groupAddControl.open}
-          onBack={() => navigate("/cups/" + cupId)}
+          onBack={() => navigate("..")}
         />
         <Stack flex={1}>
           {isGroupsLoading ? (

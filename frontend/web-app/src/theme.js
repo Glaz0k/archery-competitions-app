@@ -18,6 +18,8 @@ import {
   Paper,
   rem,
   Skeleton,
+  Tabs,
+  TabsTab,
   Text,
   TextInput,
   ThemeIcon,
@@ -202,6 +204,16 @@ const theme = createTheme({
       defaultProps: {
         size: "xl",
         variant: "white",
+      },
+    }),
+    Tabs: Tabs.extend({
+      defaultProps: {
+        color: "white.0",
+      },
+      styles: {
+        tab: {
+          "--tab-hover-color": "rgba(255, 255, 255, 0.2)",
+        },
       },
     }),
   },

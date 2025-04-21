@@ -5,6 +5,7 @@ import CompetitionPage from "./components/pages/CompetitionPage";
 import ContentLayout from "./components/pages/ContentLayout";
 import CupPage from "./components/pages/CupPage";
 import CupsPage from "./components/pages/CupsPage";
+import IndividualGroupPage from "./components/pages/IndividualGroupPage";
 import LoginPage from "./components/pages/LoginPage";
 
 export default function App() {
@@ -12,11 +13,20 @@ export default function App() {
     <Routes>
       <Route path="login" element={<LoginPage />} />
       <Route element={<ContentLayout />}>
-        <Route path="cups" element={<CupsPage />} />
-        <Route path="cups/:cupId" element={<CupPage />} />
-        <Route path="cups/:cupId" element={<CompetitionPage />}>
-          <Route path="competitions/:competitionId" element={<GroupsContent />} />
-          <Route path="competitions/:competitionId/competitors" element={<CompetitorsContent />} />
+        <Route path="cups">
+          <Route index element={<CupsPage />} />
+          <Route path=":cupId">
+            <Route index element={<CupPage />} />
+            <Route path="competitions/:competitionId">
+              <Route element={<CompetitionPage />}>
+                <Route index element={<GroupsContent />} />
+                <Route path="competitors" element={<CompetitorsContent />} />
+              </Route>
+              <Route path="individual-groups/:groupId" element={<IndividualGroupPage />}>
+                <Route path=":groupSection" element={null} />
+              </Route>
+            </Route>
+          </Route>
         </Route>
       </Route>
     </Routes>

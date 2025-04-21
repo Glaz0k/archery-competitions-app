@@ -1,26 +1,45 @@
-import { IconArrowLeft, IconPlus, IconRefresh } from "@tabler/icons-react";
-import { ActionIcon, Group, Title } from "@mantine/core";
+import { IconArrowLeft, IconCircleDashedCheck, IconPlus, IconRefresh } from "@tabler/icons-react";
+import { ActionIcon, Group, LoadingOverlay, Stack, Title } from "@mantine/core";
+import { TextButton } from "../buttons/TextButton";
 import PrimaryCard from "../cards/PrimaryCard";
 
-export default function MainBar({ title, onRefresh, onAdd, onBack, children }) {
+export default function MainBar({
+  title,
+  subTitle,
+  onRefresh,
+  onAdd,
+  onBack,
+  onEnd,
+  loading,
+  children,
+}) {
   return (
-    <PrimaryCard>
+    <PrimaryCard pos="relative">
+      <LoadingOverlay visible={loading} />
       <Group>
         {onBack && (
           <ActionIcon onClick={onBack}>
             <IconArrowLeft />
           </ActionIcon>
         )}
-        <Title order={2} flex={1}>
-          {title}
-        </Title>
+        <Stack flex={1} gap="xs">
+          {title && <Title order={2}>{title}</Title>}
+          {subTitle && <Title order={3}>{subTitle}</Title>}
+        </Stack>
         {children}
-        <ActionIcon onClick={onRefresh}>
-          <IconRefresh />
-        </ActionIcon>
-        <ActionIcon onClick={onAdd}>
-          <IconPlus />
-        </ActionIcon>
+        {onRefresh && (
+          <ActionIcon onClick={onRefresh}>
+            <IconRefresh />
+          </ActionIcon>
+        )}
+        {onAdd && (
+          <ActionIcon onClick={onAdd}>
+            <IconPlus />
+          </ActionIcon>
+        )}
+        {onEnd && (
+          <TextButton label="Завершить" leftSection={<IconCircleDashedCheck />} onClick={onEnd} />
+        )}
       </Group>
     </PrimaryCard>
   );

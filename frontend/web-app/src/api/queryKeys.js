@@ -5,20 +5,30 @@ export const CUP_QUERY_KEYS = {
 
 export const COMPETITION_QUERY_KEYS = {
   all: ["competitions"],
-  allByCup: (cupId) => [...CUP_QUERY_KEYS.all, Number(cupId), ...COMPETITION_QUERY_KEYS.all],
+  allByCup: (cupId) => [...COMPETITION_QUERY_KEYS.all, ...CUP_QUERY_KEYS.all, Number(cupId)],
   element: (competitionId) => [...COMPETITION_QUERY_KEYS.all, Number(competitionId)],
 };
 
 export const INDIVIDUAL_GROUP_QUERY_KEYS = {
   all: ["individual_groups"],
   allByCompetition: (competitionId) => [
+    ...INDIVIDUAL_GROUP_QUERY_KEYS.all,
     ...COMPETITION_QUERY_KEYS.all,
     Number(competitionId),
-    ...INDIVIDUAL_GROUP_QUERY_KEYS.all,
   ],
+  element: (groupId) => [...INDIVIDUAL_GROUP_QUERY_KEYS.all, Number(groupId)],
 };
 
 export const COMPETITOR_QUERY_KEYS = {
   all: ["competitors"],
-  allByCompetition: (competitionId) => [...COMPETITOR_QUERY_KEYS.all, Number(competitionId)],
+  allByCompetition: (competitionId) => [
+    ...COMPETITOR_QUERY_KEYS.all,
+    ...COMPETITION_QUERY_KEYS.all,
+    Number(competitionId),
+  ],
+  allByGroup: (groupId) => [
+    ...COMPETITOR_QUERY_KEYS.all,
+    ...INDIVIDUAL_GROUP_QUERY_KEYS.all,
+    Number(groupId),
+  ],
 };

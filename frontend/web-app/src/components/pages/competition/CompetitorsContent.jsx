@@ -10,11 +10,12 @@ import { deleteCompetitor, getCompetitors } from "../../../api/competitors/compe
 import { COMPETITOR_QUERY_KEYS } from "../../../api/queryKeys";
 import MainBar from "../../bars/MainBar";
 import NotFoundCard from "../../cards/NotFoundCard";
+import TableCard from "../../cards/TableCard";
+import CompetitorRow from "../../misc/CompetitorRow";
 import DeleteCompetitorModal from "../../modals/competitor/DeleteCompetitorModal";
-import CompetitorRow from "../../tables/CompetitorRow";
 
 export default function CompetitorsContent() {
-  const { cupId, competitionId } = useParams();
+  const { competitionId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -115,22 +116,17 @@ export default function CompetitorsContent() {
           title="Участники соревнования"
           onRefresh={refetchCompetitorDetails}
           onAdd={handleCompetitorAdd}
-          onBack={() => navigate("/cups/" + cupId + "/competitions/" + competitionId)}
+          onBack={() => navigate("..")}
         >
           <ActionIcon onClick={handleExcelTableUpload}>
             <IconFileUpload />
           </ActionIcon>
         </MainBar>
         {competitorDetails.length !== 0 ? (
-          <Card p={0} pos="relative">
-            <LoadingOverlay visible={isCompetitorDetailsLoading} />
-            <Table.ScrollContainer>
-              <Table tabularNums withColumnBorders>
-                <Table.Thead>{tableHead}</Table.Thead>
-                <Table.Tbody>{tableRows}</Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Card>
+          <TableCard loading={isCompetitorDetailsLoading}>
+            <Table.Thead>{tableHead}</Table.Thead>
+            <Table.Tbody>{tableRows}</Table.Tbody>
+          </TableCard>
         ) : isCompetitorDetailsLoading ? (
           <Card h={500} pos="relative">
             <LoadingOverlay visible />
