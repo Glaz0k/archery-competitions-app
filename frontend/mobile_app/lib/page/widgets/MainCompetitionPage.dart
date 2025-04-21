@@ -18,15 +18,18 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
         child: Scaffold(
           appBar: AppBar(
             title: Text(
-              "Кубки",
-              style: TextStyle(fontSize: 15, color: Colors.black87),
+              "Соревнования",
+              style: Theme.of(context).appBarTheme.titleTextStyle
             ),
             leading: BackButton(),
             centerTitle: true,
             backgroundColor: Colors.green,
           ),
           body: Center(child: ListView(children: [
-            
+            buildCompitionField("| этап", "21-22 октября 2023"),
+            buildCompitionField("|| этап", "21-22 октября 2024"),
+            buildCompitionField("||| этап", "21-22 октября 2025"),
+            buildCompitionField("Финал", "21-22 ноябре 2025"),
             ],
             )),
         ),
@@ -34,22 +37,24 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     );
   }
 
-  Widget buildCompitionField(String nameOfComp, String address, String season) {
+  Widget buildCompitionField(String nameOfComp, String date) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
       child: ListTile(
-        title: Text(nameOfComp),
-        subtitle: Text("Адрес: $address\nСезон: $season"),
+        title: Text(nameOfComp, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+        subtitle: Text('Даты проведения: $date г.'),
         leading: IconButton(
           icon: Icon(Icons.info_outline),
           color: Colors.teal,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, '/individual_group');
+          },
         ),
         trailing: IconButton(
           onPressed: () {
             Navigator.pushNamed(context, "/profile_page");
           },
-          icon: Icon(Icons.join_full),
+          icon: Icon(Icons.person),
         ),
       ),
     );

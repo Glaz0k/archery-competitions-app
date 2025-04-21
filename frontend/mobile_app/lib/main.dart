@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/page/widgets/IndividualGroup.dart';
 import 'package:mobile_app/page/widgets/User.dart';
 import 'package:mobile_app/page/widgets/appbar_widget.dart';
 import 'package:mobile_app/page/widgets/profile_widget.dart';
@@ -30,8 +31,20 @@ class AuthPage extends StatelessWidget {
           '/profile_page': (context) => ProfilePage(),
           '/edit_profile_page': (context) => EditProfilePage(),
           '/competition_page': (context) => MainCompetitionPage(),
+          '/individual_group': (context) => IndividualGroup(),
         },
-        theme: ThemeData(primarySwatch: Colors.green),
+        theme: ThemeData(
+          //colorSchemeSeed: Colors.green,
+          textTheme: TextTheme(
+            headlineMedium: TextStyle(fontSize: 17, color: Colors.black)
+          ),
+          appBarTheme: AppBarTheme(
+            titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+            backgroundColor: Colors.green,
+            shadowColor: Colors.green[200],
+            centerTitle: true,
+          )
+        ),
       ),
     );
   }
@@ -147,6 +160,7 @@ class _LoginPage extends State<LoginPage> {
                     child: Text("Войти", style: _sizeWhiteText),
                   ),
                 ),
+                ElevatedButton(onPressed: () => Navigator.pushNamed(context, "/competition_page"), child: Text("Перейти на страницу соревнований"))
               ],
             ),
           ),
@@ -288,6 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         backgroundColor: Colors.green,
                         side: BorderSide.none,
                         shape: StadiumBorder(),
+                        minimumSize: Size(220, 50),
                       ),
                       child: const Text(
                         "Редактировать",
@@ -446,10 +461,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      "/profile_page",
-                                    );
+                                    Navigator.pushNamed(context,"/profile_page");
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.redAccent,
@@ -474,11 +486,13 @@ class _EditProfilePage extends State<EditProfilePage> {
                                     userProvider.updateDateOfBirth(chosenTime);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
+                                        showCloseIcon: true,
                                         behavior: SnackBarBehavior.floating,
                                         backgroundColor: Colors.green,
                                         content: Container(
                                           decoration: BoxDecoration(
                                             color: Colors.green,
+                                            shape: BoxShape.circle,
                                           ),
                                           child: Row(
                                             children: [
