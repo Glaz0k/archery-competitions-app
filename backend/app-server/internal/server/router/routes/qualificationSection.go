@@ -12,8 +12,14 @@ func GetQualificationSectionsRoutes(router *mux.Router) {
 
 // TODO: get qualification section round for user and for admin
 
-// TODO: get qualification section ranges for admin for user
+func GetQualificationSectionRangesRoutes(router *mux.Router) {
+	router.HandleFunc(QualificationSectionRangesEndpoint, handlers.GetQualificationSectionRanges).Methods("GET")
+}
 
-// TODO: edit range for admin and for user
+func EditQualificationSectionRangesRoutes(router *mux.Router) {
+	router.HandleFunc(QualificationSectionRangesEndpoint, handlers.EditQualificationSectionRanges).Methods("PUT")
+}
 
-// TODO: end range for admin for user
+func EndRangeRoutes(router *mux.Router) {
+	router.HandleFunc(EndRange, handlers.EndRange).Methods("POST")
+}

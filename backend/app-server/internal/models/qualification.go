@@ -1,11 +1,11 @@
 package models
 
 type Range struct {
-	ID          int    `json:"id"`
-	RangeNumber int    `json:"range_number"`
-	IsOngoing   bool   `json:"is_ongoing"`
-	Shots       []Shot `json:"shots"`
-	RangeScore  int    `json:"range_score"`
+	ID           int    `json:"id"`
+	RangeOrdinal int    `json:"range_ordinal"`
+	IsActive     bool   `json:"is_active"`
+	Shots        []Shot `json:"shots"`
+	RangeScore   int    `json:"range_score"`
 }
 
 type RangeGroup struct {
