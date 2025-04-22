@@ -18,6 +18,8 @@ import {
   Paper,
   rem,
   Skeleton,
+  TableTbody,
+  TableThead,
   Tabs,
   TabsTab,
   Text,
@@ -214,6 +216,16 @@ const theme = createTheme({
         tab: {
           "--tab-hover-color": "rgba(255, 255, 255, 0.2)",
         },
+      },
+    }),
+    TableThead: TableThead.extend({
+      defaultProps: {
+        bg: "secondary.8",
+      },
+    }),
+    TableTbody: TableTbody.extend({
+      defaultProps: {
+        bg: "secondary.9",
       },
     }),
   },

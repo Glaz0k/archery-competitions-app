@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
-import { Outlet, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Stack, Tabs, Title } from "@mantine/core";
 import { useDocumentTitle } from "@mantine/hooks";
 import { getCompetition } from "../../api/competitions";
@@ -11,8 +11,10 @@ import {
   CUP_QUERY_KEYS,
   INDIVIDUAL_GROUP_QUERY_KEYS,
 } from "../../api/queryKeys";
-import MainBar from "../bars/MainBar";
+import NavigationBar from "../bars/NavigationBar";
 import CompetitorsPanel from "./individual-group/CompetitorsPanel";
+import { GroupContext } from "./individual-group/GroupContext";
+import QualificationPanel from "./individual-group/QualificationPanel";
 
 export default function IndividualGroupPage() {
   const navigate = useNavigate();
@@ -115,12 +117,13 @@ export default function IndividualGroupPage() {
       flex={1}
     >
       <Stack gap="lg">
-        <MainBar
+        <NavigationBar
           title={groupTitle}
           subTitle={groupSubtitle}
           loading={isMainInfoLoading}
           onBack={() => navigate("..")}
           onRefresh={controls?.onRefresh}
+          onExport={controls?.onExport}
           onEnd={controls?.onEnd}
         >
           <Tabs.List>
@@ -134,15 +137,21 @@ export default function IndividualGroupPage() {
               <Title order={3}>{"Финал"}</Title>
             </Tabs.Tab>
           </Tabs.List>
-        </MainBar>
+        </NavigationBar>
         {isMainInfoLoaded && (
-          <>
+          <GroupContext.Provider
+            value={{
+              groupBow: group.bow,
+            }}
+          >
             <Tabs.Panel value="competitors">
               <CompetitorsPanel groupInfo={info} setGroupControls={setControls} />
             </Tabs.Panel>
-            <Tabs.Panel value="qualification">Квалы</Tabs.Panel>
+            <Tabs.Panel value="qualification">
+              <QualificationPanel groupInfo={info} setGroupControls={setControls} />
+            </Tabs.Panel>
             <Tabs.Panel value="final">Финал</Tabs.Panel>
-          </>
+          </GroupContext.Provider>
         )}
       </Stack>
     </Tabs>
