@@ -18,17 +18,20 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
           appBar: AppBar(
             title: Text(
               "Соревнования",
-              style: Theme.of(context).appBarTheme.titleTextStyle
+              style: Theme.of(context).appBarTheme.titleTextStyle,
             ),
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           ),
-          body: Center(child: ListView(children: [
-            buildCompetitionField("| этап", "21-22 октября 2023"),
-            buildCompetitionField("|| этап", "21-22 октября 2024"),
-            buildCompetitionField("||| этап", "21-22 октября 2025"),
-            buildCompetitionField("Финал", "21-22 ноябре 2025"),
-            ],
-            )),
+          body: Center(
+            child: ListView(
+              children: [
+                buildCompetitionField("| этап", "21-22 октября 2023"),
+                buildCompetitionField("|| этап", "21-22 октября 2024"),
+                buildCompetitionField("||| этап", "21-22 октября 2025"),
+                buildCompetitionField("Финал", "21-22 ноябре 2025"),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -38,7 +41,10 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
       child: ListTile(
-        title: Text(nameOfComp, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+        title: Text(
+          nameOfComp,
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+        ),
         subtitle: Text('Даты проведения: $date г.'),
         leading: IconButton(
           icon: Icon(Icons.info_outline),

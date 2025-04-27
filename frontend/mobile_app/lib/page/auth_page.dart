@@ -27,15 +27,19 @@ class AuthPage extends StatelessWidget {
         },
         theme: ThemeData(
           //colorSchemeSeed: Colors.green,
-            textTheme: TextTheme(
-                headlineMedium: TextStyle(fontSize: 17, color: Colors.black)
+          textTheme: TextTheme(
+            headlineMedium: TextStyle(fontSize: 17, color: Colors.black),
+          ),
+          appBarTheme: AppBarTheme(
+            titleTextStyle: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
             ),
-            appBarTheme: AppBarTheme(
-              titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
-              backgroundColor: Colors.green,
-              shadowColor: Colors.green[200],
-              centerTitle: true,
-            )
+            backgroundColor: Colors.green,
+            shadowColor: Colors.green[200],
+            centerTitle: true,
+          ),
         ),
       ),
     );

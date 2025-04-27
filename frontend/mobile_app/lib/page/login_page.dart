@@ -85,11 +85,11 @@ class _LoginPage extends State<LoginPage> {
                         onPressed:
                             () => setState(
                               () => isPasswordVisible = !isPasswordVisible,
-                        ),
+                            ),
                         icon:
-                        isPasswordVisible
-                            ? Icon(Icons.visibility_off)
-                            : Icon(Icons.visibility),
+                            isPasswordVisible
+                                ? Icon(Icons.visibility_off)
+                                : Icon(Icons.visibility),
                       ),
                     ),
 
@@ -111,7 +111,11 @@ class _LoginPage extends State<LoginPage> {
                     child: Text("Войти", style: _sizeWhiteText),
                   ),
                 ),
-                ElevatedButton(onPressed: () => Navigator.pushNamed(context, "/competition_page"), child: Text("Перейти на страницу соревнований"))
+                ElevatedButton(
+                  onPressed:
+                      () => Navigator.pushNamed(context, "/competition_page"),
+                  child: Text("Перейти на страницу соревнований"),
+                ),
               ],
             ),
           ),

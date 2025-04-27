@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 import 'widgets/user.dart';
 
@@ -47,13 +48,7 @@ class _EditProfilePage extends State<EditProfilePage> {
       gestures: [GestureType.onTap],
       child: GestureDetector(
         child: Scaffold(
-          appBar: AppBar(
-            title: const Text(
-              "Редактирование профиля",
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-          ),
+          appBar: OnionBar("Редактирование профиля", context),
           body: KeyboardDismisser(
             gestures: [GestureType.onTap],
             child: GestureDetector(
@@ -74,12 +69,13 @@ class _EditProfilePage extends State<EditProfilePage> {
                                 labelText: 'Пол',
                                 border: OutlineInputBorder(),
                               ),
-                              items: ['Мужчина', 'Женщина'].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
+                              items:
+                                  ['Мужчина', 'Женщина'].map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
                               onChanged: (newVal) {
                                 setState(() {
                                   chosenGender = newVal;
@@ -93,21 +89,22 @@ class _EditProfilePage extends State<EditProfilePage> {
                                 labelText: 'Класс лука',
                                 border: OutlineInputBorder(),
                               ),
-                              items: [
-                                'Классический',
-                                'Блочный',
-                                "КЛ(новички)",
-                                "3Д-классический лук",
-                                "3Д-составной лук",
-                                "3Д-длинный лук",
-                                "Периферийный лук",
-                                "Периферийный лук(с кольцом)"
-                              ].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
+                              items:
+                                  [
+                                    'Классический',
+                                    'Блочный',
+                                    "КЛ(новички)",
+                                    "3Д-классический лук",
+                                    "3Д-составной лук",
+                                    "3Д-длинный лук",
+                                    "Периферийный лук",
+                                    "Периферийный лук(с кольцом)",
+                                  ].map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
                               onChanged: (newVal) {
                                 setState(() {
                                   chosenBow = newVal;
@@ -121,21 +118,22 @@ class _EditProfilePage extends State<EditProfilePage> {
                                 labelText: 'Спортивный разряд/звание',
                                 border: OutlineInputBorder(),
                               ),
-                              items: [
-                                'Мастер спорта',
-                                'Кандидат мастера спорта',
-                                "Первый разряд",
-                                "Второй разряд",
-                                "Третий разряд",
-                                "Международный магистр",
-                                "Периферийный лук",
-                                "Заслуженный мастер спорта"
-                              ].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
+                              items:
+                                  [
+                                    'Мастер спорта',
+                                    'Кандидат мастера спорта',
+                                    "Первый разряд",
+                                    "Второй разряд",
+                                    "Третий разряд",
+                                    "Международный магистр",
+                                    "Периферийный лук",
+                                    "Заслуженный мастер спорта",
+                                  ].map((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
                               onChanged: (newVal) {
                                 setState(() {
                                   chosenRank = newVal;
@@ -154,9 +152,13 @@ class _EditProfilePage extends State<EditProfilePage> {
                               // Растягивает на всю ширину
                               child: OutlinedButton(
                                 onPressed: () => chooseDate(context),
-                                child: Text('Изменить дату рождения',
-                                  style: TextStyle(fontSize: 13,
-                                      fontWeight: FontWeight.bold),),
+                                child: Text(
+                                  'Изменить дату рождения',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                             SizedBox(height: 7),
@@ -165,8 +167,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(
-                                        context, "/profile_page");
+                                    Navigator.pop(context);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.redAccent,
@@ -184,18 +185,24 @@ class _EditProfilePage extends State<EditProfilePage> {
                                       fullNameController.text,
                                     );
                                     userProvider.updateRegion(
-                                        regionController.text);
+                                      regionController.text,
+                                    );
                                     userProvider.updateClub(
-                                        clubController.text);
+                                      clubController.text,
+                                    );
                                     chosenGender == "Мужчина"
                                         ? userProvider.updateGender(Gender.male)
                                         : userProvider.updateGender(
-                                        Gender.female);
+                                          Gender.female,
+                                        );
                                     userProvider.updateBow(
-                                        BowExtension.setBowClass(chosenBow));
+                                      BowExtension.setBowClass(chosenBow),
+                                    );
                                     userProvider.updateRank(
-                                        SportsRankExtension.setSportsRank(
-                                            chosenRank));
+                                      SportsRankExtension.setSportsRank(
+                                        chosenRank,
+                                      ),
+                                    );
                                     userProvider.updateDateOfBirth(chosenTime);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -211,7 +218,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                                             children: [
                                               Icon(
                                                 Icons.check_circle,
-                                                color: Colors.white,
+                                                // color: Colors.white,
                                                 size: 40,
                                               ),
                                               SizedBox(width: 30),
@@ -229,8 +236,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                                         ),
                                       ),
                                     );
-                                    Navigator.pushReplacementNamed(
-                                        context, '/profile_page');
+                                    Navigator.pop(context);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
@@ -256,12 +262,15 @@ class _EditProfilePage extends State<EditProfilePage> {
         ),
       ),
     );
-    }
+  }
+
   Future chooseDate(BuildContext context) async {
-    final newDate = await showDatePicker(context: context,
+    final newDate = await showDatePicker(
+      context: context,
       initialDate: chosenTime,
       firstDate: DateTime(1950),
-      lastDate: DateTime.now(),);
+      lastDate: DateTime.now(),
+    );
     if (newDate == null) return;
     setState(() {
       chosenTime = newDate;
@@ -306,4 +315,4 @@ class _EditProfilePage extends State<EditProfilePage> {
       keyboardType: TextInputType.text,
     );
   }
-  }
+}

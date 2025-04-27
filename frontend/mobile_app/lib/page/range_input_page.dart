@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../model/range_model.dart';
@@ -7,17 +8,12 @@ import '../model/range_model.dart';
 class SeriesPage extends StatelessWidget {
   const SeriesPage({super.key});
 
-  final String title = 'Серии';
-
   @override
   Widget build(BuildContext context) {
     return Consumer<RangeModel>(
       builder:
           (context, rangeModel, _) => Scaffold(
-            appBar: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text(title),
-            ),
+            appBar: OnionBar("Серии", context),
             floatingActionButton: FloatingActionButton.extended(
               onPressed: rangeModel.pushRange,
               icon: Icon(Icons.add),

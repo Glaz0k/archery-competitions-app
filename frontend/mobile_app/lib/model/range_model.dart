@@ -67,5 +67,5 @@ class Shot {
     11 => 'X',
     _ => rawValue.toString(),
   };
-  int get algebraicValue => rawValue == 11? 10 : rawValue;
+  int get algebraicValue => rawValue == 11 ? 10 : rawValue;
 }

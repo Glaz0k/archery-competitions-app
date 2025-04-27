@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'user.dart';
 
 class IndividualGroup extends StatefulWidget {
-
   const IndividualGroup({super.key});
 
   @override
@@ -27,7 +26,10 @@ class _IndividualGroup extends State<IndividualGroup> {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
-        title: Text("Индивидуальные группы", style: Theme.of(context).appBarTheme.titleTextStyle,),
+        title: Text(
+          "Индивидуальные группы",
+          style: Theme.of(context).appBarTheme.titleTextStyle,
+        ),
       ),
       body: Center(
         child: Column(
@@ -35,7 +37,7 @@ class _IndividualGroup extends State<IndividualGroup> {
           children: [
             buildGroup(),
             Padding(padding: EdgeInsets.all(8)),
-            if(_user.bow != null && combinedGroups.contains(_user.bow!))
+            if (_user.bow != null && combinedGroups.contains(_user.bow!))
               buildCombinedGroup(),
           ],
         ),
@@ -47,14 +49,23 @@ class _IndividualGroup extends State<IndividualGroup> {
     final gender = _user.identity;
     final bow = _user.bow?.getBowClass;
     final type = gender == Gender.male ? "Мужчины" : "Женщины";
-    return ElevatedButton(onPressed: () {},
-        child: Text('$bow - $type', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),));
+    return ElevatedButton(
+      onPressed: () {},
+      child: Text(
+        '$bow - $type',
+        style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+      ),
+    );
   }
 
   Widget buildCombinedGroup() {
     final bow = _user.bow?.getBowClass;
-    return ElevatedButton(onPressed: () {},
-        child: Text("$bow - Объединенные", style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),)
+    return ElevatedButton(
+      onPressed: () {},
+      child: Text(
+        "$bow - Объединенные",
+        style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900),
+      ),
     );
   }
 }

@@ -7,11 +7,6 @@ class MyTextBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(sectionName),
-        Text(text)
-      ],
-    );
+    return Column(children: [Text(sectionName), Text(text)]);
   }
 }
