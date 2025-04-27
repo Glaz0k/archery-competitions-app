@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/page/competition_page.dart';
+import 'package:mobile_app/page/main_competition_page.dart';
 import 'package:mobile_app/page/profile_page.dart';
 import 'package:mobile_app/page/range_input_page.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +14,9 @@ void main() => runApp(
       ),
     ),
     home: MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => RangeModel([], 3, 3, false))],
+      providers: [
+        ChangeNotifierProvider(create: (context) => RangeModel([], 3, 3, false)),
+      ],
       child: Onion(),
     ),
   ),
@@ -24,7 +26,7 @@ class Onion extends StatefulWidget {
   Onion({super.key});
 
   final List<Widget> _mainPages = [
-    CompetitionPage(),
+    MainCompetitionPage(),
     SeriesPage(),
     ProfilePage(),
   ];
@@ -38,7 +40,7 @@ class _OnionState extends State<Onion> {
     NavigationDestination(
       selectedIcon: Icon(Icons.info),
       icon: Icon(Icons.info_outline),
-      label: 'Объявления',
+      label: 'Соревнования',
     ),
     NavigationDestination(
       selectedIcon: Icon(Icons.scoreboard),

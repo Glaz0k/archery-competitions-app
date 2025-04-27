@@ -20,15 +20,13 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
               "Соревнования",
               style: Theme.of(context).appBarTheme.titleTextStyle
             ),
-            leading: BackButton(),
-            centerTitle: true,
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           ),
           body: Center(child: ListView(children: [
-            buildCompitionField("| этап", "21-22 октября 2023"),
-            buildCompitionField("|| этап", "21-22 октября 2024"),
-            buildCompitionField("||| этап", "21-22 октября 2025"),
-            buildCompitionField("Финал", "21-22 ноябре 2025"),
+            buildCompetitionField("| этап", "21-22 октября 2023"),
+            buildCompetitionField("|| этап", "21-22 октября 2024"),
+            buildCompetitionField("||| этап", "21-22 октября 2025"),
+            buildCompetitionField("Финал", "21-22 ноябре 2025"),
             ],
             )),
         ),
@@ -36,7 +34,7 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     );
   }
 
-  Widget buildCompitionField(String nameOfComp, String date) {
+  Widget buildCompetitionField(String nameOfComp, String date) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
       child: ListTile(
