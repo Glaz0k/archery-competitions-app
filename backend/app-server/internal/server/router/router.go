@@ -67,5 +67,11 @@ func Create() *mux.Router {
 	EditQualificationSectionRangesRoutes(commonRouter)
 	EndRangeRoutes(commonRouter)
 
+	GetSparringPlacesRoutes(commonRouter)
+	GetSparringPlaceRangesRoutes(commonRouter)
+	EditSparringPlaceRangeRoutes(commonRouter)
+	EndSparringPlaceRangeRoutes(commonRouter)
+	EditShootOutRoutes(commonRouter)
+
 	return router
 }

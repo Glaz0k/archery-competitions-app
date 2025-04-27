@@ -1,5 +1,7 @@
 package models
 
+import "strconv"
+
 type Range struct {
 	ID           int    `json:"id"`
 	RangeOrdinal int    `json:"range_ordinal"`
@@ -8,12 +10,36 @@ type Range struct {
 	RangeScore   int    `json:"range_score"`
 }
 
+func (r Range) CalculateScore() int {
+	score := 0
+	for _, shot := range r.Shots {
+		if shot.Score == "X" {
+			score += 10
+		} else if shot.Score == "M" {
+			score += 0
+		} else if shot.Score != "" {
+			val, _ := strconv.Atoi(shot.Score)
+			score += val
+		}
+	}
+	return score
+}
+
 type RangeGroup struct {
 	ID             int     `json:"id"`
 	RangesMaxCount int     `json:"ranges_max_count"`
 	RangeSize      int     `json:"range_size"`
+	Type           string  `json:"range_type"`
 	Ranges         []Range `json:"ranges"`
 	TotalScore     int     `json:"total_score"`
+}
+
+func (r RangeGroup) CalculateTotalScore() int {
+	score := 0
+	for _, r := range r.Ranges {
+		score += r.CalculateScore()
+	}
+	return score
 }
 
 type QualificationRound struct {

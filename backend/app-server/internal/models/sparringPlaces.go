@@ -5,8 +5,13 @@ type SparringPlace struct {
 	Competitor    CompetitorShrinked `json:"competitor"`
 	RangeGroup    RangeGroup         `json:"range_group"`
 	IsActive      bool               `json:"is_active"`
-	ShootOut      bool               `json:"shoot_out"`
+	ShootOut      *ShootOuts         `json:"shoot_out"`
 	SparringScore int                `json:"sparring_score"`
+}
+
+type RangeScorePair struct {
+	CompScore int
+	OppScore  int
 }
 
 type Shot struct {
@@ -14,8 +19,8 @@ type Shot struct {
 	Score       string `json:"score"`
 }
 
-type ShotOut struct {
-	ID       int    `json:"id"`
+type ShootOuts struct {
+	ID       int    `json:"sparring_place_id"`
 	Score    string `json:"score"`
 	Priority bool   `json:"priority"`
 }

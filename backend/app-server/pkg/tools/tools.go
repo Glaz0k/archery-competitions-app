@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"app-server/internal/models"
 	"context"
 	"encoding/json"
 	"errors"
@@ -19,10 +20,10 @@ func ParseParamToInt(r *http.Request, str string) (int, error) {
 	return res, err
 }
 
-func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) error {
+func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	return json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }
 
 func ExistsInDB(ctx context.Context, conn *pgx.Conn, query string, args ...interface{}) (bool, error) {
@@ -58,4 +59,31 @@ func GetRoleFromContext(r *http.Request) (string, error) {
 		return "", fmt.Errorf("role not found in context")
 	}
 	return role.(string), nil
+}
+
+func CalculatePoints(sp map[int]*models.RangeScorePair, bowType string) (int, int) {
+	totalTop := 0
+	totalBot := 0
+	switch bowType {
+	case "block":
+		for i := 0; i < len(sp); i++ {
+			totalTop += sp[i].CompScore
+			totalBot += sp[i].OppScore
+		}
+
+		//TODO: подсчет X при равном счете?
+	default:
+		for _, v := range sp {
+			if v.CompScore > v.OppScore {
+				totalTop += 2
+			} else if v.CompScore < v.OppScore {
+				totalBot += 2
+			} else {
+				totalTop++
+				totalBot++
+			}
+		}
+
+	}
+	return totalTop, totalBot
 }

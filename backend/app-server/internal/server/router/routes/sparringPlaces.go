@@ -1,9 +1,27 @@
 package routes
 
-// TODO: get sparring place for admin and for user
+import (
+	"app-server/internal/server/handlers"
 
-// TODO: get ranges for admin and user
+	"github.com/gorilla/mux"
+)
 
-// TODO: edit range for admin and user
+func GetSparringPlacesRoutes(router *mux.Router) {
+	router.HandleFunc(SparringPlace, handlers.GetSparringPlace).Methods("GET")
+}
 
-// TODO: end range for admin and user
+func GetSparringPlaceRangesRoutes(router *mux.Router) {
+	router.HandleFunc(Ranges, handlers.GetRanges).Methods("GET")
+}
+
+func EditSparringPlaceRangeRoutes(router *mux.Router) {
+	router.HandleFunc(Ranges, handlers.EditSparringPlaceRange).Methods("PUT")
+}
+
+func EndSparringPlaceRangeRoutes(router *mux.Router) {
+	router.HandleFunc(SparringPlaceRangeEnd, handlers.EndSparringPlaceRange).Methods("POST")
+}
+
+func EditShootOutRoutes(router *mux.Router) {
+	router.HandleFunc(ShootOut, handlers.EditShootOut).Methods("PUT")
+}
