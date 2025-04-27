@@ -10,7 +10,9 @@ func EditCompetitionRoutes(router *mux.Router) {
 	router.HandleFunc(CompetitionEndpoint, handlers.EditCompetition).Methods("PUT")
 }
 
-// TODO: DeleteCompetitionRoutes
+func DeleteCompetitionRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitionEndpoint, handlers.DeleteCompetition).Methods("DELETE")
+}
 
 func EndCompetitionRoutes(router *mux.Router) {
 	router.HandleFunc(EndCompetition, handlers.EndCompetition).Methods("POST")

@@ -66,6 +66,7 @@ func Create() *mux.Router {
 	GetQualificationSectionRangesRoutes(commonRouter)
 	EditQualificationSectionRangesRoutes(commonRouter)
 	EndRangeRoutes(commonRouter)
+	DeleteCompetitionRoutes(adminRouter)
 
 	GetSparringPlacesRoutes(commonRouter)
 	GetSparringPlaceRangesRoutes(commonRouter)
