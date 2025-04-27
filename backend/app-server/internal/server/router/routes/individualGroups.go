@@ -42,11 +42,13 @@ func EndQualificationRoutes(router *mux.Router) {
 	router.HandleFunc(EndQualification, handlers.EndQualification).Methods("POST")
 }
 
-func GetFinalGrid(router *mux.Router) {
+func GetFinalGridRoutes(router *mux.Router) {
 	router.HandleFunc(FinalGrid, handlers.GetFinalGrid).Methods("GET")
 }
 
-// TODO: final grid
+func StartQuarterfinalRoutes(router *mux.Router) {
+	router.HandleFunc(StartQuarterfinal, handlers.StartQuarterfinal).Methods("POST")
+}
 
 // TODO: quarterfinal start
 

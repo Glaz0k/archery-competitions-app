@@ -511,6 +511,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	if exist {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EXISTS"})
+		return
 	}
 
 	tx, err := conn.Begin(context.Background())
