@@ -63,7 +63,81 @@ func EditCompetition(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, competition)
 }
 
-// TODO: delete
+func DeleteCompetition(w http.ResponseWriter, r *http.Request) {
+	competitionID, err := tools.ParseParamToInt(r, "competition_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer tx.Rollback(context.Background())
+
+	err = deleteCompetition(tx, competitionID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func deleteCompetition(tx pgx.Tx, competitionID int) error {
+	var groups []int
+	query := `SELECT id FROM individual_groups WHERE competition_id = $1`
+	rows, err := tx.Query(context.Background(), query, competitionID)
+	if err != nil {
+
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var group int
+		err = rows.Scan(&group)
+		if err != nil {
+			return fmt.Errorf("DATABASE ERROR: %v", err)
+		}
+		groups = append(groups, group)
+	}
+
+	for _, group := range groups {
+		err = deleteAllGroupData(context.Background(), tx, group)
+		if err != nil {
+			return fmt.Errorf("DATABASE ERROR: %v", err)
+		}
+	}
+
+	query = `DELETE FROM competitor_competition_details WHERE competition_id = $1`
+	_, err = tx.Exec(context.Background(), query, competitionID)
+	if err != nil {
+		return fmt.Errorf("DATABASE ERROR: %v", err)
+	}
+
+	query = `DELETE FROM competitions WHERE id = $1`
+	_, err = tx.Exec(context.Background(), query, competitionID)
+	if err != nil {
+		return fmt.Errorf("DATABASE ERROR: %v", err)
+	}
+	return nil
+}
 
 func EndCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")

@@ -563,12 +563,12 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 		return fmt.Errorf("failed to delete ranges: %v", err)
 	}
 
-	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete range groups: %v", err)
-	}
-
 	if err := deleteQualificationRounds(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete qualification rounds: %v", err)
+	}
+
+	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete range groups: %v", err)
 	}
 
 	if err := deleteQualificationSections(ctx, tx, groupID); err != nil {
