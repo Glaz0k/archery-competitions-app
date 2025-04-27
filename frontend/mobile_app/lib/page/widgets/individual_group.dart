@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'User.dart';
+import 'user.dart';
 
 class IndividualGroup extends StatefulWidget {
 

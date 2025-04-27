@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
-import 'User.dart';
+import 'widgets/user.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
