@@ -782,10 +782,18 @@ func getQuarterfinals(ctx context.Context, groupID int, qf *models.Quarterfinal)
 	if err != nil {
 		return fmt.Errorf("failed to get sparring from rows: %v", err)
 	}
-	qf.Sparring1 = *tmp[0]
-	qf.Sparring2 = *tmp[1]
-	qf.Sparring3 = *tmp[2]
-	qf.Sparring4 = *tmp[3]
+	if len(tmp) > 0 {
+		qf.Sparring1 = *tmp[0]
+	}
+	if len(tmp) > 1 {
+		qf.Sparring2 = *tmp[1]
+	}
+	if len(tmp) > 2 {
+		qf.Sparring3 = *tmp[2]
+	}
+	if len(tmp) > 3 {
+		qf.Sparring4 = *tmp[3]
+	}
 
 	return nil
 }
@@ -809,8 +817,12 @@ func getSemifinals(ctx context.Context, groupID int, sf *models.Semifinal) error
 	if err != nil {
 		return fmt.Errorf("rows error: %w", err)
 	}
-	sf.Sparring5 = *tmp[0]
-	sf.Sparring6 = *tmp[1]
+	if len(tmp) > 0 {
+		sf.Sparring5 = *tmp[0]
+	}
+	if len(tmp) > 1 {
+		sf.Sparring6 = *tmp[1]
+	}
 
 	return nil
 }
@@ -834,8 +846,12 @@ func getFinals(ctx context.Context, groupID int, f *models.Final) error {
 	if err != nil {
 		return fmt.Errorf("rows error: %w", err)
 	}
-	f.SparringGold = *tmp[0]
-	f.SparringBronze = *tmp[1]
+	if len(tmp) > 0 {
+		f.SparringGold = *tmp[0]
+	}
+	if len(tmp) > 1 {
+		f.SparringBronze = *tmp[1]
+	}
 
 	return nil
 }
@@ -1174,4 +1190,267 @@ func getSparringFromRows(rows pgx.Rows) ([]*models.Sparring, error) {
 		sparrings = append(sparrings, &sparring)
 	}
 	return sparrings, rows.Err()
+}
+
+func StartSemifinal(w http.ResponseWriter, r *http.Request) {
+	groupID, err := tools.ParseParamToInt(r, "group_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+
+	tx, err := conn.Begin(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to begin transaction"})
+		return
+	}
+	defer tx.Rollback(r.Context())
+
+	var groupState string
+	err = tx.QueryRow(r.Context(), `SELECT state FROM individual_groups WHERE id = $1 FOR UPDATE`, groupID).Scan(&groupState)
+	if errors.Is(err, pgx.ErrNoRows) {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	var finalGrid models.FinalGrid
+	finalGrid.GroupID = groupID
+
+	if groupState == "semifinal_start" || groupState == "final_start" || groupState == "completed" {
+		if err := getSemifinalsTx(tx, r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		tools.WriteJSON(w, http.StatusOK, finalGrid)
+		return
+	}
+
+	if groupState != "quarterfinal_start" {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "quarterfinal not started"})
+		return
+	}
+
+	if err := checkQuarterfinalsCompleted(tx, r.Context(), groupID); err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+
+	winners, err := getQuarterfinalWinners(tx, r.Context(), groupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	var bowClass string
+	err = tx.QueryRow(r.Context(), `SELECT bow FROM individual_groups WHERE id = $1`, groupID).Scan(&bowClass)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get bow class"})
+		return
+	}
+
+	rangeGroupID, err := createRangeGroupTx(tx, r.Context(), bowClass)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	_, err = tx.Exec(r.Context(), `UPDATE individual_groups SET state = 'semifinal_start' WHERE id = $1`, groupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to update group state"})
+		return
+	}
+
+	if err := createSemifinalSparringsTx(tx, r.Context(), groupID, winners, rangeGroupID); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	if err := tx.Commit(r.Context()); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to commit transaction"})
+		return
+	}
+
+	tx, err = conn.Begin(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to begin transaction"})
+		return
+	}
+	defer tx.Rollback(r.Context())
+
+	if err := getSemifinalsTx(tx, r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+
+	if err := tx.Commit(r.Context()); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to commit transaction"})
+		return
+	}
+
+	tools.WriteJSON(w, http.StatusCreated, finalGrid)
+}
+
+func checkQuarterfinalsCompleted(tx pgx.Tx, ctx context.Context, groupID int) error {
+	var ongoingCount int
+	err := tx.QueryRow(ctx, `
+        SELECT COUNT(s.id)
+        FROM quarterfinals q
+        JOIN sparrings s ON q.sparring1_id = s.id OR q.sparring2_id = s.id OR q.sparring3_id = s.id OR q.sparring4_id = s.id
+        WHERE q.group_id = $1 AND s.state = 'ongoing'`, groupID).Scan(&ongoingCount)
+	if err != nil {
+		return fmt.Errorf("failed to check quarterfinals completion: %w", err)
+	}
+	if ongoingCount > 0 {
+		return fmt.Errorf("not all quarterfinal sparrings are completed")
+	}
+	return nil
+}
+
+func getQuarterfinalWinners(tx pgx.Tx, ctx context.Context, groupID int) ([]qualifier, error) {
+	rows, err := tx.Query(ctx, `
+        SELECT 
+            CASE 
+                WHEN s.state = 'top_win' THEN sp_top.competitor_id
+                WHEN s.state = 'bot_win' THEN sp_bot.competitor_id
+            END AS winner_id,
+            CASE 
+                WHEN s.id = q.sparring1_id THEN 1
+                WHEN s.id = q.sparring2_id THEN 2
+                WHEN s.id = q.sparring3_id THEN 3
+                WHEN s.id = q.sparring4_id THEN 4
+            END AS sparring_num
+        FROM quarterfinals q
+        JOIN sparrings s ON q.sparring1_id = s.id OR q.sparring2_id = s.id OR q.sparring3_id = s.id OR q.sparring4_id = s.id
+        LEFT JOIN sparring_places sp_top ON s.top_place_id = sp_top.id
+        LEFT JOIN sparring_places sp_bot ON s.bot_place_id = sp_bot.id
+        WHERE q.group_id = $1 AND s.state IN ('top_win', 'bot_win')
+        ORDER BY sparring_num`, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get quarterfinal winners: %w", err)
+	}
+	defer rows.Close()
+
+	var winners []qualifier
+	for rows.Next() {
+		var q qualifier
+		var winnerID sql.NullInt64
+		if err := rows.Scan(&winnerID, &q.Place); err != nil {
+			return nil, fmt.Errorf("failed to scan winner: %w", err)
+		}
+		if winnerID.Valid {
+			q.CompetitorID = int(winnerID.Int64)
+			winners = append(winners, q)
+		}
+	}
+	return winners, rows.Err()
+}
+
+func createSemifinalSparringsTx(tx pgx.Tx, ctx context.Context, groupID int, winners []qualifier, rangeGroupID int64) error {
+	var semifinalID int64
+	err := tx.QueryRow(ctx, `INSERT INTO semifinals (group_id) VALUES ($1) RETURNING group_id`, groupID).Scan(&semifinalID)
+	if err != nil {
+		return fmt.Errorf("failed to create semifinal record: %w", err)
+	}
+
+	sparringPairs := [][]int{{1, 2}, {3, 4}}
+
+	for i, pair := range sparringPairs {
+		topWinner := findQualifier(winners, pair[0])
+		botWinner := findQualifier(winners, pair[1])
+
+		var topPlaceID, botPlaceID int64
+		var topWinnerFlag, botWinnerFlag bool
+
+		if topWinner != nil {
+			if botWinner == nil {
+				topPlaceID, err = createSparringPlaceTx(tx, ctx, rangeGroupID, topWinner.CompetitorID)
+				if err != nil {
+					return fmt.Errorf("failed to create top place: %w", err)
+				}
+				topWinnerFlag = true
+			} else {
+				topPlaceID, err = createSparringPlaceTx(tx, ctx, rangeGroupID, topWinner.CompetitorID)
+				if err != nil {
+					return fmt.Errorf("failed to create top place: %w", err)
+				}
+			}
+		}
+
+		if botWinner != nil {
+			if topWinner == nil {
+				botPlaceID, err = createSparringPlaceTx(tx, ctx, rangeGroupID, botWinner.CompetitorID)
+				if err != nil {
+					return fmt.Errorf("failed to create bot place: %w", err)
+				}
+				botWinnerFlag = true
+			} else {
+				botPlaceID, err = createSparringPlaceTx(tx, ctx, rangeGroupID, botWinner.CompetitorID)
+				if err != nil {
+					return fmt.Errorf("failed to create bot place: %w", err)
+				}
+			}
+		}
+
+		if topWinner != nil || botWinner != nil {
+			state := "ongoing"
+			if topWinnerFlag {
+				state = "top_win"
+			} else if botWinnerFlag {
+				state = "bot_win"
+			}
+
+			sparringID, err := createSparringTx(tx, ctx, topPlaceID, botPlaceID, state)
+			if err != nil {
+				return fmt.Errorf("failed to create sparring: %w", err)
+			}
+
+			if err := linkSparringToSemifinalTx(tx, ctx, semifinalID, i+1, sparringID); err != nil {
+				return fmt.Errorf("failed to link sparring: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+func linkSparringToSemifinalTx(tx pgx.Tx, ctx context.Context, semifinalID int64, sparringNum int, sparringID int64) error {
+	updateField := fmt.Sprintf("sparring%d_id", sparringNum)
+	_, err := tx.Exec(ctx, fmt.Sprintf(`UPDATE semifinals SET %s = $1 WHERE group_id = $2`, updateField), sparringID, semifinalID)
+	if err != nil {
+		return fmt.Errorf("failed to link sparring: %w", err)
+	}
+	return nil
+}
+
+func getSemifinalsTx(tx pgx.Tx, ctx context.Context, groupID int, sf *models.Semifinal) error {
+	rows, err := tx.Query(ctx, `SELECT s.id, s.state, sp_top.id, sp_top.competitor_id, c_top.full_name, sp_bot.id, sp_bot.competitor_id, c_bot.full_name
+        FROM semifinals sf
+        JOIN sparrings s ON sf.sparring1_id = s.id OR sf.sparring2_id = s.id
+        LEFT JOIN sparring_places sp_top ON s.top_place_id = sp_top.id
+        LEFT JOIN competitors c_top ON sp_top.competitor_id = c_top.id
+        LEFT JOIN sparring_places sp_bot ON s.bot_place_id = sp_bot.id
+        LEFT JOIN competitors c_bot ON sp_bot.competitor_id = c_bot.id
+        WHERE sf.group_id = $1
+        ORDER BY 
+            CASE 
+                WHEN s.id = sf.sparring1_id THEN 1
+                WHEN s.id = sf.sparring2_id THEN 2
+            END`, groupID)
+	if err != nil {
+		return fmt.Errorf("query semifinals: %w", err)
+	}
+	defer rows.Close()
+
+	sparrings, err := getSparringFromRows(rows)
+	if err != nil {
+		return fmt.Errorf("get sparrings: %w", err)
+	}
+
+	sf.Sparring5 = *sparrings[0]
+	sf.Sparring6 = *sparrings[1]
+
+	return nil
 }

@@ -43,6 +43,7 @@ func Create() *mux.Router {
 	GetIndividualGroupCompetitorsRoutes(commonRouter)
 	GetFinalGridRoutes(commonRouter)
 	StartQuarterfinalRoutes(adminRouter)
+	StartSemifinalRoutes(adminRouter)
 
 	GetQualificationTableRoutes(userRouter)
 	GetQualificationTableRoutes(adminRouter)

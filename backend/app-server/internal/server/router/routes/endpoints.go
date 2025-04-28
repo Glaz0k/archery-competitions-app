@@ -8,6 +8,7 @@ const (
 	UpdateIndividualGroup              = "/api/individual_groups/{group_id}/competitors/sync"
 	FinalGrid                          = "/api/individual_groups/{group_id}/final_grid"
 	StartQuarterfinal                  = "/api/individual_groups/{group_id}/quarterfinal/start"
+	StartSemifinal                     = "/api/individual_groups/{group_id}/semifinal/start"
 
 	EndCompetition              = "/api/competitions/{competition_id}/end"
 	CompetitionEndpoint         = "/api/competitions/{competition_id}"

@@ -50,9 +50,9 @@ func StartQuarterfinalRoutes(router *mux.Router) {
 	router.HandleFunc(StartQuarterfinal, handlers.StartQuarterfinal).Methods("POST")
 }
 
-// TODO: quarterfinal start
-
-// TODO: semifinal start
+func StartSemifinalRoutes(router *mux.Router) {
+	router.HandleFunc(StartSemifinal, handlers.StartSemifinal).Methods("POST")
+}
 
 // TODO: final start
 
