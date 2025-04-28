@@ -17,28 +17,28 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 	var cup models.Cup
 	err := json.NewDecoder(r.Body).Decode(&cup)
 	if err != nil {
-		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
 	checkQuery := "SELECT id FROM cups WHERE title = $1 AND address = $2 AND season = $3"
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cup.Title, cup.Address, cup.Season)
 	if exists {
-		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "ALREADY EXISTS"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "ALREADY EXISTS"})
 		return
 	}
 	if err != nil {
-		err = tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	err = conn.QueryRow(context.Background(),
 		"INSERT INTO cups (title, address, season) VALUES ($1, $2, $3) RETURNING id",
 		cup.Title, cup.Address, cup.Season).Scan(&cup.ID)
 	if err != nil {
-		err = tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
-	err = tools.WriteJSON(w, http.StatusCreated, cup)
+	tools.WriteJSON(w, http.StatusCreated, cup)
 }
 
 func GetCup(w http.ResponseWriter, r *http.Request) {
@@ -166,7 +166,7 @@ func GetAllCups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tools.WriteJSON(w, http.StatusOK, cups)
+	tools.WriteJSON(w, http.StatusOK, cups)
 }
 
 func EditCup(w http.ResponseWriter, r *http.Request) {

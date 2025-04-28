@@ -29,8 +29,9 @@ const (
 	QualificationSectionRangesEndpoint = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges"
 	EndRange                           = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges/{range_ordinal}/end"
 
-	QualificationTable = "/api/individual_groups/{group_id}/qualification"
-	SparringPlace      = "/api/sparring_places/{id}"
-	Ranges             = "/api/sparring_places/{id}/ranges"
-	RangeEnd           = "api/sparring_places/{id}/ranges/{range_original}/end"
+	QualificationTable    = "/api/individual_groups/{group_id}/qualification"
+	SparringPlace         = "/api/sparring_places/{id}"
+	Ranges                = "/api/sparring_places/{id}/ranges"
+	SparringPlaceRangeEnd = "/api/sparring_places/{id}/ranges/{range_ordinal}/end"
+	ShootOut              = "/api/sparring_places/{id}/shoot_out"
 )
