@@ -22,6 +22,7 @@ export const INDIVIDUAL_GROUP_QUERY_KEYS = {
     Number(groupId),
     "qualification",
   ],
+  finalGrid: (groupId) => [...INDIVIDUAL_GROUP_QUERY_KEYS.all, Number(groupId), "final_grid"],
 };
 
 export const COMPETITOR_QUERY_KEYS = {
@@ -46,4 +47,14 @@ export const SECTION_QUERY_KEYS = {
     Number(sectionId),
     Number(roundOrdinal),
   ],
+};
+
+export const PLACE_QUERY_KEYS = {
+  all: ["sparring_places"],
+  element: (placeId) => [...PLACE_QUERY_KEYS.all, Number(placeId)],
+  rangeGroup: (placeId) => [...PLACE_QUERY_KEYS.all, Number(placeId), ...RANGE_QUERY_KEYS.all],
+};
+
+export const RANGE_QUERY_KEYS = {
+  all: ["ranges"],
 };

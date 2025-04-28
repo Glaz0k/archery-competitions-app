@@ -2,6 +2,7 @@ import BowClass from "../enums/BowClass";
 import SportsRank from "../enums/competitor/SportsRank";
 import GroupGender from "../enums/GroupGender";
 import GroupState from "../enums/GroupState";
+import SparringState from "../enums/SparringState";
 import apiMock from "./mocks";
 
 export async function getIndividualGroup(groupId) {
@@ -10,7 +11,7 @@ export async function getIndividualGroup(groupId) {
     competitionId: 0,
     bow: BowClass.CLASSIC,
     identity: GroupGender.MALE,
-    state: GroupState.QUAL_START,
+    state: GroupState.FINAL_START,
   };
 }
 
@@ -90,4 +91,102 @@ export async function startQualification(groupId) {
 
 export async function endQualification(groupId) {
   return await getQualification(groupId);
+}
+
+export async function getFinalGrid(groupId) {
+  await apiMock();
+  return {
+    groupId: groupId,
+    quarterfinal: {
+      sparring1: {
+        id: 22340981,
+        topPlace: {
+          id: 3458761,
+          competitor: {
+            id: 759265,
+            fullName: "Иванов Иван",
+          },
+          rangeGroup: {
+            id: 1297461324,
+            rangesMaxCount: 10,
+            rangeSize: 3,
+            ranges: [
+              {
+                id: 234098123,
+                rangeOrdinal: 1,
+                isActive: false,
+                shots: [
+                  {
+                    shotOrdinal: 1,
+                    score: "10",
+                  },
+                  {
+                    shotOrdinal: 2,
+                    score: "9",
+                  },
+                  {
+                    shotOrdinal: 3,
+                    score: "X",
+                  },
+                ],
+                rangeScore: 29,
+              },
+              {
+                id: 23987614,
+                rangeOrdinal: 2,
+                isActive: true,
+                shots: [
+                  {
+                    shotOrdinal: 1,
+                    score: "8",
+                  },
+                  {
+                    shotOrdinal: 2,
+                    score: null,
+                  },
+                  {
+                    shotOrdinal: 3,
+                    score: null,
+                  },
+                ],
+                rangeScore: 8,
+              },
+              {
+                id: 43563568,
+                rangeOrdinal: 3,
+                isActive: false,
+                shots: null,
+                rangeScore: null,
+              },
+            ],
+            totalScore: 37,
+          },
+          isActive: true,
+        },
+        botPlace: null,
+        state: SparringState.TOP_WIN,
+      },
+      sparring2: null,
+      sparring3: null,
+      sparring4: null,
+    },
+    semifinal: null,
+    final: null,
+  };
+}
+
+export async function startQuarterfinal(groupId) {
+  return await getFinalGrid(groupId);
+}
+
+export async function startSemifinal(groupId) {
+  return await getFinalGrid(groupId);
+}
+
+export async function startFinal(groupId) {
+  return await getFinalGrid(groupId);
+}
+
+export async function endFinal(groupId) {
+  return await getFinalGrid(groupId);
 }

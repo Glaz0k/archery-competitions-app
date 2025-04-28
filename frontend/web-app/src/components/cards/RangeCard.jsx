@@ -1,24 +1,17 @@
 import { Fragment, useState } from "react";
-import {
-  IconCheck,
-  IconCircleDashedCheck,
-  IconCircleFilled,
-  IconEdit,
-  IconX,
-} from "@tabler/icons-react";
+import { IconCheck, IconCircleDashedCheck, IconEdit, IconX } from "@tabler/icons-react";
 import {
   ActionIcon,
-  AspectRatio,
   Card,
+  Divider,
   Group,
-  LoadingOverlay,
   TextInput,
-  ThemeIcon,
-  Title,
+  Tooltip,
   useMantineTheme,
 } from "@mantine/core";
 import useShotsForm from "../../hooks/useShotsForm";
-import { ShotCard, ShotDivider } from "./ShotCard";
+import BasicRangeCard from "./BasicRangeCard";
+import ShotCard from "./ShotCard";
 
 export default function RangeCard({
   range,
@@ -28,7 +21,6 @@ export default function RangeCard({
   onShotsSubmit,
   onComplete,
 }) {
-  const theme = useMantineTheme();
   const [isEditing, setIsEditing] = useState(false);
   const shots =
     range.shots != null
@@ -44,104 +36,110 @@ export default function RangeCard({
 
   const shotsForm = useShotsForm({ initialShots: [...shots], shotRegex: rangeRegex });
 
-  const shotCards = [...shots]
+  const renderShots = [...shots]
     .sort((a, b) => a.shotOrdinal - b.shotOrdinal)
     .map((shot, index) => (
-      <Fragment key={shot.shotOrdinal}>
-        {index !== 0 && <ShotDivider />}
-        <AspectRatio ratio={1}>
-          <ShotCard>
-            {isEditing ? (
-              <TextInput
-                p={0}
-                variant="unstyled"
-                styles={{
-                  input: {
-                    font: theme.headings.fontFamily,
-                    fontSize: theme.headings.sizes.h2.fontSize,
-                    fontWeight: theme.headings.sizes.h2.fontWeight,
-                    color:
-                      shotsForm.errors["shots." + index + ".score"] == undefined
-                        ? theme.white
-                        : theme.colors.red[6],
-                  },
-                }}
-                key={shotsForm.key("shots." + index + ".score")}
-                {...shotsForm.getInputProps("shots." + index + ".score", { withError: false })}
-              />
-            ) : (
-              <Title order={2}>{shot.score || "-"}</Title>
-            )}
-          </ShotCard>
-        </AspectRatio>
+      <Fragment key={range.id + shot.shotOrdinal}>
+        {index !== 0 && <ShotsDivider />}
+        <ShotsFormCard shot={shot} shotsForm={shotsForm} index={index} editing={isEditing} />
       </Fragment>
     ));
 
-  const actionsOnSubmit = async (addFormValues) => {
-    if (await onShotsSubmit(addFormValues)) {
+  const actionsOnSubmit = async (shotsFormValues) => {
+    if (await onShotsSubmit(shotsFormValues.shots)) {
       setIsEditing(false);
     }
   };
 
+  const activeState = range.isActive ? false : range.shots == null ? undefined : true;
+
   return (
-    <Card bg="gray.0" bd="5px solid #E0E0E0" c={theme.black}>
-      <LoadingOverlay visible={loading} />
-      <form onSubmit={shotsForm.onSubmit(actionsOnSubmit)}>
-        <Group gap="md">
-          <ThemeIcon
-            color={
-              range.isActive
-                ? theme.colors.yellow[6]
-                : range.shots == null
-                  ? theme.colors.gray[6]
-                  : theme.colors.green[6]
-            }
-          >
-            <IconCircleFilled />
-          </ThemeIcon>
-          <Title order={2} flex={1}>
-            {"Серия " + range.rangeOrdinal + ":"}
-          </Title>
-          <Group gap="sm" wrap="nowrap">
-            {shotCards}
-          </Group>
-          <Card p="xs">
-            <Group gap="sm">
-              {!isEditing ? (
-                <>
-                  <ActionIcon
-                    onClick={() => {
-                      shotsForm.setInitialValues({ shots: [...shots] });
-                      setIsEditing(true);
-                    }}
-                  >
-                    <IconEdit />
-                  </ActionIcon>
-                  <ActionIcon disabled={!range.isActive} onClick={() => onComplete()}>
-                    <IconCircleDashedCheck />
-                  </ActionIcon>
-                </>
-              ) : (
-                <>
-                  <>
-                    <ActionIcon
-                      onClick={() => {
-                        setIsEditing(false);
-                        shotsForm.reset();
-                      }}
-                    >
-                      <IconX />
-                    </ActionIcon>
-                    <ActionIcon type="submit">
-                      <IconCheck />
-                    </ActionIcon>
-                  </>
-                </>
-              )}
-            </Group>
-          </Card>
+    <form onSubmit={shotsForm.onSubmit(actionsOnSubmit)}>
+      <BasicRangeCard
+        active={activeState}
+        title={"Серия " + range.rangeOrdinal + ":"}
+        loading={loading}
+      >
+        <Group gap="sm" wrap="nowrap">
+          {renderShots}
         </Group>
-      </form>
+        <ShotsFormControls
+          editing={isEditing}
+          disabledComplete={!range.isActive}
+          onEdit={() => {
+            shotsForm.setValues({ shots: [...shots] });
+            setIsEditing(true);
+          }}
+          onComplete={onComplete}
+          onCancel={() => {
+            setIsEditing(false);
+            shotsForm.reset();
+          }}
+        />
+      </BasicRangeCard>
+    </form>
+  );
+}
+
+function ShotsDivider() {
+  return <Divider orientation="vertical" size="md" my="xs" />;
+}
+
+function ShotsFormCard({ shot, shotsForm, editing }) {
+  const theme = useMantineTheme();
+  const index = shot.shotOrdinal - 1;
+
+  return (
+    <ShotCard score={shot.score} editing={editing}>
+      <TextInput
+        p={0}
+        variant="unstyled"
+        styles={{
+          input: {
+            font: theme.headings.fontFamily,
+            fontSize: theme.headings.sizes.h2.fontSize,
+            fontWeight: theme.headings.sizes.h2.fontWeight,
+            color:
+              shotsForm.errors["shots." + index + ".score"] == undefined
+                ? theme.white
+                : theme.colors.red[6],
+          },
+        }}
+        key={shotsForm.key("shots." + index + ".score")}
+        {...shotsForm.getInputProps("shots." + index + ".score", { withError: false })}
+      />
+    </ShotCard>
+  );
+}
+
+function ShotsFormControls({ editing, disabledComplete, onEdit, onComplete, onCancel }) {
+  return (
+    <Card p="xs">
+      <Group gap="sm">
+        {!editing ? (
+          <>
+            <Tooltip label="Редактировать">
+              <ActionIcon onClick={onEdit}>
+                <IconEdit />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Завершить">
+              <ActionIcon disabled={disabledComplete} onClick={onComplete}>
+                <IconCircleDashedCheck />
+              </ActionIcon>
+            </Tooltip>
+          </>
+        ) : (
+          <>
+            <ActionIcon onClick={onCancel}>
+              <IconX />
+            </ActionIcon>
+            <ActionIcon type="submit">
+              <IconCheck />
+            </ActionIcon>
+          </>
+        )}
+      </Group>
     </Card>
   );
 }

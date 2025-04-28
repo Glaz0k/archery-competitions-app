@@ -7,6 +7,7 @@ import {
   Card,
   colorsTuple,
   createTheme,
+  Divider,
   Input,
   InputLabel,
   InputWrapper,
@@ -226,6 +227,11 @@ const theme = createTheme({
     TableTbody: TableTbody.extend({
       defaultProps: {
         bg: "secondary.9",
+      },
+    }),
+    Divider: Divider.extend({
+      defaultProps: {
+        color: "secondary.9",
       },
     }),
   },

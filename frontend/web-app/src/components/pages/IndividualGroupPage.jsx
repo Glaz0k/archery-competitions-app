@@ -13,6 +13,7 @@ import {
 } from "../../api/queryKeys";
 import NavigationBar from "../bars/NavigationBar";
 import CompetitorsPanel from "./individual-group/CompetitorsPanel";
+import FinalPanel from "./individual-group/FinalPanel";
 import { GroupContext } from "./individual-group/GroupContext";
 import QualificationPanel from "./individual-group/QualificationPanel";
 
@@ -114,9 +115,11 @@ export default function IndividualGroupPage() {
       variant="pills"
       value={groupSection}
       onChange={(value) => navigate(value)}
+      display="flex"
       flex={1}
+      style={{ overflow: "hidden" }}
     >
-      <Stack gap="lg">
+      <Stack gap="lg" display="flex" flex={1} style={{ overflow: "hidden" }}>
         <NavigationBar
           title={groupTitle}
           subTitle={groupSubtitle}
@@ -150,7 +153,9 @@ export default function IndividualGroupPage() {
             <Tabs.Panel value="qualification">
               <QualificationPanel groupInfo={info} setGroupControls={setControls} />
             </Tabs.Panel>
-            <Tabs.Panel value="final">Финал</Tabs.Panel>
+            <Tabs.Panel value="final" display="flex" flex={1} style={{ overflow: "hidden" }}>
+              <FinalPanel groupInfo={info} setGroupControls={setControls} />
+            </Tabs.Panel>
           </GroupContext.Provider>
         )}
       </Stack>

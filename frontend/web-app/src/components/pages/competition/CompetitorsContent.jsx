@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useNavigate, useParams } from "react-router";
-import { ActionIcon, Card, LoadingOverlay, Stack, Table } from "@mantine/core";
+import { ActionIcon, Card, LoadingOverlay, rem, Stack, Table } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { deleteCompetitor, getCompetitors } from "../../../api/competitors/competition";
 import { COMPETITOR_QUERY_KEYS } from "../../../api/queryKeys";
@@ -111,7 +111,7 @@ export default function CompetitorsContent() {
         onConfirm={removeCompetitor}
         isLoading={isCompetitorDeleting}
       />
-      <Stack flex={1} style={{ overflow: "hidden" }} gap="lg" miw={500}>
+      <Stack flex={1} style={{ overflow: "hidden" }} gap="lg" miw={rem(500)}>
         <MainBar
           title="Участники соревнования"
           onRefresh={refetchCompetitorDetails}

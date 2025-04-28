@@ -68,7 +68,7 @@ function QualificationRangeCard({ sectionId, roundOrdinal, initialRange, rangeSi
       rangeSize={rangeSize}
       rangeRegex={rangeRegex}
       loading={isRangeEditing || isRangeCompleting || loading}
-      onShotsSubmit={(values) => editRange(values.shots)}
+      onShotsSubmit={editRange}
       onComplete={completeRange}
     />
   );

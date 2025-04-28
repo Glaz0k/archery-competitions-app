@@ -1,15 +1,13 @@
-import { Card, Center, Divider } from "@mantine/core";
+import { AspectRatio, Card, Center, Title } from "@mantine/core";
 
-export function ShotDivider() {
-  return <Divider color="secondary.9" orientation="vertical" size="md" my="xs" />;
-}
-
-export function ShotCard({ children }) {
+export default function ShotCard({ score, editing, children }) {
   return (
-    <Card p="sm">
-      <Center w={40} h={40}>
-        {children}
-      </Center>
-    </Card>
+    <AspectRatio ratio={1}>
+      <Card p="sm">
+        <Center w={40} h={40}>
+          {editing ? children : <Title order={2}>{score || "-"}</Title>}
+        </Center>
+      </Card>
+    </AspectRatio>
   );
 }

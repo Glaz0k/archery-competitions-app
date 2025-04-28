@@ -4,7 +4,7 @@ import {
   IconFileTypePdf,
   IconRefresh,
 } from "@tabler/icons-react";
-import { ActionIcon, Group, LoadingOverlay, Stack, Title } from "@mantine/core";
+import { ActionIcon, Group, LoadingOverlay, Stack, Title, Tooltip } from "@mantine/core";
 import { TextButton } from "../buttons/TextButton";
 import PrimaryCard from "../cards/PrimaryCard";
 
@@ -32,17 +32,18 @@ export default function NavigationBar({
           {subTitle && <Title order={3}>{subTitle}</Title>}
         </Stack>
         {onEnd && (
-          <TextButton
-            size="lg"
-            label="Завершить"
-            leftSection={<IconCircleDashedCheck />}
-            onClick={onEnd}
-          />
+          <Tooltip label="Завершить">
+            <ActionIcon onClick={onEnd}>
+              <IconCircleDashedCheck />
+            </ActionIcon>
+          </Tooltip>
         )}
         {onExport && (
-          <ActionIcon onClick={onExport}>
-            <IconFileTypePdf />
-          </ActionIcon>
+          <Tooltip label="Экспорт PDF">
+            <ActionIcon onClick={onExport}>
+              <IconFileTypePdf />
+            </ActionIcon>
+          </Tooltip>
         )}
         {onRefresh && (
           <ActionIcon onClick={onRefresh}>
