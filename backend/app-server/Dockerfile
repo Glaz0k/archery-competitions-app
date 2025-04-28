@@ -17,8 +17,8 @@ COPY --from=builder /app-migrate .
 COPY cmd/migrate/migrations ./cmd/migrate/migrations
 COPY entrypoint.sh .
 
-RUN chmod +x entrypoint.sh
+RUN chmod +x entrypoint.sh && dos2unix entrypoint.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]
