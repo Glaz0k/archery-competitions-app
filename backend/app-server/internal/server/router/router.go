@@ -28,6 +28,7 @@ func Create() *mux.Router {
 	EditCupRoutes(adminRouter)
 	CreateCompetitionRoutes(adminRouter)
 	GetAllCompetitionsRoutes(commonRouter)
+	GetCompetitionsRoutes(commonRouter)
 
 	CreateIndividualGroupRoutes(adminRouter)
 	StartQualificationRoutes(adminRouter)
@@ -44,6 +45,8 @@ func Create() *mux.Router {
 	GetFinalGridRoutes(commonRouter)
 	StartQuarterfinalRoutes(adminRouter)
 	StartSemifinalRoutes(adminRouter)
+	StartFinalRoutes(adminRouter)
+	EndFinalRoutes(adminRouter)
 
 	GetQualificationTableRoutes(userRouter)
 	GetQualificationTableRoutes(adminRouter)
@@ -56,8 +59,8 @@ func Create() *mux.Router {
 
 	GetCompetitorsFromCompetitionRoutes(commonRouter)
 
-	GetQualificationSectionsRoutes(userRouter)
-	GetQualificationSectionsRoutes(adminRouter)
+	GetQualificationSectionsRoutes(commonRouter)
+	GetQualificationRoundsRoutes(commonRouter)
 
 	RegisterCompetitorRoutes(userRouter)
 

@@ -10,7 +10,9 @@ func GetQualificationSectionsRoutes(router *mux.Router) {
 	router.HandleFunc(GetQualificationSections, handlers.GetQualificationSection).Methods("GET")
 }
 
-// TODO: get qualification section round for user and for admin
+func GetQualificationRoundsRoutes(router *mux.Router) {
+	router.HandleFunc(GetQualificationSectionRounds, handlers.GetQualificationRound).Methods("GET")
+}
 
 func GetQualificationSectionRangesRoutes(router *mux.Router) {
 	router.HandleFunc(QualificationSectionRangesEndpoint, handlers.GetQualificationSectionRanges).Methods("GET")

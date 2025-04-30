@@ -85,3 +85,27 @@ type QualificationTable struct {
 	RoundCount int                            `json:"round_count"`
 	Sections   []QualificationSectionForTable `json:"sections"`
 }
+
+type QualificationSectionResponse struct {
+	ID         int                `json:"id"`
+	Competitor CompetitorShrinked `json:"competitor"`
+	Place      int                `json:"place"`
+	Rounds     []RoundResponse    `json:"rounds"`
+	Total      int                `json:"total"`
+	CountTen   int                `json:"10_s"`
+	CountNine  int                `json:"9_s"`
+	RankGained string             `json:"rank_gained"`
+}
+
+type RoundResponse struct {
+	RoundOrdinal int  `json:"round_ordinal"`
+	IsOngoing    bool `json:"is_ongoing"`
+	Total        int  `json:"total"`
+}
+
+type QualificationRoundResponse struct {
+	SectionID    int        `json:"section_id"`
+	RoundOrdinal int        `json:"round_ordinal"`
+	IsActive     bool       `json:"is_active"`
+	RangeGroup   RangeGroup `json:"range_group"`
+}

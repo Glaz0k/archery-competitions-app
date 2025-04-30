@@ -9,6 +9,8 @@ const (
 	FinalGrid                          = "/api/individual_groups/{group_id}/final_grid"
 	StartQuarterfinal                  = "/api/individual_groups/{group_id}/quarterfinal/start"
 	StartSemifinal                     = "/api/individual_groups/{group_id}/semifinal/start"
+	StartFinal                         = "/api/individual_groups/{group_id}/final/start"
+	EndFinal                           = "/api/individual_groups/{group_id}/final/end"
 
 	EndCompetition              = "/api/competitions/{competition_id}/end"
 	CompetitionEndpoint         = "/api/competitions/{competition_id}"
@@ -26,6 +28,7 @@ const (
 	CompetitorCompetitionEndpoint  = "/api/competitions/{competition_id}/competitors/{competitor_id}"
 
 	GetQualificationSections           = "/api/qualification_sections/{id}"
+	GetQualificationSectionRounds      = "/api/qualification_sections/{id}/rounds/{round_ordinal}"
 	QualificationSectionRangesEndpoint = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges"
 	EndRange                           = "/api/qualification_sections/{id}/rounds/{round_ordinal}/ranges/{range_ordinal}/end"
 

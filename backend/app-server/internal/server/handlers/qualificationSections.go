@@ -260,38 +260,141 @@ func EndQualification(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetQualificationSection(w http.ResponseWriter, r *http.Request) {
-	Qid, err := tools.ParseParamToInt(r, "competition_id")
+	sectionID, err := tools.ParseParamToInt(r, "id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
 
-	userID, ok := r.Context().Value("user_id").(int)
-	if !ok {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "UserID not found"})
+	var section models.QualificationSectionResponse
+	var competitorID int
+	var place sql.NullInt64
+	var rankGained sql.NullString
+	err = conn.QueryRow(r.Context(), `
+        SELECT qs.id, qs.competitor_id, c.full_name, qs.place
+        FROM qualification_sections qs
+        JOIN competitors c ON qs.competitor_id = c.id
+        WHERE qs.id = $1`, sectionID).Scan(&section.ID, &competitorID, &section.Competitor.FullName, &place)
+	if errors.Is(err, pgx.ErrNoRows) {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-	role := r.Context().Value("role")
-	if userID != Qid && role != "admin" {
-		tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "You are not authorized to access this resource"})
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("DATABASE ERROR", err.Error())})
 		return
+	}
+	section.Competitor.ID = competitorID
+	if place.Valid {
+		section.Place = int(place.Int64)
+	}
+	if rankGained.Valid {
+		section.RankGained = rankGained.String
 	}
 
-	var qualificationSection models.QualificationSection
-	err = conn.QueryRow(context.Background(), `SELECT * FROM qualification_sections WHERE id = $1`, Qid).Scan(&qualificationSection.ID, &qualificationSection.IndividualGroupsID, &qualificationSection.CompetitorID, &qualificationSection.Place)
+	role, err := tools.GetRoleFromContext(r)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "qualification section not found", http.StatusNotFound)
-		} else {
-			http.Error(w, "database error", http.StatusInternalServerError)
+		tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "UNAUTHORIZED"})
+		return
+	}
+	if role != "admin" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil || userID != competitorID {
+			tools.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "FORBIDDEN"})
+			return
 		}
+	}
+
+	rounds, totalScore, tensCount, ninesCount, err := getSectionRoundsStats(sectionID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(qualificationSection); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	section.Rounds = make([]models.RoundResponse, len(rounds))
+	for i, r := range rounds {
+		section.Rounds[i] = models.RoundResponse{
+			RoundOrdinal: r.RoundOrdinal,
+			IsOngoing:    r.IsActive,
+			Total:        r.TotalScore,
+		}
 	}
+	section.Total = totalScore
+	section.CountTen = tensCount
+	section.CountNine = ninesCount
+
+	tools.WriteJSON(w, http.StatusOK, section)
+}
+
+func GetQualificationRound(w http.ResponseWriter, r *http.Request) {
+	sectionID, err := tools.ParseParamToInt(r, "id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
+		return
+	}
+	roundOrdinal, err := tools.ParseParamToInt(r, "round_ordinal")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ROUND ORDINAL"})
+		return
+	}
+
+	var competitorID, rangeGroupID int
+	var isActive bool
+	err = conn.QueryRow(r.Context(), `
+        SELECT qs.competitor_id, qr.range_group_id, qr.is_active
+        FROM qualification_sections qs
+        JOIN qualification_rounds qr ON qs.id = qr.section_id
+        WHERE qs.id = $1 AND qr.round_ordinal = $2`, sectionID, roundOrdinal).Scan(&competitorID, &rangeGroupID, &isActive)
+	if errors.Is(err, pgx.ErrNoRows) {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "UNAUTHORIZED"})
+		return
+	}
+	if role != "admin" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil || userID != competitorID {
+			tools.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "FORBIDDEN"})
+			return
+		}
+	}
+
+	var round models.QualificationRoundResponse
+	round.SectionID = sectionID
+	round.RoundOrdinal = roundOrdinal
+	round.IsActive = isActive
+	round.RangeGroup.ID = rangeGroupID
+
+	if err := getRangeGroup(&round.RangeGroup); err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "FAILED TO GET RANGE GROUP"})
+		return
+	}
+
+	roundScore, _, _, err := getRoundStats(sectionID, roundOrdinal)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "FAILED TO GET ROUND STATS"})
+		return
+	}
+	round.RangeGroup.TotalScore = roundScore
+
+	for i := range round.RangeGroup.Ranges {
+		round.RangeGroup.Ranges[i].RangeScore = round.RangeGroup.Ranges[i].CalculateScore()
+		if round.RangeGroup.Ranges[i].Shots == nil {
+			round.RangeGroup.Ranges[i].Shots = []models.Shot{}
+		}
+		if round.RangeGroup.Ranges[i].RangeScore == 0 && len(round.RangeGroup.Ranges[i].Shots) == 0 {
+			round.RangeGroup.Ranges[i].RangeScore = 0
+		}
+	}
+
+	tools.WriteJSON(w, http.StatusOK, round)
 }
 
 func GetQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {

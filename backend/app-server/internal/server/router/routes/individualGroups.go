@@ -54,6 +54,10 @@ func StartSemifinalRoutes(router *mux.Router) {
 	router.HandleFunc(StartSemifinal, handlers.StartSemifinal).Methods("POST")
 }
 
-// TODO: final start
+func StartFinalRoutes(router *mux.Router) {
+	router.HandleFunc(StartFinal, handlers.StartFinal).Methods("POST")
+}
 
-// TODO: final end
+func EndFinalRoutes(router *mux.Router) {
+	router.HandleFunc(EndFinal, handlers.EndFinal).Methods("POST")
+}

@@ -41,3 +41,7 @@ func CreateIndividualGroupRoutes(router *mux.Router) {
 func GetIndividualGroupsFromCompetitionRoutes(router *mux.Router) {
 	router.HandleFunc(IndividualGroupsCompetition, handlers.GetIndividualGroupsFromCompetition).Methods("GET")
 }
+
+func GetCompetitionsRoutes(router *mux.Router) {
+	router.HandleFunc(CompetitionEndpoint, handlers.GetCompetitions).Methods("GET")
+}

@@ -270,6 +270,62 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, competitionDetails)
 }
 
+func GetCompetitions(w http.ResponseWriter, r *http.Request) {
+	competitionID, err := tools.ParseParamToInt(r, "competition_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+
+	role, err := tools.GetRoleFromContext(r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+		return
+	}
+
+	if role == "user" {
+		userID, err := tools.GetUserIDFromContext(r)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
+			return
+		}
+
+		var registered bool
+		queryCheck := `SELECT EXISTS (SELECT 1 FROM competitor_competition_details WHERE competition_id = $1 AND competitor_id = $2)`
+
+		err = conn.QueryRow(context.Background(), queryCheck, competitionID, userID).Scan(&registered)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		if !registered {
+			tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
+			return
+		}
+	}
+
+	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	var competition models.Competition
+	err = conn.QueryRow(context.Background(), `SELECT cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE id = $1`,
+		competitionID).Scan(&competition.CupID, &competition.Stage, &competition.StartDate, &competition.EndDate, &competition.IsEnded)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE3 ERROR"})
+		return
+	}
+
+	tools.WriteJSON(w, http.StatusOK, competition)
+}
+
 func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
