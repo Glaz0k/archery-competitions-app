@@ -2,14 +2,13 @@ import { NativeSelect } from "@mantine/core";
 import BowClass from "../../../enums/BowClass";
 import GroupGender from "../../../enums/GroupGender";
 import useIndividualGroupForm from "../../../hooks/useIndividualGroupForm";
-import AddFormModal from "../AddFormModal";
 
 export default function AddIndividualGroupModal({ isOpened, onClose, onSubmit, isLoading }) {
   const individualGroupForm = useIndividualGroupForm();
 
   return (
     <AddFormModal
-      addForm={individualGroupForm}
+      form={individualGroupForm}
       title="Новая индивидуальная группа"
       isOpened={isOpened}
       onClose={onClose}

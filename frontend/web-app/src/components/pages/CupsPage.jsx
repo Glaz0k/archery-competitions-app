@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Center,
   CloseButton,
@@ -13,18 +12,16 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { deleteCup, getCups, postCup } from "../../api/cups";
-import { CUP_QUERY_KEYS } from "../../api/queryKeys";
+import { useCreateCup, useCups, useDeleteCup } from "../../api";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import NotFoundCard from "../cards/NotFoundCard";
 import AddCupModal from "../modals/cup/AddCupModal";
 import DeleteCupModal from "../modals/cup/DeleteCupModal";
 
-const CUPS_PER_PAGE = 5;
+const CUPS_PER_PAGE = 3;
 
 export default function CupsPage() {
-  const queryClient = useQueryClient();
   const theme = useMantineTheme();
 
   const [cupDeletionId, setCupDeletionId] = useState(null);
@@ -35,34 +32,22 @@ export default function CupsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activePage, setActivePage] = useState(1);
 
-  const { mutateAsync: createCup, isPending: isCupSubmitting } = useMutation({
-    mutationFn: (newCup) => postCup(newCup),
-    onSuccess: (createdCup) => {
-      queryClient.setQueryData(CUP_QUERY_KEYS.all, (old) => [createdCup, ...(old || [])]);
-      addControl.close();
-      setActivePage(1);
-    },
+  const { mutateAsync: createCup, isPending: isCupSubmitting } = useCreateCup(() => {
+    addControl.close();
+    setActivePage(1);
   });
 
   const {
     data: cups,
     isFetching: isCupsLoading,
     refetch: refetchCups,
-  } = useQuery({
-    queryKey: CUP_QUERY_KEYS.all,
-    queryFn: getCups,
-    initialData: [],
-  });
+    isError: isCupsError,
+    error: cupsError,
+  } = useCups();
 
-  const { mutate: removeCup, isPending: isCupDeleting } = useMutation({
-    mutationFn: () => deleteCup(cupDeletionId),
-    onSuccess: () => {
-      queryClient.setQueryData(CUP_QUERY_KEYS.all, (old) =>
-        old.filter((cup) => cup.id !== cupDeletionId)
-      );
-      denyCupDeletion();
-      setActivePage(1);
-    },
+  const { mutate: removeCup, isPending: isCupDeleting } = useDeleteCup(() => {
+    denyCupDeletion();
+    setActivePage(1);
   });
 
   const handleSearch = (term) => {
@@ -95,18 +80,56 @@ export default function CupsPage() {
 
   const totalPages = Math.ceil(filteredCups.length / CUPS_PER_PAGE);
 
+  let renderContent;
+  if (isCupsLoading) {
+    renderContent = Array(CUPS_PER_PAGE)
+      .fill(0)
+      .map((_, index) => (
+        <LinkCardSkeleton key={index} isDelete>
+          <Skeleton height={rem(theme.fontSizes.sm)} width={400} />
+          <Skeleton height={rem(theme.fontSizes.sm)} width={150} />
+        </LinkCardSkeleton>
+      ));
+  } else if (isCupsError) {
+    console.error(cupsError.name + "\n" + cupsError.message);
+    renderContent = <NotFoundCard label="Произошла ошибка" />;
+  } else if (paginatedCups.length === 0) {
+    renderContent = <NotFoundCard label="Кубки не найдены" />;
+  } else {
+    renderContent = paginatedCups.map((cup, index) => (
+      <LinkCard
+        key={index}
+        title={cup.title}
+        onDelete={() => confirmCupDeletion(cup.id)}
+        to={"/cups/" + cup.id}
+      >
+        <Text size="sm">
+          {"Адрес: "}
+          {cup.address !== null ? cup.address : "Не указан"}
+        </Text>
+        <Text size="sm">
+          {"Сезон: "}
+          {cup.season !== null ? cup.season : "Не указан"}
+        </Text>
+      </LinkCard>
+    ));
+  }
+
   return (
     <>
       <AddCupModal
-        isOpened={isOpenedAdd}
+        opened={isOpenedAdd}
         onClose={addControl.close}
-        onSubmit={createCup}
-        isLoading={isCupSubmitting}
+        onSubmit={async (values) => {
+          console.log(values);
+          await createCup(values);
+        }}
+        loading={isCupSubmitting}
       />
       <DeleteCupModal
         isOpened={isOpenedDel}
         onClose={denyCupDeletion}
-        onConfirm={removeCup}
+        onConfirm={() => removeCup(Number(cupDeletionId))}
         isLoading={isCupDeleting}
       />
 
@@ -120,36 +143,7 @@ export default function CupsPage() {
           />
         </MainBar>
         <Stack flex={1} gap="md">
-          {isCupsLoading ? (
-            Array(CUPS_PER_PAGE)
-              .fill(0)
-              .map((_, index) => (
-                <LinkCardSkeleton key={index} isDelete>
-                  <Skeleton height={rem(theme.fontSizes.sm)} width={400} />
-                  <Skeleton height={rem(theme.fontSizes.sm)} width={150} />
-                </LinkCardSkeleton>
-              ))
-          ) : paginatedCups.length > 0 ? (
-            paginatedCups.map((cup, index) => (
-              <LinkCard
-                key={index}
-                title={cup.title}
-                onDelete={() => confirmCupDeletion(cup.id)}
-                to={"/cups/" + cup.id}
-              >
-                <Text size="sm">
-                  {"Адрес: "}
-                  {cup.address !== null ? cup.address : "Не указан"}
-                </Text>
-                <Text size="sm">
-                  {"Сезон: "}
-                  {cup.season !== null ? cup.season : "Не указан"}
-                </Text>
-              </LinkCard>
-            ))
-          ) : (
-            <NotFoundCard label="Кубки не найдены" />
-          )}
+          {renderContent}
         </Stack>
         <Center>
           <Pagination

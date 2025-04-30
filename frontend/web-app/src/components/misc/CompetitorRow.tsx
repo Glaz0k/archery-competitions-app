@@ -1,7 +1,6 @@
-import React from "react";
 import { IconCheck, IconTrashX, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ActionIcon, LoadingOverlay, Table, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Table, useMantineTheme } from "@mantine/core";
 import { putCompetitor } from "../../api/competitors/competition";
 import { COMPETITOR_QUERY_KEYS } from "../../api/queryKeys";
 
@@ -55,7 +54,7 @@ export default function CompetitorRow(rowElement: CompetitorRowProps) {
         {!rowElement.isActive ? (
           <ActionIcon
             variant="transparent"
-            onClick={(_) => toggleCompetitor()}
+            onClick={() => toggleCompetitor()}
             loading={isRowLoading}
           >
             <IconCheck />
@@ -63,7 +62,7 @@ export default function CompetitorRow(rowElement: CompetitorRowProps) {
         ) : (
           <ActionIcon
             variant="transparent"
-            onClick={(_) => toggleCompetitor()}
+            onClick={() => toggleCompetitor()}
             loading={isRowLoading}
           >
             <IconX />
@@ -83,7 +82,7 @@ export default function CompetitorRow(rowElement: CompetitorRowProps) {
         <ActionIcon
           variant="transparent"
           loading={isRowLoading}
-          onClick={(_) => rowElement.onDelete()}
+          onClick={() => rowElement.onDelete()}
         >
           <IconTrashX />
         </ActionIcon>

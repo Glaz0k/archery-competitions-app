@@ -1,14 +1,13 @@
-import React, { forwardRef } from "react";
-import { Button, ButtonProps, createPolymorphicComponent, Text } from "@mantine/core";
+import { Button, Text, type ButtonProps, type ElementProps } from "@mantine/core";
 
-export interface TextButtonProps extends ButtonProps {
+export interface TextButtonProps extends ButtonProps, ElementProps<"button", keyof ButtonProps> {
   label: string;
 }
 
-export const TextButton = createPolymorphicComponent<"button", TextButtonProps>(
-  forwardRef<HTMLButtonElement, TextButtonProps>(({ label, size, children, ...others }, ref) => (
-    <Button size={size} {...others} ref={ref}>
+export function TextButton({ label, size, ...others }: TextButtonProps) {
+  return (
+    <Button size={size} {...others}>
       <Text size={size}>{label}</Text>
     </Button>
-  ))
-);
+  );
+}

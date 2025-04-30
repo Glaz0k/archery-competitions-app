@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { IconCheck } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { useNavigate, useParams } from "react-router";
 import {
   Badge,
@@ -14,12 +14,18 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure, useDocumentTitle } from "@mantine/hooks";
-import { deleteCompetition } from "../../api/competitions";
-import { deleteCup, getCompetitions, getCup, postCompetition, putCup } from "../../api/cups";
-import { COMPETITION_QUERY_KEYS, CUP_QUERY_KEYS } from "../../api/queryKeys";
-import CompetitionStage from "../../enums/CompetitionStage";
+import {
+  useCompetitions,
+  useCreateCompetition,
+  useCup,
+  useDeleteCompetition,
+  useDeleteCup,
+  useUpdateCup,
+} from "../../api";
+import { APP_NAME } from "../../constants";
 import { formatCompetitionDateRange } from "../../helper/formatCompetitionDateRange";
-import useCupForm from "../../hooks/useCupForm";
+import { useSubmitCupForm } from "../../hooks";
+import { getCompetitionStageDescription } from "../../utils";
 import MainBar from "../bars/MainBar";
 import { LinkCard, LinkCardSkeleton } from "../cards/LinkCard";
 import { MainCard } from "../cards/MainCard";
@@ -32,7 +38,6 @@ const SKELETON_LENGTH = 4;
 
 export default function CupPage() {
   const { cupId } = useParams();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const theme = useMantineTheme();
 
@@ -44,7 +49,7 @@ export default function CupPage() {
   const [isOpenedCompetitionAdd, competitionAddControl] = useDisclosure(false);
   const [isOpenedCupDel, cupDelControl] = useDisclosure(false);
 
-  const [webTitle, setWebTitle] = useState(null);
+  const [webTitle, setWebTitle] = useState("");
   useDocumentTitle(webTitle);
 
   const {
@@ -52,59 +57,36 @@ export default function CupPage() {
     isFetching: isCupLoading,
     isError: isCupReadError,
     error: cupReadError,
-  } = useQuery({
-    queryKey: CUP_QUERY_KEYS.element(cupId),
-    queryFn: () => getCup(cupId),
-    initialData: null,
+  } = useCup(Number(cupId));
+
+  const { mutate: updateCup, isPending: isEditedCupSubmitting } = useUpdateCup(() => {
+    setCupEditing(false);
   });
 
-  const { mutate: editCup, isPending: isEditedCupSubmitting } = useMutation({
-    mutationFn: (editedCup) => putCup(editedCup),
-    onSuccess: (editedCup) => {
-      queryClient.setQueryData(CUP_QUERY_KEYS.element(cupId), editedCup);
-      setCupEditing(false);
-    },
+  const { mutate: deleteCup, isPending: isCupDeleting } = useDeleteCup(() => {
+    cupDelControl.close();
+    navigate("..");
   });
 
-  const { mutate: removeCup, isPending: isCupDeleting } = useMutation({
-    mutationFn: () => deleteCup(cupId),
-    onSuccess: () => {
-      navigate("/cups");
-      cupDelControl.close();
-    },
-  });
-
-  const { mutateAsync: createCompetition, isPending: isCompetitonSubmitting } = useMutation({
-    mutationFn: (newCompetition) => postCompetition(cupId, newCompetition),
-    onSuccess: (createdCompetition) => {
-      queryClient.setQueryData(COMPETITION_QUERY_KEYS.allByCup(cupId), (old) => [
-        createdCompetition,
-        ...(old || []),
-      ]);
+  const { mutateAsync: createCompetition, isPending: isCompetitonSubmitting } =
+    useCreateCompetition(() => {
       competitionAddControl.close();
-    },
-  });
+    });
 
   const {
     data: competitions,
     isFetching: isCompetitionsLoading,
     refetch: refetchCompetitions,
-  } = useQuery({
-    queryKey: COMPETITION_QUERY_KEYS.allByCup(cupId),
-    queryFn: () => getCompetitions(cupId),
-    initialData: [],
-  });
+    isError: isCompetitionsError,
+    error: competitionsError,
+  } = useCompetitions(Number(cupId), !!cup);
 
-  const { mutate: removeCompetition, isPending: isCompetitionDeleting } = useMutation({
-    mutationFn: () => deleteCompetition(competitionDeletingId),
-    onSuccess: () => {
-      queryClient.setQueryData(COMPETITION_QUERY_KEYS.allByCup(cupId), (old) => {
-        return old.filter((competition) => competition.id !== competitionDeletingId);
-      });
+  const { mutate: removeCompetition, isPending: isCompetitionDeleting } = useDeleteCompetition(
+    () => {
       competitionDelControl.close();
       setCompetitionDeletingId(null);
-    },
-  });
+    }
+  );
 
   const handleExport = (_id) => {
     console.warn("handleExport temporary unavailable");
@@ -121,25 +103,33 @@ export default function CupPage() {
   };
 
   const handleCupEditing = () => {
-    editCupForm.setValues({ ...cup });
+    editCupForm.setValues({
+      title: cup?.title || "",
+      address: cup?.address || "",
+      season: cup?.season || "",
+    });
     setCupEditing(true);
   };
 
   useEffect(() => {
-    if (isCupReadError && cupReadError.response?.status === 404) {
-      navigate("/not-found");
+    if (isCupReadError) {
+      if (axios.isAxiosError(cupReadError) && cupReadError.status === 404) {
+        navigate("/404");
+      }
     }
   }, [isCupReadError, cupReadError, navigate]);
 
   useEffect(() => {
     if (cup) {
-      setWebTitle("ArcheryManager - " + cup.title);
+      setWebTitle(APP_NAME + " - " + cup.title);
+    } else if (isCupLoading) {
+      setWebTitle(APP_NAME + " - Загрузка...");
     } else {
-      setWebTitle("ArcheryManager - Кубок");
+      setWebTitle(APP_NAME);
     }
-  }, [cup]);
+  }, [cup, isCupLoading]);
 
-  const editCupForm = useCupForm();
+  const editCupForm = useSubmitCupForm();
 
   const editCupFormStructure = (
     <>
@@ -164,29 +154,59 @@ export default function CupPage() {
     </>
   );
 
+  let renderContent;
+  if (isCompetitionsLoading) {
+    renderContent = Array(SKELETON_LENGTH)
+      .fill(0)
+      .map((_, index) => (
+        <LinkCardSkeleton key={index} isTagged isExport isDelete>
+          <Skeleton height={theme.fontSizes.sm} width={250} />
+        </LinkCardSkeleton>
+      ));
+  } else if (isCompetitionsError) {
+    console.error(competitionsError.name + "\n" + competitionsError.message);
+    renderContent = <NotFoundCard label="Произошла ошибка" />;
+  } else if (competitions.length === 0) {
+    renderContent = <NotFoundCard label="Соревнования не найдены" />;
+  } else {
+    renderContent = competitions.map(({ id, stage, startDate, endDate, isEnded }, index) => (
+      <LinkCard
+        key={cupId + "$" + index}
+        title={getCompetitionStageDescription(stage)}
+        to={id}
+        tag={
+          isEnded ? (
+            <Badge leftSection={<IconCheck />} color={"green.8"}>
+              <Text tt="capitalize">{"Завершено"}</Text>
+            </Badge>
+          ) : undefined
+        }
+        onExport={isEnded ? () => handleExport(id) : null}
+        onDelete={() => confirmCompetitionDeletion(id)}
+      >
+        <Text size="sm">{formatCompetitionDateRange({ startDate, endDate })}</Text>
+      </LinkCard>
+    ));
+  }
+
   return (
     <>
       <DeleteCompetitionModal
         isOpened={isOpenedCompetitionDel}
         onClose={denyCompetitionDeletion}
-        onConfirm={removeCompetition}
+        onConfirm={() => removeCompetition(Number(competitionDeletingId))}
         isLoading={isCompetitionDeleting}
       />
       <AddCompetitionModal
-        isOpened={isOpenedCompetitionAdd}
+        opened={isOpenedCompetitionAdd}
         onClose={competitionAddControl.close}
-        onSubmit={({ stage, ...others }) => {
-          createCompetition({
-            stage: CompetitionStage.valueOf(stage),
-            ...others,
-          });
-        }}
-        isLoading={isCompetitonSubmitting}
+        onSubmit={(values) => createCompetition([Number(cupId), values])}
+        loading={isCompetitonSubmitting}
       />
       <DeleteCupModal
         isOpened={isOpenedCupDel}
         onClose={cupDelControl.close}
-        onConfirm={removeCup}
+        onConfirm={() => deleteCup(Number(cupId))}
         isLoading={isCupDeleting}
       />
       <Group align="start" flex={1} gap="lg">
@@ -194,7 +214,7 @@ export default function CupPage() {
           onEdit={handleCupEditing}
           isEditing={isCupEditing}
           isLoading={isCupLoading || isEditedCupSubmitting}
-          onEditSubmit={editCupForm.onSubmit((values) => editCup({ id: cupId, ...values }))}
+          onEditSubmit={editCupForm.onSubmit((values) => updateCup([Number(cupId), values]))}
           onEditCancel={() => setCupEditing(false)}
           onDelete={cupDelControl.open}
         >
@@ -202,7 +222,7 @@ export default function CupPage() {
             editCupFormStructure
           ) : (
             <>
-              <Title order={2}>{cup?.title || "Название"}</Title>
+              <Title order={2}>{cup?.title || "Загрузка..."}</Title>
               <TextInput
                 w="100%"
                 disabled
@@ -227,38 +247,7 @@ export default function CupPage() {
             onAdd={competitionAddControl.open}
             onBack={() => navigate("..")}
           />
-          <Stack flex={1}>
-            {isCompetitionsLoading ? (
-              Array(SKELETON_LENGTH)
-                .fill(0)
-                .map((_, index) => (
-                  <LinkCardSkeleton key={index} isTagged isExport isDelete>
-                    <Skeleton height={theme.fontSizes.sm} width={250} />
-                  </LinkCardSkeleton>
-                ))
-            ) : competitions.length > 0 ? (
-              competitions.map(({ id, stage, startDate, endDate, isEnded }, index) => (
-                <LinkCard
-                  key={index}
-                  title={stage.textValue}
-                  to={"/cups/" + cupId + "/competitions/" + id}
-                  tag={
-                    isEnded ? (
-                      <Badge leftSection={<IconCheck />} color={"green.8"}>
-                        <Text tt="capitalize">{"Завершено"}</Text>
-                      </Badge>
-                    ) : null
-                  }
-                  onExport={isEnded ? () => handleExport(id) : null}
-                  onDelete={() => confirmCompetitionDeletion(id)}
-                >
-                  <Text size="sm">{formatCompetitionDateRange({ startDate, endDate })}</Text>
-                </LinkCard>
-              ))
-            ) : (
-              <NotFoundCard label="Соревнования не найдены" />
-            )}
-          </Stack>
+          <Stack flex={1}>{renderContent}</Stack>
         </Flex>
       </Group>
     </>

@@ -8,28 +8,20 @@ import {
   colorsTuple,
   createTheme,
   Divider,
-  Input,
-  InputLabel,
-  InputWrapper,
   LoadingOverlay,
   Modal,
-  ModalBase,
-  ModalBaseBody,
   Pagination,
-  Paper,
   rem,
   Skeleton,
   TableTbody,
   TableThead,
   Tabs,
-  TabsTab,
   Text,
-  TextInput,
   ThemeIcon,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 
-const light = [
+const light = colorsTuple([
   "#f5f5f5",
   "#e7e7e7",
   "#cdcdcd",
@@ -40,9 +32,9 @@ const light = [
   "#717171",
   "#656565",
   "#575757",
-];
+]);
 
-const primary = [
+const primary = colorsTuple([
   "#f0faf1",
   "#e0f1e1",
   "#bce3be",
@@ -53,9 +45,9 @@ const primary = [
   "#46a548",
   "#3c933f",
   "#2e7d32",
-];
+]);
 
-const secondary = [
+const secondary = colorsTuple([
   "#f3f5f7",
   "#e8e8e8",
   "#cdcfd0",
@@ -66,7 +58,7 @@ const secondary = [
   "#667780",
   "#596a73",
   "#37474f",
-];
+]);
 
 const white = colorsTuple("#FFFFFF");
 
@@ -92,15 +84,15 @@ const theme = createTheme({
     sizes: {
       h1: {
         fontSize: rem(36),
-        fontWeight: 600,
+        fontWeight: "600",
       },
       h2: {
         fontSize: rem(28),
-        fontWeight: 500,
+        fontWeight: "500",
       },
       h3: {
         fontSize: rem(22),
-        fontWeight: 400,
+        fontWeight: "400",
       },
     },
   },
@@ -128,7 +120,7 @@ const theme = createTheme({
     }),
     Text: Text.extend({
       styles: (_theme, params) => {
-        let style = { root: {} };
+        const style = { root: {} };
         switch (params.fz) {
           case "xs":
             style.root = { fontWeight: 200 };
@@ -180,7 +172,7 @@ const theme = createTheme({
       },
     }),
     Anchor: Anchor.extend({
-      styles: (_theme) => ({
+      styles: () => ({
         root: {
           color: "inherit",
         },
