@@ -16,7 +16,7 @@ import (
 	"app-server/internal/models"
 )
 
-func GetIndividualGroups(w http.ResponseWriter, r *http.Request) {
+func GetIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	groupId, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
@@ -122,7 +122,7 @@ func GetCompetitorsFromGroup(w http.ResponseWriter, r *http.Request) {
 	var cgd dto.CompetitorGroupDetail
 	defer rows.Close()
 
-	var competitors []models.Competitor
+	competitors := make([]models.Competitor, 0)
 	for rows.Next() {
 		var competitor models.Competitor
 		if err = rows.Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate,

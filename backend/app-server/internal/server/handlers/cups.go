@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -20,7 +19,6 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-
 	checkQuery := "SELECT id FROM cups WHERE title = $1 AND address = $2 AND season = $3"
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cup.Title, cup.Address, cup.Season)
 	if exists {
@@ -144,7 +142,7 @@ func GetAllCups(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	defer rows.Close()
-	var cups []models.Cup
+	cups := make([]models.Cup, 0)
 
 	for rows.Next() {
 		var cup models.Cup
@@ -195,6 +193,7 @@ func EditCup(w http.ResponseWriter, r *http.Request) {
 
 	query := `UPDATE cups SET title = $1, address = $2, season = $3 WHERE id = $4`
 	_, err = conn.Exec(context.Background(), query, cup.Title, cup.Address, cup.Season, cupID)
+	cup.ID = cupID
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
@@ -214,11 +213,6 @@ func CreateCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
 	}
 	competition.CupID = cupID
-	if competition.EndDate.Before(time.Now()) {
-		competition.IsEnded = true
-	} else {
-		competition.IsEnded = false
-	}
 	var exists bool
 	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE cup_id = $1 AND stage = $2)`
 	err = conn.QueryRow(context.Background(), queryCheck, competition.CupID, competition.Stage).Scan(&exists)
@@ -255,7 +249,7 @@ func GetAllCompetitions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	var competitions []models.Competition
+	competitions := make([]models.Competition, 0)
 
 	for rows.Next() {
 		var competition models.Competition

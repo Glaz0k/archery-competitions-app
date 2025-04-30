@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetIndividualGroupsRoutes(router *mux.Router) {
-	router.HandleFunc(IndividualGroupEndpoint, handlers.GetIndividualGroups).Methods("GET")
+func GetIndividualGroupRoutes(router *mux.Router) {
+	router.HandleFunc(IndividualGroupEndpoint, handlers.GetIndividualGroup).Methods("GET")
 }
 
 func DeleteIndividualGroupRoutes(router *mux.Router) {

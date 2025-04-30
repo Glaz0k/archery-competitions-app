@@ -35,7 +35,8 @@ func Create() *mux.Router {
 
 	EditCompetitionRoutes(adminRouter)
 
-	GetIndividualGroupsRoutes(commonRouter)
+	GetIndividualGroupRoutes(commonRouter)
+	GetCompetitorFromIndividualGroupRoutes(commonRouter)
 
 	SyncIndividualGroupsRoutes(adminRouter)
 

@@ -700,7 +700,7 @@ func GetIndividualGroupsFromCompetition(w http.ResponseWriter, r *http.Request) 
 		defer rows.Close()
 	}
 
-	var groups []models.IndividualGroup
+	groups := make([]models.IndividualGroup, 0)
 	var group models.IndividualGroup
 	for rows.Next() {
 		err = rows.Scan(&group.ID, &group.CompetitionID, &group.Bow, &group.Identity, &group.State)
