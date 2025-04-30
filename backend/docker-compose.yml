@@ -11,7 +11,7 @@ services:
     ports:
       - "5434:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U root -d app-serverDB" ]
+      test: [ "CMD-SHELL", "pg_isready -U root -d BowCompetitions" ]
       interval: 5s
       timeout: 5s
       retries: 5

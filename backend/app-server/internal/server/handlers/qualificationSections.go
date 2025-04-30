@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"app-server/internal/dto"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -11,6 +10,8 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+
+	"app-server/internal/dto"
 
 	"app-server/internal/models"
 	"app-server/pkg/tools"
@@ -44,6 +45,17 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer tx.Rollback(context.Background())
+
+	var groupExists bool
+	err = tx.QueryRow(context.Background(), `SELECT EXISTS(SELECT 1 FROM individual_groups WHERE id = $1)`, individualGroupID).Scan(&groupExists)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to check group existence: %v", err)})
+		return
+	}
+	if !groupExists {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "group_id does not exist"})
+		return
+	}
 
 	var hasQualification bool
 	err = tx.QueryRow(context.Background(),
@@ -80,25 +92,9 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		rangeType = "6-10"
 	}
 
-	var rangeGroupID int
-	err = tx.QueryRow(context.Background(), `INSERT INTO range_groups (ranges_max_count, range_size, type) VALUES ($1, $2, $3) RETURNING id`,
-		req.RangesCount, req.RangeSize, rangeType).Scan(&rangeGroupID)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create range group: %v", err)})
-		return
-	}
-
-	for i := 1; i <= req.RangesCount; i++ {
-		_, err = tx.Exec(context.Background(), `INSERT INTO ranges (group_id, range_ordinal, is_active) VALUES ($1, $2, $3)`, rangeGroupID, i, false)
-		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create range: %v", err)})
-			return
-		}
-	}
-
 	var competitorIDs []int
-	rows, err := tx.Query(context.Background(), `SELECT competitor_id  FROM competitor_group_details 
-         WHERE group_id = $1`, individualGroupID)
+	rows, err := tx.Query(context.Background(), `SELECT competitor_id FROM competitor_group_details
+    	WHERE group_id = $1`, individualGroupID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to get competitors: %v", err)})
 		return
@@ -114,6 +110,11 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		competitorIDs = append(competitorIDs, id)
 	}
 
+	if len(competitorIDs) < 5 {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "few participants"})
+		return
+	}
+
 	i := 1
 	for _, competitorID := range competitorIDs {
 		var sectionID int
@@ -127,6 +128,33 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 
 		first := true
 		for roundOrdinal := 1; roundOrdinal <= req.RoundCount; roundOrdinal++ {
+			var rangeGroupID int
+			err = tx.QueryRow(context.Background(), `INSERT INTO range_groups (ranges_max_count, range_size, type) VALUES ($1, $2, $3) RETURNING id`,
+				req.RangesCount, req.RangeSize, rangeType).Scan(&rangeGroupID)
+			if err != nil {
+				tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create range group: %v", err)})
+				return
+			}
+
+			for rangeOrdinal := 1; rangeOrdinal <= req.RangesCount; rangeOrdinal++ {
+				var rangeID int
+				err = tx.QueryRow(context.Background(), `INSERT INTO ranges (group_id, range_ordinal, is_active) VALUES ($1, $2, $3) RETURNING id`,
+					rangeGroupID, rangeOrdinal, true).Scan(&rangeID)
+				if err != nil {
+					tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create range: %v", err)})
+					return
+				}
+
+				for shotOrdinal := 1; shotOrdinal <= req.RangeSize; shotOrdinal++ {
+					_, err = tx.Exec(context.Background(), `INSERT INTO shots (range_id, shot_ordinal, score) VALUES ($1, $2, $3)`,
+						rangeID, shotOrdinal, nil)
+					if err != nil {
+						tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create shot: %v", err)})
+						return
+					}
+				}
+			}
+
 			_, err = tx.Exec(context.Background(), `INSERT INTO qualification_rounds (section_id, round_ordinal, is_active, range_group_id)
                  VALUES ($1, $2, $3, $4)`, sectionID, roundOrdinal, first, rangeGroupID)
 			if err != nil {
@@ -231,7 +259,6 @@ func EndQualification(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, resp)
 }
 
-// TODO fix
 func GetQualificationSection(w http.ResponseWriter, r *http.Request) {
 	Qid, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {

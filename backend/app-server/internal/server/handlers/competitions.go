@@ -570,14 +570,12 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
-
 	var individualGroup models.IndividualGroup
 	err = json.NewDecoder(r.Body).Decode(&individualGroup)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
 	var exist bool
 	queryCheck = `SELECT EXISTS (SELECT 1 FROM individual_groups WHERE competition_id= $1 and bow = $2 and identity = $3)`
 	err = conn.QueryRow(context.Background(), queryCheck, competitionId, individualGroup.Bow, individualGroup.Identity).Scan(&exist)
@@ -587,6 +585,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	if exist {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "EXISTS"})
+		return
 	}
 
 	tx, err := conn.Begin(context.Background())
