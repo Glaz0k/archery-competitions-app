@@ -319,7 +319,7 @@ func GetCompetitions(w http.ResponseWriter, r *http.Request) {
 	err = conn.QueryRow(context.Background(), `SELECT cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE id = $1`,
 		competitionID).Scan(&competition.CupID, &competition.Stage, &competition.StartDate, &competition.EndDate, &competition.IsEnded)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE3 ERROR"})
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 
