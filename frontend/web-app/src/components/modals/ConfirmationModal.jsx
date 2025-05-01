@@ -1,5 +1,5 @@
 import { Modal, Stack, Text } from "@mantine/core";
-import ConfirmButton from "../buttons/ConfirmButton";
+import ConfirmButton from "../../widgets/buttons/ConfirmButton";
 
 export default function ConfirmationModal({ title, text, opened, onConfirm, onClose, loading }) {
   return (

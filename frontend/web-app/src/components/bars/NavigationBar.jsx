@@ -5,7 +5,7 @@ import {
   IconRefresh,
 } from "@tabler/icons-react";
 import { ActionIcon, Group, LoadingOverlay, Stack, Title, Tooltip } from "@mantine/core";
-import { TextButton } from "../buttons/TextButton";
+import { TextButton } from "../../widgets/buttons/TextButton";
 import PrimaryCard from "../cards/PrimaryCard";
 
 export default function NavigationBar({

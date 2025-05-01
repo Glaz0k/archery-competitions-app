@@ -26,6 +26,7 @@ export const mapToCompetitionAPIEdit = (request: CompetitionEdit): CompetitionAP
 export const mapToCompetition = (response: CompetitionAPI): Competition => {
   return {
     id: response.id,
+    cupId: response.cup_id,
     stage: response.stage,
     startDate: response.start_date ? parseISO(response.start_date) : null,
     endDate: response.end_date ? parseISO(response.end_date) : null,

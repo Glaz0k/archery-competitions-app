@@ -1,1 +1,1 @@
-export const APP_NAME: string = "ArcheryManager";
+export const APP_NAME = "ArcheryManager";

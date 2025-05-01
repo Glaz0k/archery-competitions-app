@@ -18,7 +18,7 @@ import {
 import { INDIVIDUAL_GROUP_QUERY_KEYS } from "../../../api/queryKeys";
 import GroupState from "../../../enums/GroupState";
 import groupStateComparator from "../../../helper/groupStateComparator";
-import { TextButton } from "../../buttons/TextButton";
+import { TextButton } from "../../../widgets/buttons/TextButton";
 import NotFoundCard from "../../cards/NotFoundCard";
 import TableCard from "../../cards/TableCard";
 import QualificationSection from "../../containers/QualificationSection";
