@@ -270,7 +270,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, competitionDetails)
 }
 
-func GetCompetitions(w http.ResponseWriter, r *http.Request) {
+func GetCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -316,6 +316,7 @@ func GetCompetitions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var competition models.Competition
+	competition.ID = competitionID
 	err = conn.QueryRow(context.Background(), `SELECT cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE id = $1`,
 		competitionID).Scan(&competition.CupID, &competition.Stage, &competition.StartDate, &competition.EndDate, &competition.IsEnded)
 	if err != nil {

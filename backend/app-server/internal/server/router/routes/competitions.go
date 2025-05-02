@@ -43,5 +43,5 @@ func GetIndividualGroupsFromCompetitionRoutes(router *mux.Router) {
 }
 
 func GetCompetitionsRoutes(router *mux.Router) {
-	router.HandleFunc(CompetitionEndpoint, handlers.GetCompetitions).Methods("GET")
+	router.HandleFunc(CompetitionEndpoint, handlers.GetCompetition).Methods("GET")
 }
