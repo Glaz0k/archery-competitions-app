@@ -117,10 +117,7 @@ export default function CupsPage() {
       <AddCupModal
         opened={isOpenedAdd}
         onClose={addControl.close}
-        onSubmit={async (values) => {
-          console.log(values);
-          await createCup(values);
-        }}
+        onSubmit={async (values) => await createCup(values)}
         loading={isCupSubmitting}
       />
       <DeleteCupModal

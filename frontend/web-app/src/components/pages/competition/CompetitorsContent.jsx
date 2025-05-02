@@ -8,8 +8,6 @@ import { ActionIcon, Card, LoadingOverlay, rem, Stack, Table } from "@mantine/co
 import { useDisclosure } from "@mantine/hooks";
 import { deleteCompetitor, getCompetitors } from "../../../api/competitors/competition";
 import { COMPETITOR_QUERY_KEYS } from "../../../api/queryKeys";
-import MainBar from "../../bars/MainBar";
-import NotFoundCard from "../../cards/NotFoundCard";
 import TableCard from "../../cards/TableCard";
 import CompetitorRow from "../../misc/CompetitorRow";
 import DeleteCompetitorModal from "../../modals/competitor/DeleteCompetitorModal";

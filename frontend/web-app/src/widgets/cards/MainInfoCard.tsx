@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { IconCheck, IconEdit, IconTrashX, IconX } from "@tabler/icons-react";
-import { ActionIcon, Group, LoadingOverlay, Stack } from "@mantine/core";
+import { ActionIcon, Group, LoadingOverlay, Stack, Tooltip } from "@mantine/core";
 import { ControlsCard } from "./ControlsCard";
 
 export interface MainInfoCardProps {
@@ -25,28 +25,38 @@ export function MainInfoCard({
     <ControlsCard>
       <LoadingOverlay visible={loading} />
       <form onSubmit={onFormSubmit}>
-        <Stack w={300} align="start" pos="relative" gap="md">
+        <Stack align="start" pos="relative" gap="md">
           {children}
           <Group w="100%">
             <Group flex={1}>
               {!editing ? (
-                <ActionIcon onClick={onEdit}>
-                  <IconEdit />
-                </ActionIcon>
+                <Tooltip label="Редактировать">
+                  <ActionIcon onClick={onEdit}>
+                    <IconEdit />
+                  </ActionIcon>
+                </Tooltip>
               ) : (
                 <>
-                  <ActionIcon type="submit">
-                    <IconCheck />
-                  </ActionIcon>
-                  <ActionIcon onClick={onCancel}>
-                    <IconX />
-                  </ActionIcon>
+                  <Tooltip label="Подтвердить">
+                    <ActionIcon type="submit">
+                      <IconCheck />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Tooltip label="Отменить">
+                    <ActionIcon onClick={onCancel}>
+                      <IconX />
+                    </ActionIcon>
+                  </Tooltip>
                 </>
               )}
             </Group>
-            <ActionIcon onClick={onDelete}>
-              <IconTrashX />
-            </ActionIcon>
+            {!editing && (
+              <Tooltip label="Удалить">
+                <ActionIcon onClick={onDelete}>
+                  <IconTrashX />
+                </ActionIcon>
+              </Tooltip>
+            )}
           </Group>
         </Stack>
       </form>

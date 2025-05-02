@@ -21,7 +21,7 @@ import type { CompetitionEdit } from "./types";
 export const competitionsApi = {
   getCompetition: async (competitionId: number): Promise<Competition> => {
     const response = await apiClient.get(`/competitions/${competitionId}`);
-    const validatedResponse = CompetitionAPISchema.parse(response);
+    const validatedResponse = CompetitionAPISchema.parse(response.data);
     return mapToCompetition(validatedResponse);
   },
   putCompetition: async (competitionId: number, data: CompetitionEdit): Promise<Competition> => {
@@ -83,8 +83,8 @@ export const competitionsApi = {
     return mapToIndividualGroup(validatedResponse);
   },
   getIndidvidualGroups: async (competitionId: number): Promise<IndividualGroup[]> => {
-    const response = apiClient.get(`/competitions/${competitionId}/individual_groups`);
-    const validatedResponse = IndividualGroupAPISchema.array().parse(response);
+    const response = await apiClient.get(`/competitions/${competitionId}/individual_groups`);
+    const validatedResponse = IndividualGroupAPISchema.array().parse(response.data);
     return validatedResponse.map(mapToIndividualGroup);
   },
 };

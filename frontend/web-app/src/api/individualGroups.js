@@ -1,7 +1,3 @@
-import BowClass from "../enums/BowClass";
-import SportsRank from "../enums/competitor/SportsRank";
-import GroupGender from "../enums/GroupGender";
-import GroupState from "../enums/GroupState";
 import SparringState from "../enums/SparringState";
 import apiMock from "./mocks";
 

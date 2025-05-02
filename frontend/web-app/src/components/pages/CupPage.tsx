@@ -42,7 +42,7 @@ import {
 const SKELETON_LENGTH = 4;
 
 export default function CupPage() {
-  const { paramsCupId } = useParams();
+  const { cupId: paramsCupId } = useParams();
   const cupId = Number(paramsCupId);
 
   const navigate = useNavigate();
@@ -180,7 +180,7 @@ export default function CupPage() {
       <EntityCard
         key={id}
         title={getCompetitionStageDescription(stage)}
-        to={String(id)}
+        to={`competitions/${String(id)}`}
         tag={
           isEnded ? (
             <Badge leftSection={<IconCheck />} color={"green.8"}>
@@ -231,18 +231,8 @@ export default function CupPage() {
             ) : (
               <>
                 <Title order={2}>{cup?.title || "Загрузка..."}</Title>
-                <TextInput
-                  w="100%"
-                  disabled
-                  label="Адрес"
-                  defaultValue={cup?.address || "Не указано"}
-                />
-                <TextInput
-                  w="100%"
-                  disabled
-                  label="Сезон"
-                  defaultValue={cup?.season || "Не указано"}
-                />
+                <TextInput w="100%" disabled label="Адрес" value={cup?.address || "Не указано"} />
+                <TextInput w="100%" disabled label="Сезон" value={cup?.season || "Не указано"} />
               </>
             )}
           </MainInfoCard>

@@ -9,7 +9,7 @@ export const CancelButton = createPolymorphicComponent<"button", TextButtonProps
       component="button"
       ref={ref}
       variant="filled"
-      color="dark.8"
+      color="dark.3"
       rightSection={<IconX />}
       {...props}
     />

@@ -1,11 +1,9 @@
 import { Route, Routes } from "react-router";
-import CompetitorsContent from "./components/pages/competition/CompetitorsContent";
 import GroupsContent from "./components/pages/competition/GroupsContent";
 import CompetitionPage from "./components/pages/CompetitionPage";
 import ContentLayout from "./components/pages/ContentLayout";
 import CupPage from "./components/pages/CupPage";
 import CupsPage from "./components/pages/CupsPage";
-import IndividualGroupPage from "./components/pages/IndividualGroupPage";
 import LoginPage from "./components/pages/LoginPage";
 
 export default function App() {
@@ -20,11 +18,11 @@ export default function App() {
             <Route path="competitions/:competitionId">
               <Route element={<CompetitionPage />}>
                 <Route index element={<GroupsContent />} />
-                <Route path="competitors" element={<CompetitorsContent />} />
+                {/*<Route path="competitors" element={<CompetitorsContent />} />*/}
               </Route>
-              <Route path="individual-groups/:groupId" element={<IndividualGroupPage />}>
+              {/*<Route path="individual-groups/:groupId" element={<IndividualGroupPage />}>
                 <Route path=":groupSection" element={null} />
-              </Route>
+              </Route>*/}
             </Route>
           </Route>
         </Route>

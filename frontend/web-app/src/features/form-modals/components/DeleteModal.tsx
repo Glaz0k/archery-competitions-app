@@ -15,7 +15,8 @@ export function DeleteModal({ confirmationText, onConfirm, loading, ...others }:
         <Text w="100%">{confirmationText}</Text>
         <TextButton
           label="Удалить"
-          color="red.8"
+          variant="filled"
+          color="red.6"
           loading={loading}
           onClick={onConfirm}
           rightSection={<IconTrashX />}

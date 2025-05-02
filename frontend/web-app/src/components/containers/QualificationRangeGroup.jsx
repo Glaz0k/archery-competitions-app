@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { endRange, getRanges, putRange } from "../../api/qualificationSections";
 import { SECTION_QUERY_KEYS } from "../../api/queryKeys";
-import BowClass from "../../enums/BowClass";
 import RangeCard from "../cards/RangeCard";
 import { GroupContext } from "../pages/individual-group/GroupContext";
 

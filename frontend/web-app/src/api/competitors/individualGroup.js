@@ -1,6 +1,3 @@
-import BowClass from "../../enums/BowClass";
-import Gender from "../../enums/competitor/Gender";
-import SportsRank from "../../enums/competitor/SportsRank";
 import apiMock from "../mocks";
 
 export async function getCompetitors(groupId) {

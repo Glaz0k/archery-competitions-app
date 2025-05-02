@@ -4,7 +4,6 @@ import { Tabs, Title } from "@mantine/core";
 import { getSection } from "../../api/qualificationSections";
 import { SECTION_QUERY_KEYS } from "../../api/queryKeys";
 import NavigationBar from "../bars/NavigationBar";
-import NotFoundCard from "../cards/NotFoundCard";
 import QualificationRangeGroup from "./QualificationRangeGroup";
 
 export default function QualificationSection({ sectionId }) {

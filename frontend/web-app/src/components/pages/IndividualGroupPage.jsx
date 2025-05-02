@@ -3,8 +3,6 @@ import { useQueries } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { Stack, Tabs, Title } from "@mantine/core";
 import { useDocumentTitle } from "@mantine/hooks";
-import { getCompetition } from "../../api/competitions";
-import { getCup } from "../../api/cups";
 import { getIndividualGroup } from "../../api/individualGroups";
 import {
   COMPETITION_QUERY_KEYS,

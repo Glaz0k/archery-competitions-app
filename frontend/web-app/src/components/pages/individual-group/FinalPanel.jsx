@@ -25,7 +25,6 @@ import {
   startSemifinal,
 } from "../../../api/individualGroups";
 import { INDIVIDUAL_GROUP_QUERY_KEYS } from "../../../api/queryKeys";
-import GroupState from "../../../enums/GroupState";
 import { TextButton } from "../../../widgets/buttons/TextButton";
 import SparringCard from "../../cards/SparringCard";
 import FinalSection from "../../containers/FinalSection";

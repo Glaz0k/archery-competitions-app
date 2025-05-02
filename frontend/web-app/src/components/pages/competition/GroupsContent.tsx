@@ -17,7 +17,7 @@ import {
 import { getBowClassDescription, getIdentityDescription } from "../../../utils";
 import { CenterCard, EntityCard, EntityCardSkeleton, TopBar } from "../../../widgets";
 
-const SKELETON_LENGTH = 7;
+const SKELETON_LENGTH = 6;
 
 function isExported(state?: GroupState) {
   switch (state) {
@@ -30,7 +30,7 @@ function isExported(state?: GroupState) {
 }
 
 export default function GroupsContent() {
-  const { paramCompetitionId } = useParams();
+  const { competitionId: paramCompetitionId } = useParams();
   const competitionId = Number(paramCompetitionId);
 
   const navigate = useNavigate();
@@ -47,6 +47,7 @@ export default function GroupsContent() {
     isFetching: isGroupsLoading,
     refetch: refetchGroups,
     isError: isGroupsError,
+    error,
   } = useIndividualGroups(competitionId);
 
   const { mutateAsync: createGroup, isPending: isGroupSubmitting } = useCreateIndividualGroup(
@@ -86,6 +87,7 @@ export default function GroupsContent() {
       .fill(0)
       .map((_, index) => <EntityCardSkeleton key={index} tagged exported deleted />);
   } else if (isGroupsError) {
+    console.error(error);
     renderContent = <CenterCard label={"Произошла ошибка"} />;
   } else if (filteredGroups.length === 0) {
     renderContent = <CenterCard label={"Дивизионы не найдены"} />;

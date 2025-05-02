@@ -1,4 +1,3 @@
-import SportsRank from "../enums/competitor/SportsRank";
 import apiMock from "./mocks";
 
 export async function getSection(sectionId) {

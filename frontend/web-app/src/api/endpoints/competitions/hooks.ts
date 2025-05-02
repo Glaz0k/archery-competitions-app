@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
-import { IndividualGroup, type Competition } from "../../../entities";
+import type { Competition, IndividualGroup } from "../../../entities";
 import { COMPETITIONS_QUERY_KEYS } from "../../query-keys/competitions";
 import { INDIVIDUAL_GROUPS_QUERY_KEYS } from "../../query-keys/individualGroups";
-import { IndividualGroupCreate } from "../individual-groups/types";
+import type { IndividualGroupCreate } from "../individual-groups/types";
 import { competitionsApi } from "./api";
 import { type CompetitionEdit } from "./types";
 
@@ -75,6 +75,13 @@ export const useEndCompetition = (onSuccess?: () => void) => {
       );
       onSuccess?.();
     },
+    onError: (error) => {
+      notifications.show({
+        title: "Не удалось завершить соревнование",
+        message: error.message,
+        color: "red",
+      });
+    },
   });
 };
 
@@ -91,6 +98,13 @@ export const useCreateIndividualGroup = (onSuccess?: () => void) => {
       });
       queryClient.setQueryData(INDIVIDUAL_GROUPS_QUERY_KEYS.element(createdGroup.id), createdGroup);
       onSuccess?.();
+    },
+    onError: (error) => {
+      notifications.show({
+        title: "Не удалось создать дивизион",
+        message: error.message,
+        color: "red",
+      });
     },
   });
 };

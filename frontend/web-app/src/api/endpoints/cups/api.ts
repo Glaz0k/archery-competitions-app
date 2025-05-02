@@ -27,13 +27,10 @@ export const cupsApi = {
     await apiClient.delete(`/cups/${cupId}`);
   },
   postCompetiton: async (cupId: number, data: CompetitionCreate): Promise<Competition> => {
-    console.log(`/cups/${cupId}/competitions`);
-    console.log(mapToCompetitionAPICreate(data));
     const response = await apiClient.post(
       `/cups/${cupId}/competitions`,
       mapToCompetitionAPICreate(data)
     );
-    console.log(response.data);
     const validatedResponse = CompetitionAPISchema.parse(response.data);
     return mapToCompetition(validatedResponse);
   },

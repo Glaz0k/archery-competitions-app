@@ -1,4 +1,4 @@
-import { Stack } from "@mantine/core";
+import { Stack, Title } from "@mantine/core";
 import { ControlsCard } from "../../../widgets";
 import { useGroupFilter } from "../context/useGroupFilter";
 import { BowSelect } from "./BowSelect";
@@ -6,33 +6,34 @@ import { IdentitySelect } from "./IdentitySelect";
 import { StateSelect } from "./StateSelect";
 
 export function GroupFilterControls() {
-  const { filter, setFilter } = useGroupFilter();
+  const { setFilter } = useGroupFilter();
 
   return (
     <ControlsCard>
-      <Stack align="start" pos="relative" justify="stretch">
+      <Title order={3}>{"Фильтры"}</Title>
+      <Stack align="start" pos="relative" justify="stretch" gap="sm">
         <BowSelect
-          setBow={(value) =>
-            setFilter({
-              ...filter,
-              bow: value,
-            })
+          setBow={(bow) =>
+            setFilter((prev) => ({
+              ...prev,
+              bow,
+            }))
           }
         />
         <IdentitySelect
-          setIdentity={(value) =>
-            setFilter({
-              ...filter,
-              identity: value,
-            })
+          setIdentity={(identity) =>
+            setFilter((prev) => ({
+              ...prev,
+              identity,
+            }))
           }
         />
         <StateSelect
-          setState={(value) =>
-            setFilter({
-              ...filter,
-              state: value,
-            })
+          setState={(state) =>
+            setFilter((prev) => ({
+              ...prev,
+              state,
+            }))
           }
         />
       </Stack>

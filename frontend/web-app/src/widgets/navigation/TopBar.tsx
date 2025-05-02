@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { IconArrowLeft, IconCircleDashedCheck, IconPlus, IconRefresh } from "@tabler/icons-react";
-import { ActionIcon, Group, LoadingOverlay, Stack, Title } from "@mantine/core";
+import { ActionIcon, Group, LoadingOverlay, Stack, Title, Tooltip } from "@mantine/core";
 import { TextButton } from "../buttons/TextButton";
 import { ControlsCard } from "../cards/ControlsCard";
 
@@ -29,9 +29,11 @@ export function TopBar({
       <LoadingOverlay visible={loading} />
       <Group>
         {onBack && (
-          <ActionIcon onClick={onBack}>
-            <IconArrowLeft />
-          </ActionIcon>
+          <Tooltip label="Назад">
+            <ActionIcon onClick={onBack}>
+              <IconArrowLeft />
+            </ActionIcon>
+          </Tooltip>
         )}
         <Stack flex={1} gap="xs">
           {title ? <Title order={2}>{title}</Title> : "Загрузка..."}
@@ -39,14 +41,18 @@ export function TopBar({
         </Stack>
         {children}
         {onRefresh && (
-          <ActionIcon onClick={onRefresh}>
-            <IconRefresh />
-          </ActionIcon>
+          <Tooltip label="Обновить">
+            <ActionIcon onClick={onRefresh}>
+              <IconRefresh />
+            </ActionIcon>
+          </Tooltip>
         )}
         {onAdd && (
-          <ActionIcon onClick={onAdd}>
-            <IconPlus />
-          </ActionIcon>
+          <Tooltip label="Добавить">
+            <ActionIcon onClick={onAdd}>
+              <IconPlus />
+            </ActionIcon>
+          </Tooltip>
         )}
         {onComplete && (
           <TextButton

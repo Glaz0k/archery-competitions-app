@@ -22,7 +22,7 @@ import { getCompetitionStageDescription } from "../../utils";
 import { ControlsCard, MainInfoCard, SideBar, TextButton } from "../../widgets";
 
 export default function CompetitionPage() {
-  const { paramCupId, paramCompetitionId } = useParams();
+  const { cupId: paramCupId, competitionId: paramCompetitionId } = useParams();
   const cupId = Number(paramCupId);
   const competitionId = Number(paramCompetitionId);
 
@@ -37,21 +37,26 @@ export default function CompetitionPage() {
 
   const {
     data: cup,
-    isFetching: isCupLoading,
+    isFetching: isCupFetching,
+    isLoading: isCupLoading,
     isError: isCupError,
     error: cupError,
   } = useCup(cupId);
   const {
     data: competition,
-    isFetching: isCompetitionLoading,
+    isFetching: isCompetitionFetching,
+    isLoading: isCompetitionLoading,
     isError: isCompetitionError,
     error: competitionError,
-  } = useCompetition(cupId);
+  } = useCompetition(competitionId);
 
+  const isMainInfoFetching = isCupFetching || isCompetitionFetching;
   const isMainInfoLoading = isCupLoading || isCompetitionLoading;
   const isMainInfoError = isCupError || isCompetitionError;
 
-  const { mutate: updateCompetition, isPending: isCompetitionUpdating } = useUpdateCompetition();
+  const { mutate: updateCompetition, isPending: isCompetitionUpdating } = useUpdateCompetition(() =>
+    setCompetitionEditing(false)
+  );
 
   const { mutate: deleteCompetition, isPending: isCompetitionDeleting } = useDeleteCompetition(
     () => {
@@ -71,6 +76,14 @@ export default function CompetitionPage() {
   };
 
   useEffect(() => {
+    if (cup && competition) {
+      if (cup.id !== competition.cupId) {
+        navigate("/404");
+      }
+    }
+  });
+
+  useEffect(() => {
     if (
       isMainInfoError &&
       ((isAxiosError(cupError) && cupError.status === 404) ||
@@ -83,7 +96,7 @@ export default function CompetitionPage() {
   useEffect(() => {
     const titleFn = () => {
       let base = `${APP_NAME} - `;
-      if (isMainInfoLoading) {
+      if (isMainInfoFetching) {
         return base + "Загрузка...";
       }
       if (cup && competition) {
@@ -96,7 +109,7 @@ export default function CompetitionPage() {
       return base + "Ошибка";
     };
     setWebTitle(titleFn());
-  }, [isMainInfoLoading, cup, competition, isCompetitorsPage]);
+  }, [isMainInfoFetching, cup, competition, isCompetitorsPage]);
 
   const editCompetitionForm = useEditCompetitionForm();
   const renderEditCompetitionForm = isCompetitionEditing ? (
@@ -116,18 +129,8 @@ export default function CompetitionPage() {
     </>
   ) : (
     <>
-      <DatePickerInput
-        w="100%"
-        disabled
-        label="Дата начала"
-        defaultValue={competition?.startDate}
-      />
-      <DatePickerInput
-        w="100%"
-        disabled
-        label="Дата окончания"
-        defaultValue={competition?.endDate}
-      />
+      <DatePickerInput w="100%" disabled label="Дата начала" value={competition?.startDate} />
+      <DatePickerInput w="100%" disabled label="Дата окончания" value={competition?.endDate} />
     </>
   );
 
@@ -135,16 +138,14 @@ export default function CompetitionPage() {
     ? getCompetitionStageDescription(competition.stage)
     : "Загрузка...";
   const competitionSubtitle = cup
-    ? cup.title + cup.season
-      ? ", сезон " + cup.season
-      : ""
+    ? cup.title + (cup.season ? ", сезон " + cup.season : "")
     : "Загрузка...";
 
   const renderCompetitionPageControls = !isCompetitorsPage ? (
     <>
       <GroupFilterControls />
       <ControlsCard>
-        <LoadingOverlay visible={isMainInfoLoading || isCompetitionUpdating} />
+        <LoadingOverlay visible={isMainInfoFetching || isCompetitionUpdating} />
         <Stack pos="relative" justify="stretch">
           <TextButton label="Таблица участников" component={Link} to="competitors" />
           <TextButton
@@ -157,6 +158,10 @@ export default function CompetitionPage() {
       </ControlsCard>
     </>
   ) : undefined;
+
+  if (isMainInfoLoading) {
+    return <LoadingOverlay visible />;
+  }
 
   return (
     <GroupFilterProvider>
@@ -176,11 +181,12 @@ export default function CompetitionPage() {
             onCancel={() => setCompetitionEditing(false)}
             onDelete={competitionDelControl.open}
             editing={isCompetitionEditing}
-            loading={isMainInfoLoading || isCompetitionUpdating}
+            loading={isMainInfoFetching || isCompetitionUpdating}
           >
             <Stack gap={0}>
               <Title order={2}>{competitionTitle}</Title>
               <Text>{competitionSubtitle}</Text>
+              {cup?.address && <Text size="sm">{cup.address}</Text>}
             </Stack>
             {renderEditCompetitionForm}
           </MainInfoCard>

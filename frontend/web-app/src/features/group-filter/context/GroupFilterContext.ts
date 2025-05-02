@@ -1,15 +1,15 @@
-import { createContext } from "react";
+import { createContext, type Dispatch, type SetStateAction } from "react";
 import type { BowClass, GroupState, Identity } from "../../../entities";
 
 export interface GroupFilter {
-  bow: BowClass | undefined;
-  identity: Identity | undefined;
-  state: GroupState | undefined;
+  bow: BowClass | null;
+  identity: Identity | null;
+  state: GroupState | null;
 }
 
 export interface GroupFilterContextType {
   filter: GroupFilter;
-  setFilter: (filter: GroupFilter) => void;
+  setFilter: Dispatch<SetStateAction<GroupFilter>>;
 }
 
 export const GroupFilterContext = createContext<GroupFilterContextType | null>(null);

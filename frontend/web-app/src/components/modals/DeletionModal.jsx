@@ -1,5 +1,5 @@
 import { Modal, Stack } from "@mantine/core";
-import CancelButton from "../../widgets/buttons/CancelButton";
+import { CancelButton } from "../../widgets";
 
 export default function DeletionModal({
   title,

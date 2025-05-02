@@ -2,7 +2,6 @@ import { useContext, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PLACE_QUERY_KEYS } from "../../api/queryKeys";
 import { putShootOut } from "../../api/sparringPlaces";
-import BowClass from "../../enums/BowClass";
 import useCompleteRange from "../../hooks/useCompleteRange";
 import useEditRange from "../../hooks/useEditRange";
 import useSparringPlace from "../../hooks/useSparringPlace";

@@ -70,7 +70,6 @@ export const useUpdateCup = (onSuccess?: () => void) => {
   return useMutation<Cup, Error, Parameters<typeof cupsApi.putCup>>({
     mutationFn: async ([cupId, data]) => await cupsApi.putCup(cupId, data),
     onSuccess: (editedCup) => {
-      console.log(editedCup);
       queryClient.setQueryData(CUPS_QUERY_KEYS.element(editedCup.id), { ...editedCup });
       queryClient.invalidateQueries({ queryKey: CUPS_QUERY_KEYS.element(editedCup.id) });
       onSuccess?.();

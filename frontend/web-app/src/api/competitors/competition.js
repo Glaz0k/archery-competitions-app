@@ -1,7 +1,4 @@
 import { parseISO } from "date-fns";
-import BowClass from "../../enums/BowClass";
-import Gender from "../../enums/competitor/Gender";
-import SportsRank from "../../enums/competitor/SportsRank";
 import apiMock from "../mocks";
 
 export async function addCompetitor(competitionId, competitorId) {
