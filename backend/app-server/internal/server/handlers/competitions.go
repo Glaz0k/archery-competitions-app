@@ -681,7 +681,7 @@ func CreateIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var exist bool
-	queryCheck = `SELECT EXISTS (SELECT 1 FROM individual_groups WHERE competition_id= $1 and bow = $2 and identity = $3)`
+	queryCheck = `SELECT EXISTS (SELECT 1 FROM individual_groups WHERE competition_id= $1 and bow = $2 and identity IS NOT DISTINCT FROM $3)`
 	err = conn.QueryRow(context.Background(), queryCheck, competitionId, individualGroup.Bow, individualGroup.Identity).Scan(&exist)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
