@@ -23,6 +23,12 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 	var sparringPlace models.SparringPlace
 
 	var bowType string
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	competitorSparringQuery := `SELECT c.id, c.full_name, c.bow 
 	FROM sparring_places s
     JOIN competitors c ON s.competitor_id = c.id WHERE s.id = $1`
@@ -144,7 +150,12 @@ func EditSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var isRangeActive bool
 	var typeRange string
 	queryRange := `SELECT is_active, rg.type FROM ranges 
@@ -239,7 +250,12 @@ func EndSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	isRangeActive, err := checkRangeActive(sparringPlaceID, rangeOrdinal)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
@@ -311,7 +327,12 @@ func EditShootOut(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var so models.ShootOuts
 	if err := json.NewDecoder(r.Body).Decode(&so); err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID REQUEST"})

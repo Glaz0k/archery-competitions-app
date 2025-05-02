@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
-
 	"app-server/internal/models"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func checkQuarterfinalsCompleted(tx pgx.Tx, ctx context.Context, groupID int) error {
@@ -658,6 +658,11 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 		joinConditions[i-1] = fmt.Sprintf("q.%s = s.id", sparringFields[i-1])
 	}
 	joinCondition := strings.Join(joinConditions, " OR ")
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 
 	query := fmt.Sprintf(`
         SELECT s.id, s.state, 
@@ -866,6 +871,11 @@ func getFinals(ctx context.Context, groupID int, f *models.Final) error {
 }
 
 func getQualificationSections(groupID int, r *http.Request) ([]models.QualificationSectionForTable, error) {
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		return nil, fmt.Errorf("acquire failed: %w", err)
+	}
+	defer conn.Release()
 	rows, err := conn.Query(context.Background(),
 		`SELECT qs.id, c.id, c.full_name, qs.place
          FROM qualification_sections qs
@@ -915,6 +925,11 @@ func getQualificationSections(groupID int, r *http.Request) ([]models.Qualificat
 }
 
 func getSectionRoundsStats(sectionID int) ([]models.RoundShrinked, int, int, int, error) {
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return nil, 0, 0, 0, fmt.Errorf("acquire failed: %w", err)
+	}
+	defer conn.Release()
 	rows, err := conn.Query(context.Background(),
 		`SELECT round_ordinal, is_active 
          FROM qualification_rounds 
@@ -955,7 +970,12 @@ func getSectionRoundsStats(sectionID int) ([]models.RoundShrinked, int, int, int
 
 func getRoundStats(sectionID int, roundOrdinal int) (int, int, int, error) {
 	var score, tens, nines int
-	err := conn.QueryRow(context.Background(),
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("acquire failed: %w", err)
+	}
+	defer conn.Release()
+	err = conn.QueryRow(context.Background(),
 		`SELECT 
             COALESCE(SUM(CASE WHEN s.score = 'X' THEN 10 WHEN s.score = 'M' THEN 0 ELSE CAST(s.score AS INTEGER) END), 0),
             COALESCE(SUM(CASE WHEN s.score = '10' THEN 1 WHEN s.score = 'X' THEN 1 ELSE 0 END), 0),

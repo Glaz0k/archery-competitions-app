@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func ParseParamToInt(r *http.Request, str string) (int, error) {
@@ -25,7 +25,7 @@ func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	_ = json.NewEncoder(w).Encode(data)
 }
 
-func ExistsInDB(ctx context.Context, conn *pgx.Conn, query string, args ...interface{}) (bool, error) {
+func ExistsInDB(ctx context.Context, conn *pgxpool.Conn, query string, args ...interface{}) (bool, error) {
 	var exists bool
 	err := conn.QueryRow(ctx, query, args...).Scan(&exists)
 	if err != nil {

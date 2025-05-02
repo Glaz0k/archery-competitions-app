@@ -6,6 +6,7 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root_password
       POSTGRES_DB: BowCompetitions
+      POSTGRES_POOL_SIZE: 20
     volumes:
       - app-serverDB:/var/lib/postgresql/data
     ports:

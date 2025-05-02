@@ -38,7 +38,12 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to begin transaction: %v", err)})
@@ -197,7 +202,12 @@ func EndQualification(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to begin transaction: %v", err)})
@@ -265,7 +275,12 @@ func GetQualificationSection(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var section models.QualificationSectionResponse
 	var competitorID int
 	var place sql.NullInt64
@@ -336,7 +351,12 @@ func GetQualificationRound(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ROUND ORDINAL"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var competitorID, rangeGroupID int
 	var isActive bool
 	err = conn.QueryRow(r.Context(), `
@@ -415,7 +435,12 @@ func GetQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	if role == "user" {
 		userID, err := tools.GetUserIDFromContext(r)
 		if err != nil {
@@ -496,6 +521,11 @@ func GetQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 }
 
 func getShotsFromRange(r *models.Range) error {
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 	query := `SELECT shot_ordinal, score FROM shots WHERE range_id = $1`
 	rows, err := conn.Query(context.Background(), query, r.ID)
 	if err != nil {
@@ -558,7 +588,12 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var isRangeExist bool
 	queryCheck := `SELECT EXISTS (SELECT 1 
 		FROM ranges r 
@@ -789,7 +824,12 @@ func EndRange(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var isRangeExist bool
 	queryCheck := `SELECT EXISTS (SELECT 1 
 		FROM ranges r 

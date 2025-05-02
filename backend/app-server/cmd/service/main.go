@@ -11,7 +11,6 @@ import (
 	"app-server/pkg/logger"
 	"app-server/pkg/postgres"
 
-	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
 
@@ -29,20 +28,13 @@ func main() {
 	if err != nil {
 		logger.Logger.Fatal("failed to read config", zap.Error(err))
 	}
-
-	conn, err := postgres.New(cfg.Postgres)
+	pool, err := postgres.New(cfg.Postgres)
 	if err != nil {
 		logger.Logger.Fatal("failed to connect to database", zap.Error(err))
 	}
 
-	defer func(conn *pgx.Conn, ctx context.Context) {
-		err := conn.Close(ctx)
-		if err != nil {
-			logger.Logger.Fatal("failed to close connection", zap.Error(err))
-		}
-	}(conn, context.Background())
-
-	handlers.InitDB(conn)
+	defer pool.Close()
+	handlers.InitDB(pool)
 
 	srv := server.New(*cfg, logger.Logger)
 

@@ -17,11 +17,18 @@ func RegisterCompetitor(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
+
 	userId, err := tools.GetUserIDFromContext(r)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("%v", err)})
 		return
 	}
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	competitor.ID = userId
 	exists, err := tools.ExistsInDB(context.Background(), conn, "SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)", competitor.ID)
 	if err != nil {
@@ -51,6 +58,12 @@ func GetCompetitor(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	var competitor models.Competitor
 	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitors WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitorID)
@@ -79,7 +92,12 @@ func EditCompetitor(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	role, err := tools.GetRoleFromContext(r)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "BAD ACTION"})

@@ -15,10 +15,17 @@ import (
 func CreateCup(w http.ResponseWriter, r *http.Request) {
 	var cup models.Cup
 	err := json.NewDecoder(r.Body).Decode(&cup)
+
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	checkQuery := "SELECT EXISTS(SELECT 1 FROM cups WHERE title = $1 AND address = $2 AND season = $3)"
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cup.Title, cup.Address, cup.Season)
 	if exists {
@@ -45,6 +52,12 @@ func GetCup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	role, err := tools.GetRoleFromContext(r)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "BAD ACTION"})
@@ -56,7 +69,6 @@ func GetCup(w http.ResponseWriter, r *http.Request) {
 			tools.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "BAD ACTION"})
 			return
 		}
-
 		checkQuery := `
             SELECT EXISTS (
                 SELECT 1 
@@ -105,6 +117,12 @@ func GetAllCups(w http.ResponseWriter, r *http.Request) {
 	}
 	var query string
 	var rows pgx.Rows
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	if role == "user" {
 		userID, err := tools.GetUserIDFromContext(r)
 		if err != nil {
@@ -127,6 +145,7 @@ func GetAllCups(w http.ResponseWriter, r *http.Request) {
             ccd.competitor_id = $1
         ORDER BY 
             c.season DESC, c.id`
+
 		rows, err = conn.Query(context.Background(), query, userID)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
@@ -179,7 +198,12 @@ func EditCup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	checkQuery := `SELECT EXISTS(SELECT 1 FROM cups WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cupID)
 	if !exists {
@@ -212,6 +236,12 @@ func CreateCompetition(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
 	}
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	competition.CupID = cupID
 	var exists bool
 	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE cup_id = $1 AND stage = $2)`
@@ -242,11 +272,18 @@ func GetAllCompetitions(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
 	}
 	chechQuery := `SELECT EXISTS(SELECT 1 FROM cups WHERE id = $1)`
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
 	exists, err := tools.ExistsInDB(context.Background(), conn, chechQuery, cupID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
+
 	query := `SELECT id, cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE cup_id = $1`
 	rows, err := conn.Query(context.Background(), query, cupID)
 	if err != nil {

@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var conn *pgx.Conn
+var dbPool *pgxpool.Pool
 
-func InitDB(dbConn *pgx.Conn) {
-	conn = dbConn
+func InitDB(pool *pgxpool.Pool) {
+	dbPool = pool
 }

@@ -12,9 +12,15 @@ import (
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getRangeGroup(rg *models.RangeGroup) error {
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 	query := `SELECT
     r.id AS range_id,
     r.range_ordinal,
@@ -90,6 +96,11 @@ func getRangeGroup(rg *models.RangeGroup) error {
 }
 
 func getRange(r *models.Range, sparringPlaceId, rangeOrdinal int) error {
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 	query := `
         SELECT 
             r.id,
@@ -100,7 +111,8 @@ func getRange(r *models.Range, sparringPlaceId, rangeOrdinal int) error {
         JOIN sparring_places sp ON rg.id = sp.range_group_id
         WHERE sp.id = $1 AND r.range_ordinal = $2
     `
-	err := conn.QueryRow(context.Background(), query, sparringPlaceId, rangeOrdinal).Scan(
+
+	err = conn.QueryRow(context.Background(), query, sparringPlaceId, rangeOrdinal).Scan(
 		&r.ID,
 		&r.RangeOrdinal,
 		&r.IsActive,
@@ -143,12 +155,17 @@ func getRange(r *models.Range, sparringPlaceId, rangeOrdinal int) error {
 
 func checkRangeExist(spID, rangeOrdinal int) (bool, error) {
 	var isRangeExist bool
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return false, fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 	queryCheck := `SELECT EXISTS (SELECT 1 
 		FROM ranges r 
 		JOIN sparring_places sp ON r.group_id = sp.range_group_id
 		WHERE sp.id = $1
 		AND r.range_ordinal = $2)`
-	err := conn.QueryRow(context.Background(), queryCheck, spID, rangeOrdinal).Scan(&isRangeExist)
+	err = conn.QueryRow(context.Background(), queryCheck, spID, rangeOrdinal).Scan(&isRangeExist)
 	if err != nil {
 		return false, err
 	}
@@ -157,11 +174,16 @@ func checkRangeExist(spID, rangeOrdinal int) (bool, error) {
 
 func checkRangeActive(spID, rangeOrdinal int) (bool, error) {
 	var isActive bool
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return false, fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 	queryCheck := `SELECT is_active FROM ranges r 
 		JOIN sparring_places sp ON r.group_id = sp.range_group_id
 		WHERE sp.id = $1
 		AND r.range_ordinal = $2`
-	err := conn.QueryRow(context.Background(), queryCheck, spID, rangeOrdinal).Scan(&isActive)
+	err = conn.QueryRow(context.Background(), queryCheck, spID, rangeOrdinal).Scan(&isActive)
 	if err != nil {
 		return false, err
 	}
@@ -182,7 +204,12 @@ func isValidScore(score string, rangeType string) bool {
 func checkAccess(r *http.Request, spID int) (string, int, bool, error) {
 	var competitorID, rangeGroupID int
 	rangeGroupIDQuery := `SELECT competitor_id, range_group_id FROM sparring_places WHERE id = $1`
-	err := conn.QueryRow(context.Background(), rangeGroupIDQuery,
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return "", 0, false, fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
+	err = conn.QueryRow(context.Background(), rangeGroupIDQuery,
 		spID).Scan(&competitorID, &rangeGroupID)
 	if err != nil {
 		return "", 0, false, err
@@ -204,11 +231,17 @@ func checkAccess(r *http.Request, spID int) (string, int, bool, error) {
 	return role, rangeGroupID, true, nil
 }
 
+// TODO: Add Acquire error handle
 func getShotOut(shot *models.ShootOuts, placeID int) bool {
 	shootOutsQuery := `SELECT score, priority FROM shoot_outs WHERE place_id = $1`
 	var score sql.NullString
 	var priority sql.NullBool
-	err := conn.QueryRow(context.Background(), shootOutsQuery, placeID).Scan(&score, &priority)
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return false
+	}
+	defer conn.Release()
+	err = conn.QueryRow(context.Background(), shootOutsQuery, placeID).Scan(&score, &priority)
 	if err == nil {
 		shot.ID = placeID
 		shot.Score = score.String
@@ -220,6 +253,11 @@ func getShotOut(shot *models.ShootOuts, placeID int) bool {
 
 func getOpponentPlaceID(spID int) (int, error) {
 	var opSpID int
+	conn, err := dbPool.Acquire(context.Background())
+	if err != nil {
+		return 0, fmt.Errorf("failed Acquire")
+	}
+	defer conn.Release()
 	opponentQuery := `SELECT 
     CASE 
         WHEN top_place_id = $1 THEN bot_place_id 
@@ -227,7 +265,7 @@ func getOpponentPlaceID(spID int) (int, error) {
     END AS opponent_id
 	FROM sparrings 
 	WHERE top_place_id = $1 OR bot_place_id = $1`
-	err := conn.QueryRow(context.Background(), opponentQuery, spID).Scan(&opSpID)
+	err = conn.QueryRow(context.Background(), opponentQuery, spID).Scan(&opSpID)
 	if err != nil {
 		return 0, err
 	}
@@ -296,7 +334,7 @@ func activateNextRange(ctx context.Context, tx pgx.Tx, groupID, currentOrdinal i
 	return err
 }
 
-func checkAllShotsNotNull(ctx context.Context, conn *pgx.Conn, rangeOrdinal int, rangeGroupID int) (bool, error) {
+func checkAllShotsNotNull(ctx context.Context, conn *pgxpool.Conn, rangeOrdinal int, rangeGroupID int) (bool, error) {
 	query := `
         SELECT NOT EXISTS (
             SELECT 1 
