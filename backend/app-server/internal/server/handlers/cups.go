@@ -316,3 +316,75 @@ func GetAllCompetitions(w http.ResponseWriter, r *http.Request) {
 	}
 	tools.WriteJSON(w, http.StatusOK, competitions)
 }
+
+func DeleteCup(w http.ResponseWriter, r *http.Request) {
+	cupID, err := tools.ParseParamToInt(r, "cup_id")
+	if err != nil {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM cups WHERE id = $1)`
+	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, cupID)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer tx.Rollback(context.Background())
+
+	query := `SELECT id FROM competitions WHERE cup_id = $1`
+	rows, err := tx.Query(context.Background(), query, cupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer rows.Close()
+
+	var competitionsIds []int
+	for rows.Next() {
+		var id int
+		err = rows.Scan(&id)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		competitionsIds = append(competitionsIds, id)
+	}
+
+	for _, id := range competitionsIds {
+		err = deleteCompetition(tx, id)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+	}
+
+	query = `DELETE FROM cups WHERE id = $1`
+	_, err = tx.Exec(context.Background(), query, cupID)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

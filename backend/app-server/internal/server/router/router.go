@@ -81,6 +81,7 @@ func Create() *mux.Router {
 	EditSparringPlaceRangeRoutes(commonRouter)
 	EndSparringPlaceRangeRoutes(commonRouter)
 	EditShootOutRoutes(commonRouter)
+	DeleteCupRoutes(adminRouter)
 
 	return router
 }

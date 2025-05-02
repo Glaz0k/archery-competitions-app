@@ -22,7 +22,9 @@ func EditCupRoutes(router *mux.Router) {
 	router.HandleFunc(CupEndpoint, handlers.EditCup).Methods("PUT")
 }
 
-// TODO: DeleteCupRoutes
+func DeleteCupRoutes(router *mux.Router) {
+	router.HandleFunc(CupEndpoint, handlers.DeleteCup).Methods("DELETE")
+}
 
 func CreateCompetitionRoutes(router *mux.Router) {
 	router.HandleFunc(CompetitionsEndpoint, handlers.CreateCompetition).Methods("POST")
