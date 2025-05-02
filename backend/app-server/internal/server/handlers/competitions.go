@@ -291,7 +291,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 	tools.WriteJSON(w, http.StatusOK, competitionDetails)
 }
 
-func GetCompetitions(w http.ResponseWriter, r *http.Request) {
+func GetCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionID, err := tools.ParseParamToInt(r, "competition_id")
 	if err != nil {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
