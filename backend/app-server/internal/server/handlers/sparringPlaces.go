@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -186,7 +185,6 @@ func EditSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 
 	err = editRange(tx, changeRange, spID)
 	if err != nil {
-		fmt.Printf("err3: %v\n", err)
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
@@ -407,25 +405,4 @@ func EditShootOut(w http.ResponseWriter, r *http.Request) {
 
 	tools.WriteJSON(w, http.StatusOK, so)
 
-}
-
-func determineWinner(topScore string, topPriority bool, botScore string, botPriority bool) int {
-	topVal, err1 := strconv.Atoi(topScore)
-	botVal, err2 := strconv.Atoi(botScore)
-	if err1 != nil || err2 != nil {
-		return 0
-	}
-	if topVal > botVal {
-		return 1
-	}
-	if botVal > topVal {
-		return 2
-	}
-	if topPriority && !botPriority {
-		return 1
-	}
-	if botPriority && !topPriority {
-		return 2
-	}
-	return 0
 }

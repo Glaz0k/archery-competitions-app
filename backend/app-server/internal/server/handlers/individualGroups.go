@@ -339,7 +339,7 @@ func GetFinalGrid(w http.ResponseWriter, r *http.Request) {
 	}
 
 	exists, err := tools.ExistsInDB(r.Context(), conn,
-		"SELECT 1 FROM individual_groups WHERE id = $1", groupID)
+		"SELECT EXISTS(SELECT 1 FROM individual_groups WHERE id = $1)", groupID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "database error"})
 		return

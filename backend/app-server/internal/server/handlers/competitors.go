@@ -23,7 +23,7 @@ func RegisterCompetitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	competitor.ID = userId
-	exists, err := tools.ExistsInDB(context.Background(), conn, "SELECT id FROM competitors WHERE id = $1", competitor.ID)
+	exists, err := tools.ExistsInDB(context.Background(), conn, "SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)", competitor.ID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
@@ -52,8 +52,8 @@ func GetCompetitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var competitor models.Competitor
-	query := `SELECT id, full_name, birth_date, identity, bow, rank, region, federation, club FROM competitors WHERE id = $1`
-	exists, err := tools.ExistsInDB(context.Background(), conn, query, competitorID)
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitors WHERE id = $1)`
+	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitorID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
@@ -62,6 +62,7 @@ func GetCompetitor(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	query := `SELECT id, full_name, birth_date, identity, bow, rank, region, federation, club FROM competitors WHERE id = $1`
 	err = conn.QueryRow(context.Background(), query, competitorID).Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate,
 		&competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region,
 		&competitor.Federation, &competitor.Club)

@@ -239,14 +239,16 @@ func calculateSparringPlaceScore(sparringPlace, opponentSparringPlace *models.Sp
 	for i := 0; i < len(sparringPlace.RangeGroup.Ranges); i++ {
 		if !sparringPlace.RangeGroup.Ranges[i].IsActive {
 			endedRanges[sparringPlace.RangeGroup.Ranges[i].RangeOrdinal] = &models.RangeScorePair{}
-			endedRanges[sparringPlace.RangeGroup.Ranges[i].RangeOrdinal].CompScore = sparringPlace.RangeGroup.Ranges[i].RangeScore
+			endedRanges[sparringPlace.RangeGroup.Ranges[i].RangeOrdinal].
+				CompScore = sparringPlace.RangeGroup.Ranges[i].RangeScore
 		}
 	}
 	for i := 0; i < len(opponentSparringPlace.RangeGroup.Ranges); i++ {
 		if !opponentSparringPlace.RangeGroup.Ranges[i].IsActive {
 			_, exists := endedRanges[opponentSparringPlace.RangeGroup.Ranges[i].RangeOrdinal]
 			if exists {
-				endedRanges[opponentSparringPlace.RangeGroup.Ranges[i].RangeOrdinal].OppScore = opponentSparringPlace.RangeGroup.Ranges[i].RangeScore
+				endedRanges[opponentSparringPlace.RangeGroup.Ranges[i].RangeOrdinal].
+					OppScore = opponentSparringPlace.RangeGroup.Ranges[i].RangeScore
 			}
 		}
 	}
@@ -267,7 +269,8 @@ func editRange(tx pgx.Tx, changeRange dto.ChangeRange, sparringPlaceId int) erro
 			AND r.range_ordinal = $3
 			AND sp.id = $4`
 	for _, s := range changeRange.Shots {
-		_, err := tx.Exec(context.Background(), query, s.Score, s.ShotOrdinal, changeRange.RangeOrdinal, sparringPlaceId)
+		_, err := tx.Exec(context.Background(), query, s.Score, s.ShotOrdinal,
+			changeRange.RangeOrdinal, sparringPlaceId)
 		if err != nil {
 			return err
 		}
@@ -314,7 +317,8 @@ func checkAllShotsNotNull(ctx context.Context, conn *pgx.Conn, rangeOrdinal int,
 	return allShotsNotNull, nil
 }
 
-func endRange(ctx context.Context, tx pgx.Tx, sparringPlaceID, groupID, ordinal int, bowType string) (*models.Range, error) {
+func endRange(ctx context.Context, tx pgx.Tx,
+	sparringPlaceID, groupID, ordinal int, bowType string) (*models.Range, error) {
 	var r *models.Range
 	var err error
 	switch bowType {
@@ -331,7 +335,8 @@ func endRange(ctx context.Context, tx pgx.Tx, sparringPlaceID, groupID, ordinal 
 	return r, err
 }
 
-func endRangeWinPoints(ctx context.Context, tx pgx.Tx, sparringPlaceID, rgID, rangeOrdinal int, bowType string) (*models.Range, error) {
+func endRangeWinPoints(ctx context.Context, tx pgx.Tx, sparringPlaceID, rgID,
+	rangeOrdinal int, bowType string) (*models.Range, error) {
 	getRangesMaxCountQuery := `SELECT ranges_max_count FROM range_groups WHERE id = $1`
 	var rangeSize int
 	err := tx.QueryRow(ctx, getRangesMaxCountQuery, rgID).Scan(&rangeSize)
@@ -375,7 +380,8 @@ func endRangeWinPoints(ctx context.Context, tx pgx.Tx, sparringPlaceID, rgID, ra
 	sp.RangeGroup.ID = rgID
 	spOpponent := models.SparringPlace{}
 	getRGIDopponent := `SELECT range_group_id FROM sparring_places WHERE id = $1`
-	err = tx.QueryRow(context.Background(), getRGIDopponent, opPlaceID).Scan(&spOpponent.RangeGroup.ID)
+	err = tx.QueryRow(context.Background(), getRGIDopponent, opPlaceID).
+		Scan(&spOpponent.RangeGroup.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -619,4 +625,25 @@ func createShootOuts(ctx context.Context, tx pgx.Tx, sparringID int, topPlaceID 
 		return fmt.Errorf("failed to update sparring state: %w", err)
 	}
 	return nil
+}
+
+func determineWinner(topScore string, topPriority bool, botScore string, botPriority bool) int {
+	topVal, err1 := strconv.Atoi(topScore)
+	botVal, err2 := strconv.Atoi(botScore)
+	if err1 != nil || err2 != nil {
+		return 0
+	}
+	if topVal > botVal {
+		return 1
+	}
+	if botVal > topVal {
+		return 2
+	}
+	if topPriority && !botPriority {
+		return 1
+	}
+	if botPriority && !topPriority {
+		return 2
+	}
+	return 0
 }

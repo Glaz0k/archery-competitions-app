@@ -19,7 +19,7 @@ func CreateCup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-	checkQuery := "SELECT id FROM cups WHERE title = $1 AND address = $2 AND season = $3"
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM cups WHERE title = $1 AND address = $2 AND season = $3)"
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cup.Title, cup.Address, cup.Season)
 	if exists {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "ALREADY EXISTS"})
@@ -180,7 +180,7 @@ func EditCup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	checkQuery := `SELECT id FROM cups WHERE id = $1`
+	checkQuery := `SELECT EXISTS(SELECT 1 FROM cups WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, cupID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "CUP NOT FOUND"})
@@ -241,7 +241,12 @@ func GetAllCompetitions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID ENDPOINT"})
 	}
-
+	chechQuery := `SELECT EXISTS(SELECT 1 FROM cups WHERE id = $1)`
+	exists, err := tools.ExistsInDB(context.Background(), conn, chechQuery, cupID)
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+		return
+	}
 	query := `SELECT id, cup_id, stage, start_date, end_date, is_ended FROM competitions WHERE cup_id = $1`
 	rows, err := conn.Query(context.Background(), query, cupID)
 	if err != nil {

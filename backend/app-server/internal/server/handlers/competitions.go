@@ -28,7 +28,7 @@ func EditCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -69,7 +69,7 @@ func DeleteCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -146,7 +146,7 @@ func EndCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	checkQuery := `SELECT id FROM competitions WHERE id = $1`
+	checkQuery := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, checkQuery, competitionID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
@@ -211,7 +211,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -304,7 +304,7 @@ func GetCompetitions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -360,7 +360,7 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -443,7 +443,7 @@ func EditCompetitorStatus(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -545,7 +545,7 @@ func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
@@ -709,7 +709,7 @@ func GetIndividualGroupsFromCompetition(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
 	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionId)
 	if !exists {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})

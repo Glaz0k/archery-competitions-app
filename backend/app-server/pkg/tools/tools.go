@@ -4,7 +4,6 @@ import (
 	"app-server/internal/models"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -27,17 +26,12 @@ func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 }
 
 func ExistsInDB(ctx context.Context, conn *pgx.Conn, query string, args ...interface{}) (bool, error) {
-	var exists int
-
+	var exists bool
 	err := conn.QueryRow(ctx, query, args...).Scan(&exists)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return false, nil
-		}
 		return false, fmt.Errorf("database error: %w", err)
 	}
-
-	return true, nil
+	return exists, nil
 }
 
 func GetUserIDFromContext(r *http.Request) (int, error) {
