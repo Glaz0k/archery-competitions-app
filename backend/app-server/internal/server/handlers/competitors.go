@@ -30,7 +30,7 @@ func RegisterCompetitor(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Release()
 	competitor.ID = userId
-	exists, err := tools.ExistsInDB(context.Background(), conn, "SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)", competitor.ID)
+	exists, err := tools.ExistsInDB(context.Background(), conn, "SELECT EXISTS(SELECT 1 FROM competitors WHERE id = $1)", competitor.ID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
@@ -39,6 +39,7 @@ func RegisterCompetitor(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "ALREADY EXISTS"})
 		return
 	}
+
 	query := `INSERT INTO competitors (id, full_name, birth_date, identity, bow, rank, region, federation, club)
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
