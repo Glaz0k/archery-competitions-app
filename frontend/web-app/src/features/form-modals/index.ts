@@ -7,6 +7,8 @@ export { DeleteCupModal } from "./components/cup/DeleteCupModal";
 export { AddIndividualGroupModal } from "./components/individual-group/AddIndividualGroupModal";
 export { DeleteIndividualGroupModal } from "./components/individual-group/DeleteIndividualGroupModal";
 
+export { RemoveCompetitorModal } from "./components/competitors/RemoveCompetitorModal";
+
 export * from "./hooks/useSubmitCupForm";
 export * from "./hooks/useCreateCompetitionForm";
 export * from "./hooks/useEditCompetitionForm";

@@ -3,9 +3,9 @@ import { GroupFilterContext, type GroupFilter } from "./GroupFilterContext";
 
 export function GroupFilterProvider({ children }: { children: ReactNode }) {
   const [filter, setFilter] = useState<GroupFilter>({
-    bow: undefined,
-    identity: undefined,
-    state: undefined,
+    bow: null,
+    identity: null,
+    state: null,
   });
 
   return (
