@@ -10,8 +10,8 @@ type Competitor struct {
 }
 
 type CompetitorCompetitionDetails struct {
-	CompetitionID int                 `json:"competition_id"`
-	Competitors   []models.Competitor `json:"competitor"`
-	IsActive      bool                `json:"is_active"`
-	CreatedAt     time.Time           `json:"created_at"`
+	CompetitionID int               `json:"competition_id"`
+	Competitor    models.Competitor `json:"competitor"`
+	IsActive      bool              `json:"is_active"`
+	CreatedAt     time.Time         `json:"created_at"`
 }
