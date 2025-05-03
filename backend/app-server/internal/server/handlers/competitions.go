@@ -407,6 +407,11 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 	competitionDetails.CompetitionID = competitionID
 	err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.IsActive, &competitionDetails.CreatedAt)
 	if err != nil {
+		fmt.Println(err) //
+		if errors.Is(err, sql.ErrNoRows) {
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+			return
+		}
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
