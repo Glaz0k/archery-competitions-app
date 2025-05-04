@@ -38,3 +38,21 @@ class Credentials {
 
   Credentials(this.login, this.password);
 }
+
+// "range_ordinal": <number>,
+// "shots": <[ <shot> ] | null>
+class ChangeRange {
+  final int rangeOrdinal;
+  final List<Shot>? shots;
+
+  ChangeRange(this.rangeOrdinal, this.shots);
+}
+
+// "score": <string>,
+// "priority": <bool | null>
+class ChangeShootOut {
+  final String score;
+  final bool? priority;
+
+  ChangeShootOut(this.score, this.priority);
+}

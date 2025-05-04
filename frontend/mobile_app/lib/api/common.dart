@@ -60,3 +60,21 @@ enum GroupState {
 // III
 // F
 enum CompetitionStage { I, II, III, F }
+
+// ongoing
+// top_win
+// bot_win
+enum SparringState { ongoing, topWin, botWin }
+
+// "1-10"
+// "6-10"
+enum RangeType { one2ten, six2ten }
+
+// "shot_ordinal": <number>,
+// "score": <string | null>
+class Shot {
+  final int shotOrdinal;
+  final String? score;
+
+  Shot(this.shotOrdinal, this.score);
+}
