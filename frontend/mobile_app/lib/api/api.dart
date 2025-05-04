@@ -2,6 +2,41 @@ import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
 
 abstract class Api {
+  /// POST /auth/registration
+  ///
+  /// Зарегистрировать пользователя в системе. Выдаётся внутрення роль user.
+  /// После регистрации на клиент возвращается сессионная cookie
+  ///
+  /// Исключения:
+  /// - InvalidParametersException(Неверные параметры регистрации)
+  /// - AlreadyExistException(Пользователь с таким login уже зарегистрирован)
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/auth.md#post-authregistration
+  Future<void> register(Credentials credentials);
+
+  /// POST /auth/login
+  ///
+  /// Войти с учётной записью пользователя.
+  /// После входа на клиент возвращается сессионная cookie
+  ///
+  /// Исключения:
+  /// - InvalidParametersException(Неверные параметры входа)
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/auth.md#post-authlogin
+  Future<void> login(Credentials credentials);
+
+  /// POST /auth/logout
+  ///
+  /// Выйти из учётной записи пользователя.
+  /// После выхода удаляется связанный с cookie сессионный токен и
+  /// для дальнейшей работы необходимо заново войти
+  ///
+  /// Исключения:
+  /// - NotFoundException(Пользовательская сессия не найдена)
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/auth.md#post-authlogout
+  Future<void> logout();
+
   /// GET /competitions/{competition_id}/competitors
   /// Получить список зарегистрированных участников.
   /// Участник имеет доступ только если сам зарегистрирован
@@ -109,4 +144,5 @@ abstract class Api {
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/cups.md#get-cupscup_idcompetitions
   Future<List<Competition>> getCupsCompetitions(int cupId);
+
 }

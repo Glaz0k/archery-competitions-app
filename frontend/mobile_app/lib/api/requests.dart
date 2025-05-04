@@ -29,3 +29,12 @@ class ChangeCompetitor {
     this.club,
   );
 }
+
+// "login": <string>,
+// "password": <string>
+class Credentials {
+  final String login;
+  final String password;
+
+  Credentials(this.login, this.password);
+}
