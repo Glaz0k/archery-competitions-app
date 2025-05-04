@@ -358,7 +358,6 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
-
 	role, err := tools.GetRoleFromContext(r)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})

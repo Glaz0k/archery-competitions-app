@@ -16,9 +16,10 @@ const (
 	CompetitionEndpoint         = "/api/competitions/{competition_id}"
 	IndividualGroupsCompetition = "/api/competitions/{competition_id}/individual_groups"
 
-	CupsEndpoint         = "/api/cups"
-	CupEndpoint          = "/api/cups/{cup_id}"
-	CompetitionsEndpoint = "/api/cups/{cup_id}/competitions"
+	CupsEndpoint           = "/api/cups"
+	CupEndpoint            = "/api/cups/{cup_id}"
+	CompetitionsEndpoint   = "/api/cups/{cup_id}/competitions"
+	AllCompetitorsEndpoint = "/api/competitors"
 
 	Competitor         = "/api/competitors/{competitor_id}"
 	RegisterCompetitor = "/api/competitors/registration"

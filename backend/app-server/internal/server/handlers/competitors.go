@@ -139,3 +139,31 @@ func EditCompetitor(w http.ResponseWriter, r *http.Request) {
 	}
 	tools.WriteJSON(w, http.StatusOK, competitor)
 }
+
+func GetAllCompetitors(w http.ResponseWriter, r *http.Request) {
+	conn, err := dbPool.Acquire(r.Context())
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	defer conn.Release()
+	competitors := make([]models.Competitor, 0, 20)
+	query := `SELECT id, full_name, birth_date, identity, bow, rank, region, federation, club FROM competitors`
+	rows, err := conn.Query(context.Background(), query)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	for rows.Next() {
+		var competitor models.Competitor
+		err = rows.Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate,
+			&competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region,
+			&competitor.Federation, &competitor.Club)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+			return
+		}
+		competitors = append(competitors, competitor)
+	}
+	tools.WriteJSON(w, http.StatusOK, competitors)
+}
