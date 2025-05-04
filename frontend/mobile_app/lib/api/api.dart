@@ -7,7 +7,7 @@ abstract class Api {
   /// Участник имеет доступ только если сам зарегистрирован
   ///
   /// Исключения:
-  /// - Соревнование не найдено
+  /// - NotFoundException(Соревнование не найдено)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idcompetitors
   Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
@@ -22,8 +22,8 @@ abstract class Api {
   /// Участник имеет доступ, если меняет свой статус
   ///
   /// Исключения:
-  /// - Невозможно добавить участников после окончания соревнования
-  /// - Соревнование или участник не найдены
+  /// - BadActionException(Невозможно добавить участников после окончания соревнования)
+  /// - NotFoundException(Соревнование или участник не найдены)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#put-competitionscompetition_idcompetitorscompetitor_id
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(
@@ -38,7 +38,7 @@ abstract class Api {
   /// (участник получает только те, в которых принимает участие)
   ///
   /// Исключения:
-  /// - Соревнование не найдено
+  /// - NotFoundException(Соревнование не найдено)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idindividual_groups
   Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
@@ -50,8 +50,8 @@ abstract class Api {
   /// Зарегистрировать участника c помощью его аутентификационного токена
   ///
   /// Исключения:
-  /// - Неверные параметры
-  /// - Уже зарегистрирован
+  /// - InvalidParametersException(Неверные параметры)
+  /// - AlreadyExistException(Уже зарегистрирован)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#post-competitorsregistration
   Future<CompetitorFull> registerCompetitor(ChangeCompetitor request);
@@ -61,7 +61,7 @@ abstract class Api {
   /// Получить информацию об участнике
   ///
   /// Исключения:
-  /// - Не существует
+  /// - NotFoundException(Не существует)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#get-competitorscompetitor_id
   Future<CompetitorFull> getCompetitor(int competitorId);
@@ -74,8 +74,8 @@ abstract class Api {
   /// если участник зарегистрирован в группе не на стадии создания.
   ///
   /// Исключения:
-  /// - Неверные параметры
-  /// - Не зарегистрирован
+  /// - InvalidParametersException(Неверные параметры)
+  /// - NotFoundException(Не зарегистрирован)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#put-competitorscompetitor_id
   Future<CompetitorFull> putCompetitor(
@@ -88,7 +88,7 @@ abstract class Api {
   /// Получить кубок (участник имеет доступ, если принимает участие)
   ///
   /// Исключения:
-  /// - Кубок не найден
+  /// - NotFoundException(Кубок не найден)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/cups.md#get-cupscup_id
   Future<Cup> getCup(int cupId);
@@ -105,7 +105,7 @@ abstract class Api {
   /// Получить все соревнования, доступные пользователю (участник получает только те, в которых принимает участие)
   ///
   /// Исключения:
-  /// - Кубок не найден
+  /// - NotFoundException(Кубок не найден)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/cups.md#get-cupscup_idcompetitions
   Future<List<Competition>> getCupsCompetitions(int cupId);
