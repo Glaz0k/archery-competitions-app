@@ -41,7 +41,9 @@ abstract class Api {
   /// - Соревнование не найдено
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idindividual_groups
-  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(int competitionId);
+  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
+    int competitionId,
+  );
 
   /// POST /competitors/registration
   ///
@@ -76,6 +78,35 @@ abstract class Api {
   /// - Не зарегистрирован
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#put-competitorscompetitor_id
-  Future<CompetitorFull> putCompetitor(int competitorId,
-      ChangeCompetitor request);
+  Future<CompetitorFull> putCompetitor(
+    int competitorId,
+    ChangeCompetitor request,
+  );
+
+  /// GET /cups/{cup_id}
+  ///
+  /// Получить кубок (участник имеет доступ, если принимает участие)
+  ///
+  /// Исключения:
+  /// - Кубок не найден
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/cups.md#get-cupscup_id
+  Future<Cup> getCup(int cupId);
+
+  /// GET /cups
+  ///
+  /// Получить кубки, доступные пользователю (участник получает только те, в которых принимает участие)
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/cups.md#get-cups
+  Future<List<Cup>> getCups();
+
+  /// GET /cups/{cup_id}/competitions
+  ///
+  /// Получить все соревнования, доступные пользователю (участник получает только те, в которых принимает участие)
+  ///
+  /// Исключения:
+  /// - Кубок не найден
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/cups.md#get-cupscup_idcompetitions
+  Future<List<Competition>> getCupsCompetitions(int cupId);
 }

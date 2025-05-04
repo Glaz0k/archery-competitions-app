@@ -54,3 +54,9 @@ enum GroupState {
   finalStart,
   completed,
 }
+
+// I
+// II
+// III
+// F
+enum CompetitionStage { I, II, III, F }

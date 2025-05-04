@@ -1,4 +1,5 @@
 import 'common.dart';
+
 // "id": <number>,
 // "full_name": <string>,
 // "birth_date": <date ISO 8601>,
@@ -19,10 +20,18 @@ class CompetitorFull {
   final String? federation;
   final String? club;
 
-  CompetitorFull(this.id, this.fullName, this.birthDate, this.identity,
-      this.bow, this.rank, this.region, this.federation, this.club);
+  CompetitorFull(
+    this.id,
+    this.fullName,
+    this.birthDate,
+    this.identity,
+    this.bow,
+    this.rank,
+    this.region,
+    this.federation,
+    this.club,
+  );
 }
-
 
 // "competition_id": <number>,
 // "competitor": <competitor_full>,
@@ -34,8 +43,12 @@ class CompetitorCompetitionDetail {
   final bool isActive;
   final DateTime createdAt;
 
-  CompetitorCompetitionDetail(this.competitionId, this.competitor,
-      this.isActive, this.createdAt);
+  CompetitorCompetitionDetail(
+    this.competitionId,
+    this.competitor,
+    this.isActive,
+    this.createdAt,
+  );
 }
 
 // "id": <number>,
@@ -50,7 +63,39 @@ class IndividualGroup {
   final Gender? identity;
   final GroupState state;
 
-  IndividualGroup(this.id, this.competitionId, this.bow, this.identity,
-      this.state);
+  IndividualGroup(
+    this.id,
+    this.competitionId,
+    this.bow,
+    this.identity,
+    this.state,
+  );
+}
 
+// "id": <number>,
+// "title": <string>,
+// "address": <string | null>,
+// "season": <string | null>
+class Cup {
+  final int id;
+  final String title;
+  final String? address;
+  final String? season;
+
+  Cup(this.id, this.title, this.address, this.season);
+}
+
+// "id": <number>,
+// "stage": <competition_stage>,
+// "start_date": <YYYY-MM-DD ISO 8601 | null>,
+// "end_date": <YYYY-MM-DD ISO 8601 | null>,
+// "is_ended": <bool>
+class Competition {
+  final int id;
+  final CompetitionStage stage;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final bool isEnded;
+
+  Competition(this.id, this.stage, this.startDate, this.endDate, this.isEnded);
 }
