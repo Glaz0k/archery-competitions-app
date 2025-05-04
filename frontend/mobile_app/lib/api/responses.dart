@@ -1,3 +1,4 @@
+import 'common.dart';
 // "id": <number>,
 // "full_name": <string>,
 // "birth_date": <date ISO 8601>,
@@ -18,17 +19,8 @@ class CompetitorFull {
   final String? federation;
   final String? club;
 
-  CompetitorFull(
-    this.id,
-      this.fullName,
-      this.birthDate,
-      this.identity,
-      this.bow,
-      this.rank,
-      this.region,
-      this.federation,
-      this.club
-      );
+  CompetitorFull(this.id, this.fullName, this.birthDate, this.identity,
+      this.bow, this.rank, this.region, this.federation, this.club);
 }
 
 
@@ -61,61 +53,4 @@ class IndividualGroup {
   IndividualGroup(this.id, this.competitionId, this.bow, this.identity,
       this.state);
 
-}
-
-// merited_master
-// master_international
-// master
-// candidate_for_master
-// first_class
-// second_class
-// third_class
-enum SportsRank {
-  meritedMaster,
-  masterInternational,
-  master,
-  candidateForMaster,
-  firstClass,
-  secondClass,
-  thirdClass,
-}
-
-// male
-// female
-enum Gender { male, female }
-
-// classic
-// block
-// classic_newbie
-// 3D_classic
-// 3D_compound
-// 3D_long
-// peripheral
-// peripheral_with_ring
-enum BowClass {
-  classic,
-  block,
-  classicNewbie,
-  classic3D,
-  compound3D,
-  long3D,
-  peripheral,
-  peripheralWithRing,
-}
-
-// created
-// qualification_start
-// qualification_end
-// quarterfinal_start
-// semifinal_start
-// final_start
-// completed
-enum GroupState {
-  created,
-  qualificationStart,
-  qualificationEnd,
-  quarterfinalStart,
-  semifinalStart,
-  finalStart,
-  completed,
 }

@@ -1,4 +1,5 @@
-import 'package:mobile_app/api/data.dart';
+import 'package:mobile_app/api/requests.dart';
+import 'package:mobile_app/api/responses.dart';
 
 abstract class Api {
   /// GET /competitions/{competition_id}/competitors
@@ -6,7 +7,7 @@ abstract class Api {
   /// Участник имеет доступ только если сам зарегистрирован
   ///
   /// Исключения:
-  ///   Соревнование не найдено
+  /// - Соревнование не найдено
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idcompetitors
   Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
@@ -21,8 +22,8 @@ abstract class Api {
   /// Участник имеет доступ, если меняет свой статус
   ///
   /// Исключения:
-  ///   Невозможно добавить участников после окончания соревнования
-  ///   Соревнование или участник не найдены
+  /// - Невозможно добавить участников после окончания соревнования
+  /// - Соревнование или участник не найдены
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#put-competitionscompetition_idcompetitorscompetitor_id
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(
@@ -37,8 +38,44 @@ abstract class Api {
   /// (участник получает только те, в которых принимает участие)
   ///
   /// Исключения:
-  ///   Соревнование не найдено
+  /// - Соревнование не найдено
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idindividual_groups
   Future<List<IndividualGroup>> getCompetitionsIndividualGroups(int competitionId);
+
+  /// POST /competitors/registration
+  ///
+  /// Зарегистрировать участника c помощью его аутентификационного токена
+  ///
+  /// Исключения:
+  /// - Неверные параметры
+  /// - Уже зарегистрирован
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#post-competitorsregistration
+  Future<CompetitorFull> registerCompetitor(ChangeCompetitor request);
+
+  /// GET /competitors/{competitor_id}
+  ///
+  /// Получить информацию об участнике
+  ///
+  /// Исключения:
+  /// - Не существует
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#get-competitorscompetitor_id
+  Future<CompetitorFull> getCompetitor(int competitorId);
+
+  /// PUT /competitors/{competitor_id}
+  ///
+  /// Изменить информацию об участнике.
+  /// Участнику доступно изменение только своих данных.
+  /// Невозможно изменить пол и тип лука,
+  /// если участник зарегистрирован в группе не на стадии создания.
+  ///
+  /// Исключения:
+  /// - Неверные параметры
+  /// - Не зарегистрирован
+  ///
+  /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitors.md#put-competitorscompetitor_id
+  Future<CompetitorFull> putCompetitor(int competitorId,
+      ChangeCompetitor request);
 }
