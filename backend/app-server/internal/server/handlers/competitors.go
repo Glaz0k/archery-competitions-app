@@ -154,6 +154,7 @@ func GetAllCompetitors(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var competitor models.Competitor
 		err = rows.Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate,
