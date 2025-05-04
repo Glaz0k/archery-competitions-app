@@ -31,7 +31,7 @@ func GetCompetitorFromIndividualGroupRoutes(router *mux.Router) {
 // TODO: разбить на юзера и админа
 
 func GetQualificationTableRoutes(router *mux.Router) {
-	router.HandleFunc(QualificationTable, handlers.GetQualifications).Methods("GET")
+	router.HandleFunc(QualificationTable, handlers.GetQualification).Methods("GET")
 }
 
 func StartQualificationRoutes(router *mux.Router) {

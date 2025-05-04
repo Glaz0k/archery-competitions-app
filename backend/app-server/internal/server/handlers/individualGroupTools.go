@@ -1251,6 +1251,26 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 		return fmt.Errorf("failed to delete shoot outs: %v", err)
 	}
 
+	if err := deleteShots(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete shots: %v", err)
+	}
+
+	if err := deleteRanges(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete ranges: %v", err)
+	}
+
+	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete range groups: %v", err)
+	}
+
+	if err := deleteSparringPlaces(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete sparring places: %v", err)
+	}
+
+	if err := deleteSparrings(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete sparrings: %v", err)
+	}
+
 	if err := deleteFinals(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete finals: %v", err)
 	}
@@ -1263,28 +1283,8 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 		return fmt.Errorf("failed to delete quarterfinals: %v", err)
 	}
 
-	if err := deleteSparrings(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete sparrings: %v", err)
-	}
-
-	if err := deleteSparringPlaces(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete sparring places: %v", err)
-	}
-
-	if err := deleteShots(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete shots: %v", err)
-	}
-
-	if err := deleteRanges(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete ranges: %v", err)
-	}
-
 	if err := deleteQualificationRounds(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete qualification rounds: %v", err)
-	}
-
-	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete range groups: %v", err)
 	}
 
 	if err := deleteQualificationSections(ctx, tx, groupID); err != nil {
@@ -1546,4 +1546,23 @@ func checkFinalsCompleted(tx pgx.Tx, ctx context.Context, groupID int) error {
 		return fmt.Errorf("not all final sparrings are completed")
 	}
 	return nil
+}
+
+func getQualification(conn *pgx.Conn, groupID int, r *http.Request) (*models.QualificationTable, error) {
+	var resp models.QualificationTable
+	err := conn.QueryRow(context.Background(),
+		`SELECT group_id, distance, round_count 
+         FROM qualifications 
+         WHERE group_id = $1`, groupID).Scan(
+		&resp.GroupID, &resp.Distance, &resp.RoundCount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query qualifications: %w", err)
+	}
+
+	resp.Sections, err = getQualificationSections(groupID, r)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get qualification sections: %w", err)
+	}
+
+	return &resp, nil
 }

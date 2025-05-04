@@ -38,12 +38,14 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
+
 	conn, err := dbPool.Acquire(r.Context())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer conn.Release()
+
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to begin transaction: %v", err)})
@@ -58,7 +60,7 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !groupExists {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "group_id does not exist"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
@@ -71,11 +73,13 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if hasQualification {
-		err = deleteQualifications(context.Background(), tx, individualGroupID)
+		res, err := getQualification(conn.Conn(), individualGroupID, r)
 		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete qualification: %v", err)})
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to get qualification: %v", err)})
 			return
 		}
+		tools.WriteJSON(w, http.StatusOK, res)
+		return
 	}
 
 	_, err = tx.Exec(context.Background(), `INSERT INTO qualifications (group_id, distance, round_count) VALUES ($1, $2, $3)`,
@@ -116,7 +120,7 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(competitorIDs) < 5 {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "few participants"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "few participants"})
 		return
 	}
 
@@ -193,7 +197,7 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tools.WriteJSON(w, http.StatusOK, resp)
+	tools.WriteJSON(w, http.StatusCreated, resp)
 }
 
 func EndQualification(w http.ResponseWriter, r *http.Request) {
@@ -202,12 +206,14 @@ func EndQualification(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
+
 	conn, err := dbPool.Acquire(r.Context())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer conn.Release()
+
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to begin transaction: %v", err)})
@@ -223,7 +229,6 @@ func EndQualification(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to check incomplete rounds: %v", err)})
 		return
 	}
-	fmt.Println(incompleteRounds)
 	if incompleteRounds > 0 {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "not all rounds are completed"})
 		return

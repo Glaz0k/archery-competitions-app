@@ -18,22 +18,24 @@ import (
 func GetIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	groupId, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
+
 	conn, err := dbPool.Acquire(r.Context())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer conn.Release()
+
 	var individualGroup models.IndividualGroup
 	err = conn.QueryRow(context.Background(), `SELECT * FROM individual_groups WHERE id = $1`, groupId).Scan(&individualGroup.ID, &individualGroup.CompetitionID, &individualGroup.Bow, &individualGroup.Identity, &individualGroup.State)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "NOT FOUND", http.StatusNotFound)
+			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		} else {
-			http.Error(w, "DATABASE ERROR", http.StatusInternalServerError)
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		}
 		return
 	}
@@ -160,12 +162,14 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
+
 	conn, err := dbPool.Acquire(r.Context())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer conn.Release()
+
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
@@ -177,6 +181,19 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	err = tx.QueryRow(context.Background(), "SELECT competition_id FROM individual_groups WHERE id = $1", groupID).Scan(&competitionID)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "GROUP NOT FOUND"})
+		return
+	}
+
+	var hasQualification bool
+	err = tx.QueryRow(context.Background(),
+		"SELECT EXISTS(SELECT 1 FROM qualifications WHERE group_id = $1)", groupID).Scan(&hasQualification)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to check qualification: %v", err)})
+		return
+	}
+
+	if hasQualification {
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
 
@@ -232,42 +249,6 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var hasQualification bool
-	err = tx.QueryRow(context.Background(),
-		"SELECT EXISTS(SELECT 1 FROM qualifications WHERE group_id = $1)", groupID).Scan(&hasQualification)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to check qualification: %v", err)})
-		return
-	}
-
-	if hasQualification {
-		_, err = tx.Exec(context.Background(),
-			"DELETE FROM qualification_rounds WHERE section_id IN (SELECT id FROM qualification_sections WHERE group_id = $1)",
-			groupID)
-		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete old qualification rounds: %v", err)})
-			return
-		}
-
-		_, err = tx.Exec(context.Background(),
-			"DELETE FROM qualification_sections WHERE group_id = $1", groupID)
-		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to delete old qualification sections: %v", err)})
-			return
-		}
-
-		_, err = tx.Exec(context.Background(), `
-            INSERT INTO qualification_sections (group_id, competitor_id)
-            SELECT $1, competitor_id 
-            FROM competitor_competition_details 
-            WHERE competition_id = $2 AND is_active = true`,
-			groupID, competitionID)
-		if err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to insert new qualification sections: %v", err)})
-			return
-		}
-	}
-
 	err = tx.Commit(context.Background())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to commit transaction: %v", err)})
@@ -276,56 +257,48 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 
 	if result == nil {
 		tools.WriteJSON(w, http.StatusOK, []interface{}{})
+		return
 	}
 
 	tools.WriteJSON(w, http.StatusOK, result)
 }
 
-func GetQualifications(w http.ResponseWriter, r *http.Request) {
+func GetQualification(w http.ResponseWriter, r *http.Request) {
 	groupID, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
+
 	conn, err := dbPool.Acquire(r.Context())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer conn.Release()
-	var resp models.QualificationTable
-	err = conn.QueryRow(context.Background(),
-		`SELECT group_id, distance, round_count 
-         FROM qualifications 
-         WHERE group_id = $1`, groupID).Scan(
-		&resp.GroupID, &resp.Distance, &resp.RoundCount)
+
+	resp, err := getQualification(conn.Conn(), groupID, r)
 	if err != nil {
-		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "QUALIFICATION NOT FOUND"})
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("%v", err)})
 		return
 	}
-
-	sections, err := getQualificationSections(groupID, r)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to fetch sections: %v", err)})
-		return
-	}
-
-	resp.Sections = sections
-	tools.WriteJSON(w, http.StatusOK, resp)
+	tools.WriteJSON(w, http.StatusOK, *resp)
 }
 
 func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 	groupID, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, "invalid group_id")
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
+
 	conn, err := dbPool.Acquire(r.Context())
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer conn.Release()
+
 	ctx := r.Context()
 	tx, err := conn.Begin(ctx)
 	if err != nil {
@@ -341,7 +314,7 @@ func DeleteIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !exists {
-		tools.WriteJSON(w, http.StatusNotFound, "group not found")
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 	if err := deleteAllGroupData(ctx, tx, groupID); err != nil {
