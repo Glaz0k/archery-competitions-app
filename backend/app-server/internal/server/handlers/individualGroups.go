@@ -151,6 +151,12 @@ func GetCompetitorsFromGroup(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+
+	if len(competitors) == 0 {
+		tools.WriteJSON(w, http.StatusOK, []interface{}{})
+		return
+	}
+
 	cgd.Competitors = competitors
 	cgd.GroupID = groupId
 	tools.WriteJSON(w, http.StatusOK, cgd)
