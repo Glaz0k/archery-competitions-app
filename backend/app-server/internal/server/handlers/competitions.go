@@ -556,13 +556,15 @@ func EditCompetitorStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var competitorDetails dto.CompetitorCompetitionDetails
+	var t time.Time
 	competitorDetails.CompetitionID = competitionID
 	query = "UPDATE competitor_competition_details SET is_active=$1 WHERE competition_id = $2 and competitor_id = $3 RETURNING is_active, created_at "
-	err = conn.QueryRow(context.Background(), query, newStatus.IsActive, competitionID, competitorID).Scan(&competitorDetails.IsActive, &competitorDetails.CreatedAt)
+	err = conn.QueryRow(context.Background(), query, newStatus.IsActive, competitionID, competitorID).Scan(&competitorDetails.IsActive, &t)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
+	competitorDetails.CreatedAt = t.Format(time.RFC3339)
 
 	var competitor models.Competitor
 	query = `SELECT id, full_name, birth_date, identity, bow, rank,region, federation, club FROM competitors WHERE id = $1`
