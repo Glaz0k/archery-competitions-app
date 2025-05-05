@@ -402,10 +402,11 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 
 	competitors := make([]dto.CompetitorCompetitionDetails, 0)
 
-	query := `SELECT is_active FROM competitor_competition_details WHERE competition_id = $1`
 	var competitionDetails dto.CompetitorCompetitionDetails
 	competitionDetails.CompetitionID = competitionID
-	err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.IsActive)
+
+	query := `SELECT competition_id, competitor_id, is_active, created_at FROM competitor_competition_details WHERE competition_id = $1`
+	rows, err := conn.Query(context.Background(), query, competitionID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			tools.WriteJSON(w, http.StatusOK, competitors)
@@ -414,19 +415,12 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
-
-	query = `SELECT competitor_id, is_active, created_at FROM competitor_competition_details WHERE competition_id = $1`
-	rows, err := conn.Query(context.Background(), query, competitionID)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-		return
-	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var competitor dto.CompetitorCompetitionDetails
 		var t time.Time
-		err = rows.Scan(&competitor.CompetitionID, &competitor.IsActive, &t)
+		err = rows.Scan(&competitor.CompetitionID, &competitor.Competitor.ID, &competitor.IsActive, &t)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 			return
@@ -438,7 +432,7 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(competitors); i++ {
 		var competitor models.Competitor
 		query = `SELECT id, full_name, birth_date, identity, bow, rank,region, federation, club FROM competitors WHERE id = $1`
-		err = conn.QueryRow(context.Background(), query, competitors[i].CompetitionID).Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate, &competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region, &competitor.Federation, &competitor.Club)
+		err = conn.QueryRow(context.Background(), query, competitors[i].Competitor.ID).Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate, &competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region, &competitor.Federation, &competitor.Club)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 			return
@@ -594,14 +588,16 @@ func DeleteCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Release()
-	queryCheck := `SELECT id FROM competitions WHERE id = $1`
-	exists, err := tools.ExistsInDB(context.Background(), conn, queryCheck, competitionID)
-	if !exists {
-		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
-		return
-	}
+
+	var exists bool
+	queryCheck := `SELECT EXISTS(SELECT 1 FROM competitions WHERE id = $1)`
+	err = conn.QueryRow(context.Background(), queryCheck, competitionID).Scan(&exists)
 	if err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+	if !exists {
+		tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
 		return
 	}
 
