@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"app-server/internal/dto"
 	"app-server/pkg/tools"
 
 	"github.com/jackc/pgx/v5"
@@ -71,7 +70,7 @@ func GetIndividualGroup(w http.ResponseWriter, r *http.Request) {
 func GetCompetitorsFromGroup(w http.ResponseWriter, r *http.Request) {
 	groupId, err := tools.ParseParamToInt(r, "group_id")
 	if err != nil {
-		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "NOT FOUND"})
+		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "INVALID PARAMETERS"})
 		return
 	}
 	conn, err := dbPool.Acquire(r.Context())
@@ -133,33 +132,25 @@ func GetCompetitorsFromGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cgd dto.CompetitorGroupDetail
 	defer rows.Close()
 
-	competitors := make([]models.Competitor, 0)
-	for rows.Next() {
-		var competitor models.Competitor
-		if err = rows.Scan(&competitor.ID, &competitor.FullName, &competitor.BirthDate,
-			&competitor.Identity, &competitor.Bow, &competitor.Rank, &competitor.Region,
-			&competitor.Federation, &competitor.Club); err != nil {
-			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-			return
-		}
-		competitors = append(competitors, competitor)
+	res, err := getCompetitorGroup(rows, groupId)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
 	}
+
 	if err = rows.Err(); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 
-	if len(competitors) == 0 {
+	if res == nil {
 		tools.WriteJSON(w, http.StatusOK, []interface{}{})
 		return
 	}
 
-	cgd.Competitors = competitors
-	cgd.GroupID = groupId
-	tools.WriteJSON(w, http.StatusOK, cgd)
+	tools.WriteJSON(w, http.StatusOK, res)
 }
 
 func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
@@ -243,15 +234,10 @@ func SyncIndividualGroup(w http.ResponseWriter, r *http.Request) {
 		}
 		defer rows.Close()
 
-		for rows.Next() {
-			var c models.Competitor
-
-			if err := rows.Scan(&c.ID, &c.FullName, &c.BirthDate, &c.Identity, &c.Bow, &c.Rank, &c.Region, &c.Federation, &c.Club); err != nil {
-				tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to scan competitor details: %v", err)})
-				return
-			}
-
-			result = append(result, map[string]interface{}{"group_id": groupID, "competitor": c})
+		result, err = getCompetitorGroup(rows, groupID)
+		if err != nil {
+			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to fetch group details: %v", err)})
+			return
 		}
 	}
 

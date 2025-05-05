@@ -1566,3 +1566,17 @@ func getQualification(conn *pgx.Conn, groupID int, r *http.Request) (*models.Qua
 
 	return &resp, nil
 }
+
+func getCompetitorGroup(rows pgx.Rows, groupID int) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	for rows.Next() {
+		var c models.Competitor
+
+		if err := rows.Scan(&c.ID, &c.FullName, &c.BirthDate, &c.Identity, &c.Bow, &c.Rank, &c.Region, &c.Federation, &c.Club); err != nil {
+			return nil, err
+		}
+
+		result = append(result, map[string]interface{}{"group_id": groupID, "competitor": c})
+	}
+	return result, nil
+}
