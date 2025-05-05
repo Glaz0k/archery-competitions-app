@@ -62,6 +62,7 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
         <Table.Tbody>
           {details.map((value) => (
             <CompetitionTableRow
+              key={value.competitor.id}
               detail={value}
               deleting={isDetailsFetching && value.competitor.id === removingId}
               onDelete={(competitorId: number) => {

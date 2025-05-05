@@ -65,7 +65,7 @@ export function CompetitionTableRow({ detail, deleting, onDelete }: CompetitionT
       <Table.Td>{competitor.bow ? getBowClassDescription(competitor.bow) : "Не указан"}</Table.Td>
       <Table.Td>{competitor.rank ? getSportsRankDescription(competitor.rank) : "б/р"}</Table.Td>
       <Table.Td>{competitor.region || "Не указан"}</Table.Td>
-      <Table.Td>{competitor.federation || "Не указан"}</Table.Td>
+      <Table.Td>{competitor.federation || "Не указана"}</Table.Td>
       <Table.Td>{competitor.club || "Не указан"}</Table.Td>
       <DeletingTd loading={deleting} deleteFn={() => onDelete(competitor.id)} />
     </Table.Tr>
