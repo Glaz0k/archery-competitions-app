@@ -18,7 +18,6 @@ export const useCompetitor = (competitorId: number, enabled: boolean = true) => 
   return useQuery({
     queryKey: COMPETITORS_QUERY_KEYS.element(competitorId),
     queryFn: async () => await competitorsApi.getCompetitor(competitorId),
-    initialData: null,
     enabled,
   });
 };

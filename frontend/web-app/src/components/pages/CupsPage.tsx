@@ -39,7 +39,6 @@ export default function CupsPage() {
     isFetching: isCupsLoading,
     refetch: refetchCups,
     isError: isCupsError,
-    error: cupsError,
   } = useCups();
 
   const { mutate: removeCup, isPending: isCupDeleting } = useDeleteCup(() => {
@@ -88,7 +87,6 @@ export default function CupsPage() {
         </EntityCardSkeleton>
       ));
   } else if (isCupsError) {
-    console.error(cupsError.name + "\n" + cupsError.message);
     renderContent = <CenterCard label="Произошла ошибка" />;
   } else if (paginatedCups.length === 0) {
     renderContent = <CenterCard label="Кубки не найдены" />;

@@ -24,7 +24,6 @@ export default function CompetitorsContent() {
   const navigate = useNavigate();
 
   const handleExcelTableUpload = () => {
-    // TODO
     console.warn("handleExcelTableUpload temporary unavailable");
   };
 

@@ -60,7 +60,6 @@ export const useCup = (cupId: number, enabled: boolean = true) => {
   return useQuery({
     queryKey: CUPS_QUERY_KEYS.element(cupId),
     queryFn: async () => await cupsApi.getCup(cupId),
-    initialData: null,
     enabled,
   });
 };

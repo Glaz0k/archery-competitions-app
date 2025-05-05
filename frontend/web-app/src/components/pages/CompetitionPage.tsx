@@ -19,7 +19,7 @@ import {
   useEditCompetitionForm,
 } from "../../features";
 import { getCompetitionStageDescription } from "../../utils";
-import { ControlsCard, MainInfoCard, SideBar, TextButton } from "../../widgets";
+import { ControlsCard, MainInfoCard, PageLoader, SideBar, TextButton } from "../../widgets";
 
 export default function CompetitionPage() {
   const { cupId: paramCupId, competitionId: paramCompetitionId } = useParams();
@@ -134,13 +134,6 @@ export default function CompetitionPage() {
     </>
   );
 
-  const competitionTitle = competition
-    ? getCompetitionStageDescription(competition.stage)
-    : "Загрузка...";
-  const competitionSubtitle = cup
-    ? cup.title + (cup.season ? ", сезон " + cup.season : "")
-    : "Загрузка...";
-
   const renderCompetitionPageControls = !isCompetitorsPage ? (
     <>
       <GroupFilterControls />
@@ -159,41 +152,46 @@ export default function CompetitionPage() {
     </>
   ) : undefined;
 
-  if (isMainInfoLoading) {
-    return <LoadingOverlay visible />;
-  }
+  const competitionTitle = competition
+    ? getCompetitionStageDescription(competition.stage)
+    : "Загрузка...";
+  const competitionSubtitle = cup
+    ? cup.title + (cup.season ? ", сезон " + cup.season : "")
+    : "Загрузка...";
 
   return (
-    <GroupFilterProvider>
-      <DeleteCompetitionModal
-        opened={isOpenedCompetitionDel}
-        onClose={competitionDelControl.close}
-        onConfirm={() => deleteCompetition(competitionId)}
-        loading={isCompetitionDeleting}
-      />
-      <Group align="start" display="flex" flex={1} style={{ overflow: "hidden" }} gap="lg">
-        <SideBar>
-          <MainInfoCard
-            onEdit={handleCompetitionEdit}
-            onFormSubmit={editCompetitionForm.onSubmit((values) =>
-              updateCompetition([competitionId, values])
-            )}
-            onCancel={() => setCompetitionEditing(false)}
-            onDelete={competitionDelControl.open}
-            editing={isCompetitionEditing}
-            loading={isMainInfoFetching || isCompetitionUpdating}
-          >
-            <Stack gap={0}>
-              <Title order={2}>{competitionTitle}</Title>
-              <Text>{competitionSubtitle}</Text>
-              {cup?.address && <Text size="sm">{cup.address}</Text>}
-            </Stack>
-            {renderEditCompetitionForm}
-          </MainInfoCard>
-          {renderCompetitionPageControls}
-        </SideBar>
-        <Outlet />
-      </Group>
-    </GroupFilterProvider>
+    <PageLoader loading={isMainInfoLoading} error={isMainInfoError}>
+      <GroupFilterProvider>
+        <DeleteCompetitionModal
+          opened={isOpenedCompetitionDel}
+          onClose={competitionDelControl.close}
+          onConfirm={() => deleteCompetition(competitionId)}
+          loading={isCompetitionDeleting}
+        />
+        <Group align="start" display="flex" flex={1} style={{ overflow: "hidden" }} gap="lg">
+          <SideBar>
+            <MainInfoCard
+              onEdit={handleCompetitionEdit}
+              onFormSubmit={editCompetitionForm.onSubmit((values) =>
+                updateCompetition([competitionId, values])
+              )}
+              onCancel={() => setCompetitionEditing(false)}
+              onDelete={competitionDelControl.open}
+              editing={isCompetitionEditing}
+              loading={isMainInfoFetching || isCompetitionUpdating}
+            >
+              <Stack gap={0}>
+                <Title order={2}>{competitionTitle}</Title>
+                <Text>{competitionSubtitle}</Text>
+                {cup?.address && <Text size="sm">{cup.address}</Text>}
+              </Stack>
+              {renderEditCompetitionForm}
+            </MainInfoCard>
+            {renderCompetitionPageControls}
+          </SideBar>
+          <Outlet />
+        </Group>
+      </GroupFilterProvider>
+    </PageLoader>
   );
 }

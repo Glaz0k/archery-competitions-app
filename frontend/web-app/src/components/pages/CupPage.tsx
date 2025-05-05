@@ -35,6 +35,7 @@ import {
   EntityCard,
   EntityCardSkeleton,
   MainInfoCard,
+  PageLoader,
   SideBar,
   TopBar,
 } from "../../widgets";
@@ -61,9 +62,10 @@ export default function CupPage() {
 
   const {
     data: cup,
-    isFetching: isCupLoading,
-    isError: isCupReadError,
-    error: cupReadError,
+    isLoading: isCupLoading,
+    isFetching: isCupFetching,
+    isError: isCupError,
+    error: cupError,
   } = useCup(cupId);
 
   const {
@@ -71,7 +73,6 @@ export default function CupPage() {
     isFetching: isCompetitionsLoading,
     refetch: refetchCompetitions,
     isError: isCompetitionsError,
-    error: competitionsError,
   } = useCompetitions(cupId);
 
   const { mutate: updateCup, isPending: isEditedCupSubmitting } = useUpdateCup(() => {
@@ -119,22 +120,22 @@ export default function CupPage() {
   };
 
   useEffect(() => {
-    if (isCupReadError) {
-      if (isAxiosError(cupReadError) && cupReadError.status === 404) {
+    if (isCupError) {
+      if (isAxiosError(cupError) && cupError.status === 404) {
         navigate("/404");
       }
     }
-  }, [isCupReadError, cupReadError, navigate]);
+  }, [isCupError, cupError, navigate]);
 
   useEffect(() => {
     if (cup) {
       setWebTitle(APP_NAME + " - " + cup.title);
-    } else if (isCupLoading) {
+    } else if (isCupFetching) {
       setWebTitle(APP_NAME + " - Загрузка...");
     } else {
-      setWebTitle(APP_NAME);
+      setWebTitle(APP_NAME + " - Ошибка");
     }
-  }, [cup, isCupLoading]);
+  }, [cup, isCupFetching]);
 
   const editCupForm = useSubmitCupForm();
 
@@ -171,7 +172,6 @@ export default function CupPage() {
         </EntityCardSkeleton>
       ));
   } else if (isCompetitionsError) {
-    console.error(competitionsError.name + "\n" + competitionsError.message);
     renderContent = <CenterCard label="Произошла ошибка" />;
   } else if (competitions.length === 0) {
     renderContent = <CenterCard label="Соревнования не найдены" />;
@@ -197,7 +197,7 @@ export default function CupPage() {
   }
 
   return (
-    <>
+    <PageLoader loading={isCupLoading} error={isCupError}>
       <DeleteCompetitionModal
         opened={isOpenedCompetitionDel}
         onClose={denyCompetitionDeletion}
@@ -224,7 +224,7 @@ export default function CupPage() {
             onCancel={() => setCupEditing(false)}
             onDelete={cupDelControl.open}
             editing={isCupEditing}
-            loading={isCupLoading || isEditedCupSubmitting}
+            loading={isCupFetching || isEditedCupSubmitting}
           >
             {isCupEditing ? (
               editCupFormStructure
@@ -247,6 +247,6 @@ export default function CupPage() {
           <Stack flex={1}>{renderContent}</Stack>
         </Flex>
       </Group>
-    </>
+    </PageLoader>
   );
 }

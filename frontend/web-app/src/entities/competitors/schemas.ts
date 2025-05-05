@@ -24,3 +24,8 @@ export const CompetitorCompetitionDetailSchema = z.object({
   isActive: z.boolean(),
   createdAt: z.date(),
 });
+
+export const CompetitorGroupDetailSchema = z.object({
+  groupId: z.number(),
+  competitor: CompetitorSchema,
+});

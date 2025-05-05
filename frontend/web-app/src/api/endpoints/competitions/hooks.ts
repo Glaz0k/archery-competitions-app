@@ -13,7 +13,6 @@ export const useCompetition = (competitionId: number, enabled: boolean = true) =
   return useQuery({
     queryKey: COMPETITIONS_QUERY_KEYS.element(competitionId),
     queryFn: async () => await competitionsApi.getCompetition(competitionId),
-    initialData: null,
     enabled,
   });
 };

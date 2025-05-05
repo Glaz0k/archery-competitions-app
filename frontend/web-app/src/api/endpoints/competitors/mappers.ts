@@ -1,5 +1,9 @@
 import { formatISO, parseISO } from "date-fns";
-import type { Competitor, CompetitorCompetitionDetail } from "../../../entities";
+import type {
+  Competitor,
+  CompetitorCompetitionDetail,
+  CompetitorGroupDetail,
+} from "../../../entities";
 import type {
   CompetitorAdd,
   CompetitorAPI,
@@ -8,6 +12,7 @@ import type {
   CompetitorAPIToggle,
   CompetitorCompetitionDetailAPI,
   CompetitorEdit,
+  CompetitorGroupDetailAPI,
   CompetitorToggle,
 } from "./types";
 
@@ -58,5 +63,14 @@ export const mapToCompetitorCompetitionDetail = (
 export const mapToCompetitorAPIToggle = (request: CompetitorToggle): CompetitorAPIToggle => {
   return {
     is_active: request.isActive,
+  };
+};
+
+export const mapToCompetitorGroupDetail = (
+  response: CompetitorGroupDetailAPI
+): CompetitorGroupDetail => {
+  return {
+    groupId: response.group_id,
+    competitor: mapToCompetitor(response.competitor),
   };
 };

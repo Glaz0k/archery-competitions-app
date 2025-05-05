@@ -50,3 +50,8 @@ export const CompetitorAPIToggleSchema = CompetitorCompetitionDetailAPISchema.pi
 export const CompetitorToggleSchema = CompetitorCompetitionDetailSchema.pick({
   isActive: true,
 });
+
+export const CompetitorGroupDetailAPISchema = z.object({
+  group_id: z.number(),
+  competitor: CompetitorAPISchema,
+});

@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import type {
   CompetitorCompetitionDetailSchema,
+  CompetitorGroupDetailSchema,
   CompetitorSchema,
   CompetitorShrinkedSchema,
 } from "./schemas";
@@ -36,3 +37,5 @@ export type Competitor = z.infer<typeof CompetitorSchema>;
 export type CompetitorShrinked = z.infer<typeof CompetitorShrinkedSchema>;
 
 export type CompetitorCompetitionDetail = z.infer<typeof CompetitorCompetitionDetailSchema>;
+
+export type CompetitorGroupDetail = z.infer<typeof CompetitorGroupDetailSchema>;

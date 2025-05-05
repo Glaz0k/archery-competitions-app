@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { Card, LoadingOverlay, Table, useMantineTheme } from "@mantine/core";
+import { Card, LoadingOverlay, Table } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCompetitionCompetitors, useRemoveCompetitorFromCompetition } from "../../../api";
-import { CenterCard } from "../../../widgets";
+import { CenterCard, TableCard } from "../../../widgets";
 import { RemoveCompetitorModal } from "../../form-modals";
 import { useTableControls } from "../context/useTableControls";
 import { CompetitionTableHead, CompetitionTableRow } from "./CompetitionTableRow";
 
 export function CompetitionTable({ competitionId }: { competitionId: number }) {
-  const theme = useMantineTheme();
   const { setControls } = useTableControls();
 
   const [removingId, setRemovingId] = useState<number | null>(null);
@@ -18,7 +17,6 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
     data: details,
     isFetching: isDetailsFetching,
     isError: isDetailsError,
-    error: detailsError,
     refetch: refetchDetails,
   } = useCompetitionCompetitors(competitionId, !Number.isNaN(competitionId));
 
@@ -48,7 +46,6 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
   }
 
   if (isDetailsError) {
-    console.error(detailsError);
     return <CenterCard label="Произошла ошибка" />;
   }
 
@@ -60,31 +57,21 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
         onClose={cancelRemove}
         loading={isCompetitorRemoving}
       />
-      <Card p={0} pos="relative">
-        <LoadingOverlay visible={isDetailsFetching} />
-        <Table.ScrollContainer minWidth={500}>
-          <Table
-            tabularNums
-            withColumnBorders
-            highlightOnHover
-            highlightOnHoverColor={`${theme.colors.gray[0]}33`}
-          >
-            <CompetitionTableHead />
-            <Table.Tbody>
-              {details.map((value) => (
-                <CompetitionTableRow
-                  detail={value}
-                  deleting={isDetailsFetching && value.competitor.id === removingId}
-                  onDelete={(competitorId: number) => {
-                    setRemovingId(competitorId);
-                    controlRemove.open();
-                  }}
-                />
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      </Card>
+      <TableCard loading={isDetailsFetching}>
+        <CompetitionTableHead />
+        <Table.Tbody>
+          {details.map((value) => (
+            <CompetitionTableRow
+              detail={value}
+              deleting={isDetailsFetching && value.competitor.id === removingId}
+              onDelete={(competitorId: number) => {
+                setRemovingId(competitorId);
+                controlRemove.open();
+              }}
+            />
+          ))}
+        </Table.Tbody>
+      </TableCard>
     </>
   );
 }
