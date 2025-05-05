@@ -12,5 +12,5 @@ type CompetitorCompetitionDetails struct {
 	CompetitionID int               `json:"competition_id"`
 	Competitor    models.Competitor `json:"competitor"`
 	IsActive      bool              `json:"is_active"`
-	CreatedAt     models.Date       `json:"created_at"`
+	CreatedAt     string            `json:"created_at"`
 }

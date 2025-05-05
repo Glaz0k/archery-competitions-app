@@ -276,7 +276,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		competitionDetails = dto.CompetitorCompetitionDetails{
 			CompetitionID: competitionID,
 			IsActive:      true,
-			CreatedAt:     models.Date{Time: time.Now()},
+			CreatedAt:     time.Now().Format(time.RFC3339),
 		}
 		query = `INSERT INTO competitor_competition_details (competition_id, competitor_id, is_active, created_at) VALUES ($1, $2, $3, $4)`
 		_, err = conn.Exec(context.Background(), query, competitionID, competitor.ID, competitionDetails.IsActive, competitionDetails.CreatedAt)
@@ -402,10 +402,10 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 
 	competitors := make([]dto.CompetitorCompetitionDetails, 0)
 
-	query := `SELECT is_active, created_at FROM competitor_competition_details WHERE competition_id = $1`
+	query := `SELECT is_active FROM competitor_competition_details WHERE competition_id = $1`
 	var competitionDetails dto.CompetitorCompetitionDetails
 	competitionDetails.CompetitionID = competitionID
-	err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.IsActive, &competitionDetails.CreatedAt)
+	err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.IsActive)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			tools.WriteJSON(w, http.StatusOK, competitors)
@@ -425,11 +425,13 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		var competitor dto.CompetitorCompetitionDetails
-		err = rows.Scan(&competitor.CompetitionID, &competitor.IsActive, &competitor.CreatedAt)
+		var t time.Time
+		err = rows.Scan(&competitor.CompetitionID, &competitor.IsActive, &t)
 		if err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 			return
 		}
+		competitor.CreatedAt = t.Format(time.RFC3339)
 		competitors = append(competitors, competitor)
 	}
 
