@@ -1,4 +1,4 @@
-import { IconHome, IconLogout } from "@tabler/icons-react";
+import { IconHome, IconLogout, IconUsers } from "@tabler/icons-react";
 import { Link, Outlet } from "react-router";
 import { ActionIcon, AppShell, Box, Flex, Group, Text, Title, Tooltip } from "@mantine/core";
 import { APP_NAME } from "../../constants";
@@ -15,6 +15,11 @@ export default function ContentLayout() {
             <Tooltip label="Домашняя - Кубки">
               <ActionIcon component={Link} to={"/cups"}>
                 <IconHome />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Пользователи">
+              <ActionIcon component={Link} to={"/competitors"}>
+                <IconUsers />
               </ActionIcon>
             </Tooltip>
             <Tooltip label="Выйти">

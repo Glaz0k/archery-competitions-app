@@ -16,7 +16,7 @@ import { useCreateCup, useCups, useDeleteCup } from "../../api";
 import { AddCupModal, DeleteCupModal } from "../../features";
 import { CenterCard, EntityCard, EntityCardSkeleton, TopBar } from "../../widgets";
 
-const CUPS_PER_PAGE = 3;
+const CUPS_PER_PAGE = 5;
 
 export default function CupsPage() {
   const theme = useMantineTheme();

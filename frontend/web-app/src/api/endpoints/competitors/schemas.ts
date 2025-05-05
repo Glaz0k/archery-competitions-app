@@ -28,6 +28,14 @@ export const CompetitorAddSchema = CompetitorSchema.pick({
   id: true,
 });
 
+export const CompetitorAPIEditSchema = CompetitorAPISchema.omit({
+  id: true,
+});
+
+export const CompetitorEditSchema = CompetitorSchema.omit({
+  id: true,
+});
+
 export const CompetitorCompetitionDetailAPISchema = z.object({
   competition_id: z.number(),
   competitor: CompetitorAPISchema,

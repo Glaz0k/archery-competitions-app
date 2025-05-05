@@ -1,17 +1,32 @@
-import { parseISO } from "date-fns";
+import { formatISO, parseISO } from "date-fns";
 import type { Competitor, CompetitorCompetitionDetail } from "../../../entities";
 import type {
   CompetitorAdd,
   CompetitorAPI,
   CompetitorAPIAdd,
+  CompetitorAPIEdit,
   CompetitorAPIToggle,
   CompetitorCompetitionDetailAPI,
+  CompetitorEdit,
   CompetitorToggle,
 } from "./types";
 
 export const mapToCompetitorAPIAdd = (request: CompetitorAdd): CompetitorAPIAdd => {
   return {
     competitor_id: request.id,
+  };
+};
+
+export const mapToCompetitorAPIEdit = (request: CompetitorEdit): CompetitorAPIEdit => {
+  return {
+    full_name: request.fullName,
+    birth_date: formatISO(request.birthDate, { representation: "date" }),
+    identity: request.identity,
+    bow: request.bow,
+    rank: request.rank,
+    region: request.region,
+    federation: request.federation,
+    club: request.club,
   };
 };
 

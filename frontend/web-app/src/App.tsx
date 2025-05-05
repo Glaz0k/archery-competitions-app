@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router";
 import CompetitorsContent from "./components/pages/competition/CompetitorsContent";
 import GroupsContent from "./components/pages/competition/GroupsContent";
 import CompetitionPage from "./components/pages/CompetitionPage";
+import CompetitorsPage from "./components/pages/CompetitorsPage";
 import ContentLayout from "./components/pages/ContentLayout";
 import CupPage from "./components/pages/CupPage";
 import CupsPage from "./components/pages/CupsPage";
@@ -27,6 +28,7 @@ export default function App() {
             </Route>
           </Route>
         </Route>
+        <Route path="competitors" element={<CompetitorsPage />} />
       </Route>
     </Routes>
   );

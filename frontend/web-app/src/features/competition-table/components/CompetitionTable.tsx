@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, LoadingOverlay, Table, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCompetitionCompetitors, useRemoveCompetitorFromCompetition } from "../../../api";
 import { CenterCard } from "../../../widgets";
 import { RemoveCompetitorModal } from "../../form-modals";
+import { useTableControls } from "../context/useTableControls";
 import { CompetitionTableHead, CompetitionTableRow } from "./CompetitionTableRow";
 
 export function CompetitionTable({ competitionId }: { competitionId: number }) {
   const theme = useMantineTheme();
+  const { setControls } = useTableControls();
 
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [isRemoveOpened, controlRemove] = useDisclosure();
@@ -16,6 +18,8 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
     data: details,
     isFetching: isDetailsFetching,
     isError: isDetailsError,
+    error: detailsError,
+    refetch: refetchDetails,
   } = useCompetitionCompetitors(competitionId, !Number.isNaN(competitionId));
 
   const cancelRemove = () => {
@@ -26,6 +30,15 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
   const { mutate: removeCompetitor, isPending: isCompetitorRemoving } =
     useRemoveCompetitorFromCompetition(cancelRemove);
 
+  useEffect(() => {
+    setControls((prev) => ({
+      ...prev,
+      refresh: () => {
+        refetchDetails();
+      },
+    }));
+  }, [refetchDetails, setControls]);
+
   if (details.length === 0 && isDetailsFetching) {
     return (
       <Card p={0} pos="relative" h={400}>
@@ -35,6 +48,7 @@ export function CompetitionTable({ competitionId }: { competitionId: number }) {
   }
 
   if (isDetailsError) {
+    console.error(detailsError);
     return <CenterCard label="Произошла ошибка" />;
   }
 

@@ -17,7 +17,7 @@ export const cupsApi = {
   },
   getCups: async (): Promise<Cup[]> => {
     const response = await apiClient.get("/cups");
-    return z.array(CupSchema).parse(response.data);
+    return CupSchema.array().parse(response.data);
   },
   putCup: async (cupId: number, data: CupEdit): Promise<Cup> => {
     const response = await apiClient.put(`/cups/${cupId}`, data);

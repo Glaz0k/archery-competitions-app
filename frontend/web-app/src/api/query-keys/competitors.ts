@@ -6,4 +6,5 @@ export const COMPETITORS_QUERY_KEYS = {
     ...COMPETITORS_QUERY_KEYS.all,
     ...COMPETITIONS_QUERY_KEYS.element(competitionId),
   ],
+  element: (competitorId: number) => [...COMPETITORS_QUERY_KEYS.all, competitorId],
 };
