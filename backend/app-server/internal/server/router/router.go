@@ -77,6 +77,8 @@ func Create() *mux.Router {
 	DeleteCompetitionRoutes(adminRouter)
 	GetAllCompetitorsRoutes(adminRouter)
 
+	DeleteCompetitorRoutes(adminRouter)
+
 	GetSparringPlacesRoutes(commonRouter)
 	GetSparringPlaceRangesRoutes(commonRouter)
 	EditSparringPlaceRangeRoutes(commonRouter)

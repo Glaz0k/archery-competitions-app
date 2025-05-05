@@ -22,4 +22,6 @@ func GetAllCompetitorsRoutes(router *mux.Router) {
 	router.HandleFunc(AllCompetitorsEndpoint, handlers.GetAllCompetitors).Methods("GET")
 }
 
-// TODO: delete competitor
+func DeleteCompetitorRoutes(router *mux.Router) {
+	router.HandleFunc(Competitor, handlers.DeleteCompetitor).Methods("DELETE")
+}
