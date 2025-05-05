@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"app-server/internal/dto"
+	"app-server/internal/models"
+	"app-server/pkg/tools"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -8,10 +11,6 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	"app-server/internal/dto"
-	"app-server/internal/models"
-	"app-server/pkg/tools"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -277,7 +276,7 @@ func AddCompetitorCompetition(w http.ResponseWriter, r *http.Request) {
 		competitionDetails = dto.CompetitorCompetitionDetails{
 			CompetitionID: competitionID,
 			IsActive:      true,
-			CreatedAt:     time.Now(),
+			CreatedAt:     models.Date{Time: time.Now()},
 		}
 		query = `INSERT INTO competitor_competition_details (competition_id, competitor_id, is_active, created_at) VALUES ($1, $2, $3, $4)`
 		_, err = conn.Exec(context.Background(), query, competitionID, competitor.ID, competitionDetails.IsActive, competitionDetails.CreatedAt)
@@ -401,13 +400,15 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	competitors := make([]dto.CompetitorCompetitionDetails, 0)
+
 	query := `SELECT is_active, created_at FROM competitor_competition_details WHERE competition_id = $1`
 	var competitionDetails dto.CompetitorCompetitionDetails
 	competitionDetails.CompetitionID = competitionID
 	err = conn.QueryRow(context.Background(), query, competitionID).Scan(&competitionDetails.IsActive, &competitionDetails.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			tools.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "NOT FOUND"})
+			tools.WriteJSON(w, http.StatusOK, competitors)
 			return
 		}
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
@@ -421,8 +422,6 @@ func GetCompetitorsFromCompetition(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-
-	var competitors []dto.CompetitorCompetitionDetails
 
 	for rows.Next() {
 		var competitor dto.CompetitorCompetitionDetails
