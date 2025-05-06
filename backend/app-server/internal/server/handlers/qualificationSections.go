@@ -285,7 +285,6 @@ func GetQualificationSection(w http.ResponseWriter, r *http.Request) {
 	var section models.QualificationSectionResponse
 	var competitorID int
 	var place sql.NullInt64
-	var rankGained sql.NullString
 	err = conn.QueryRow(r.Context(), `
         SELECT qs.id, qs.competitor_id, c.full_name, qs.place
         FROM qualification_sections qs
@@ -302,9 +301,6 @@ func GetQualificationSection(w http.ResponseWriter, r *http.Request) {
 	section.Competitor.ID = competitorID
 	if place.Valid {
 		section.Place = int(place.Int64)
-	}
-	if rankGained.Valid {
-		section.RankGained = rankGained.String
 	}
 
 	role, err := tools.GetRoleFromContext(r)

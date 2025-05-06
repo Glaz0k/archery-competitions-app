@@ -94,13 +94,13 @@ type QualificationSectionResponse struct {
 	Total      int                `json:"total"`
 	CountTen   int                `json:"10_s"`
 	CountNine  int                `json:"9_s"`
-	RankGained string             `json:"rank_gained"`
+	RankGained *string            `json:"rank_gained"`
 }
 
 type RoundResponse struct {
 	RoundOrdinal int  `json:"round_ordinal"`
-	IsOngoing    bool `json:"is_ongoing"`
-	Total        int  `json:"total"`
+	IsOngoing    bool `json:"is_active"`
+	Total        int  `json:"total_score"`
 }
 
 type QualificationRoundResponse struct {
