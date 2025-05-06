@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/api/fake.dart';
 import 'package:mobile_app/page/main_competition_page.dart';
 import 'package:mobile_app/page/profile_page.dart';
 import 'package:mobile_app/page/range_input_page.dart';
@@ -15,6 +16,7 @@ void main() => runApp(
         create: (context) => RangeModel([], 3, 3, false),
       ),
       ChangeNotifierProvider(create: (context) => UserProvider()),
+      Provider(create: (context) => FakeServer()),
     ],
     child: MaterialApp(
       theme: ThemeData(
