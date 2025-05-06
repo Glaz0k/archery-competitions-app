@@ -63,7 +63,7 @@ type QualificationSectionForTable struct {
 	Total      int                `json:"total"`
 	CountTen   int                `json:"10_s"`
 	CountNine  int                `json:"9_s"`
-	RankGained string             `json:"rank_gained"`
+	RankGained *string            `json:"rank_gained"`
 }
 
 type QualificationSection struct {

@@ -909,7 +909,7 @@ func getQualificationSections(groupID int, r *http.Request) ([]models.Qualificat
 	}
 	rows.Close()
 
-	for _, section := range sections {
+	for i, section := range sections {
 		rounds, totalScore, tensCount, ninesCount, err := getSectionRoundsStats(section.ID)
 		if err != nil {
 			return nil, err
@@ -919,6 +919,7 @@ func getQualificationSections(groupID int, r *http.Request) ([]models.Qualificat
 		section.Total = totalScore
 		section.CountTen = tensCount
 		section.CountNine = ninesCount
+		sections[i] = section
 	}
 
 	return sections, nil

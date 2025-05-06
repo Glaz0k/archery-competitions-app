@@ -182,22 +182,18 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var resp models.QualificationTable
-	resp.RoundCount = req.RoundCount
-	resp.Distance = req.Distance
-	resp.GroupID = individualGroupID
-	resp.Sections, err = getQualificationSections(individualGroupID, r)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to get qualification sections: %v", err)})
-		return
-	}
-
 	if err := tx.Commit(context.Background()); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to commit transaction: %v", err)})
 		return
 	}
 
-	tools.WriteJSON(w, http.StatusCreated, resp)
+	res, err := getQualification(conn.Conn(), individualGroupID, r)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to get qualification: %v", err)})
+		return
+	}
+
+	tools.WriteJSON(w, http.StatusCreated, res)
 }
 
 func EndQualification(w http.ResponseWriter, r *http.Request) {
