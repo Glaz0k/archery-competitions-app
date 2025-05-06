@@ -73,8 +73,8 @@ enum RangeType { one2ten, six2ten }
 // "shot_ordinal": <number>,
 // "score": <string | null>
 class Shot {
-  final int shotOrdinal;
-  final String? score;
+  int shotOrdinal;
+  String? score;
 
   Shot(this.shotOrdinal, this.score);
 }

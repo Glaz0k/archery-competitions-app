@@ -9,14 +9,14 @@ import 'common.dart';
 // "federation": <string | null>,
 // "club": <string | null>
 class ChangeCompetitor {
-  final String fullName;
-  final DateTime birthDate;
-  final Gender identity;
-  final BowClass? bow;
-  final SportsRank? rank;
-  final String? region;
-  final String? federation;
-  final String? club;
+  String fullName;
+  DateTime birthDate;
+  Gender identity;
+  BowClass? bow;
+  SportsRank? rank;
+  String? region;
+  String? federation;
+  String? club;
 
   ChangeCompetitor(
     this.fullName,
@@ -33,8 +33,8 @@ class ChangeCompetitor {
 // "login": <string>,
 // "password": <string>
 class Credentials {
-  final String login;
-  final String password;
+  String login;
+  String password;
 
   Credentials(this.login, this.password);
 }
@@ -42,8 +42,8 @@ class Credentials {
 // "range_ordinal": <number>,
 // "shots": <[ <shot> ] | null>
 class ChangeRange {
-  final int rangeOrdinal;
-  final List<Shot>? shots;
+  int rangeOrdinal;
+  List<Shot>? shots;
 
   ChangeRange(this.rangeOrdinal, this.shots);
 }
@@ -51,8 +51,8 @@ class ChangeRange {
 // "score": <string>,
 // "priority": <bool | null>
 class ChangeShootOut {
-  final String score;
-  final bool? priority;
+  String score;
+  bool? priority;
 
   ChangeShootOut(this.score, this.priority);
 }
