@@ -20,6 +20,11 @@ export const CompetitorAPISchema = z.object({
   club: z.string().nullable(),
 });
 
+export const CompetitorShrinkedAPISchema = CompetitorAPISchema.pick({
+  id: true,
+  full_name: true,
+});
+
 export const CompetitorAPIAddSchema = z.object({
   competitor_id: z.number(),
 });

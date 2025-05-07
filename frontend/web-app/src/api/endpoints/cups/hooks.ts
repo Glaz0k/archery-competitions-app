@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import type { Competition, Cup } from "../../../entities";
-import { COMPETITIONS_QUERY_KEYS } from "../../query-keys/competitions";
-import { CUPS_QUERY_KEYS } from "../../query-keys/cups";
+import { COMPETITIONS_QUERY_KEYS, CUPS_QUERY_KEYS } from "../../query-keys";
 import { cupsApi } from "./api";
 import type { CupEdit } from "./types";
 

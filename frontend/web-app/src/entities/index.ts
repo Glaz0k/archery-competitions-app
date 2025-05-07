@@ -10,3 +10,9 @@ export * from "./competitors/types";
 
 export * from "./individual-groups/schemas";
 export * from "./individual-groups/types";
+
+export * from "./score-system/schemas";
+export * from "./score-system/types";
+
+export * from "./qualification/schemas";
+export * from "./qualification/types";

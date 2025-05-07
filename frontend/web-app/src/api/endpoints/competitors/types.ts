@@ -8,10 +8,12 @@ import type {
   CompetitorCompetitionDetailAPISchema,
   CompetitorEditSchema,
   CompetitorGroupDetailAPISchema,
+  CompetitorShrinkedAPISchema,
   CompetitorToggleSchema,
 } from "./schemas";
 
 export type CompetitorAPI = z.infer<typeof CompetitorAPISchema>;
+export type CompetitorShrinkedAPI = z.infer<typeof CompetitorShrinkedAPISchema>;
 
 export type CompetitorAPIAdd = z.infer<typeof CompetitorAPIAddSchema>;
 export type CompetitorAdd = z.infer<typeof CompetitorAddSchema>;

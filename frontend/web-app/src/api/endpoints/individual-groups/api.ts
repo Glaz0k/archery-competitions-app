@@ -1,9 +1,9 @@
-import type { CompetitorGroupDetail, IndividualGroup } from "../../../entities";
+import type { CompetitorGroupDetail, IndividualGroup, Qualification } from "../../../entities";
 import apiClient from "../../axios/config";
 import { mapToCompetitorGroupDetail } from "../competitors/mappers";
 import { CompetitorGroupDetailAPISchema } from "../competitors/schemas";
-import { mapToIndividualGroup } from "./mappers";
-import { IndividualGroupAPISchema } from "./schemas";
+import { mapToIndividualGroup, mapToQualification } from "./mappers";
+import { IndividualGroupAPISchema, QualificationAPISchema } from "./schemas";
 
 export const individualGroupsApi = {
   getGroup: async (groupId: number): Promise<IndividualGroup> => {
@@ -16,12 +16,33 @@ export const individualGroupsApi = {
   },
   getCompetitors: async (groupId: number): Promise<CompetitorGroupDetail[]> => {
     const response = await apiClient.get(`/individual_groups/${groupId}/competitors`);
-    const validatedResponse = CompetitorGroupDetailAPISchema.array().parse(response);
+    const validatedResponse = CompetitorGroupDetailAPISchema.array().parse(response.data);
     return validatedResponse.map(mapToCompetitorGroupDetail);
   },
   syncCompetitors: async (groupId: number): Promise<CompetitorGroupDetail[]> => {
     const response = await apiClient.post(`/individual_groups/${groupId}/competitors/sync`);
-    const validatedResponse = CompetitorGroupDetailAPISchema.array().parse(response);
+    const validatedResponse = CompetitorGroupDetailAPISchema.array().parse(response.data);
     return validatedResponse.map(mapToCompetitorGroupDetail);
+  },
+  getQualification: async (groupId: number): Promise<Qualification> => {
+    const response = await apiClient.get(`/individual_groups/${groupId}/qualification`);
+    const validatedResponse = QualificationAPISchema.parse(response.data);
+    return mapToQualification(validatedResponse);
+  },
+  // WARNING, HARDCODED DATA
+  startQualification: async (groupId: number): Promise<Qualification> => {
+    const response = await apiClient.post(`/individual_groups/${groupId}/qualification/start`, {
+      distance: "18m",
+      round_count: 2,
+      ranges_count: 10,
+      range_size: 3,
+    });
+    const validatedResponse = QualificationAPISchema.parse(response.data);
+    return mapToQualification(validatedResponse);
+  },
+  endQualification: async (groupId: number): Promise<Qualification> => {
+    const response = await apiClient.post(`/individual_groups/${groupId}/qualification/end`);
+    const validatedResponse = QualificationAPISchema.parse(response.data);
+    return mapToQualification(validatedResponse);
   },
 };

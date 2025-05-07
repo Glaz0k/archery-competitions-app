@@ -2,6 +2,7 @@ export * from "./endpoints/cups/hooks";
 export * from "./endpoints/competitions/hooks";
 export * from "./endpoints/individual-groups/hooks";
 export * from "./endpoints/competitors/hooks";
+export * from "./endpoints/qualification-section/hooks";
 
 export type { CupEdit } from "./endpoints/cups/types";
 export type { CompetitionCreate, CompetitionEdit } from "./endpoints/competitions/types";
@@ -11,6 +12,7 @@ export type {
   CompetitorToggle,
   CompetitorEdit,
 } from "./endpoints/competitors/types";
+export type { RangeEdit } from "./endpoints/shared/types";
 
 export { CupEditSchema } from "./endpoints/cups/schemas";
 export { CompetitionCreateSchema, CompetitionEditSchema } from "./endpoints/competitions/schemas";
@@ -20,6 +22,7 @@ export {
   CompetitorToggleSchema,
   CompetitorEditSchema,
 } from "./endpoints/competitors/schemas";
+export { RangeEditSchema } from "./endpoints/shared/schemas";
 
 export { default as apiClient } from "./axios/config";
 export { queryClient } from "./queryClient";

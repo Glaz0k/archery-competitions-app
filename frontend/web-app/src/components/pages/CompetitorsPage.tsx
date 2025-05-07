@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { IconEdit, IconLockCog, IconTrashX, IconUser } from "@tabler/icons-react";
 import { format } from "date-fns";
 import {
@@ -20,7 +20,9 @@ import {
   useMantineTheme,
   type CardProps,
 } from "@mantine/core";
+import { useDocumentTitle } from "@mantine/hooks";
 import { useCompetitors } from "../../api";
+import { APP_NAME } from "../../constants";
 import type { Competitor } from "../../entities";
 import {
   getBowClassDescription,
@@ -83,6 +85,12 @@ export default function CompetitorsPage() {
       </>
     );
   }
+
+  const [webTitle, setWebTitle] = useState<string>("");
+  useDocumentTitle(webTitle);
+  useEffect(() => {
+    setWebTitle(`${APP_NAME} | Пользователи`);
+  }, []);
 
   return (
     <Flex direction="row" flex={1} gap="lg">

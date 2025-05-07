@@ -5,3 +5,5 @@ export const DEFAULT_ITEM: ComboboxItem = {
   value: DEFAULT_VALUE,
   label: "По умолчанию",
 };
+
+export const NO_SCORE_VALUE = "-";

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { format } from "date-fns";
 import { Table } from "@mantine/core";
 import { useGroupCompetitors, useSyncGroupCompetitors } from "../../../api";
+import { GroupState } from "../../../entities";
 import {
   getBowClassDescription,
   getGenderDescription,
@@ -11,7 +12,12 @@ import { CenterCard, TableCard } from "../../../widgets";
 import { useGroupSections } from "../context/useGroupSections";
 
 export function CompetitorsSection({ groupId }: { groupId: number }) {
-  const { setContext } = useGroupSections();
+  const {
+    context: {
+      info: { group },
+    },
+    setContext,
+  } = useGroupSections();
 
   const {
     isFetching: isCompetitorsFetching,
@@ -24,14 +30,19 @@ export function CompetitorsSection({ groupId }: { groupId: number }) {
   const isCompetitorsUpdating = isCompetitorsFetching || isCompetitorsSyncing;
 
   useEffect(() => {
+    let refteshFn = undefined;
+    if (group && group.state === GroupState.CREATED) {
+      refteshFn = () => syncCompetitors(group.id);
+    }
     setContext((prev) => ({
       ...prev,
       controls: {
-        ...prev.controls,
-        onRefresh: () => syncCompetitors(groupId),
+        onRefresh: refteshFn,
+        onComplete: undefined,
+        onExport: undefined,
       },
     }));
-  }, [groupId, setContext, syncCompetitors]);
+  }, [group, setContext, syncCompetitors]);
 
   const tableHead = (
     <Table.Tr>

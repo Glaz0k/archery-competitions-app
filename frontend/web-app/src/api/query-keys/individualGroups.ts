@@ -7,4 +7,8 @@ export const INDIVIDUAL_GROUPS_QUERY_KEYS = {
     ...COMPETITIONS_QUERY_KEYS.element(competitionId),
   ],
   element: (groupId: number) => [...INDIVIDUAL_GROUPS_QUERY_KEYS.all, groupId],
+  qualification: (groupId: number) => [
+    ...INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId),
+    "qualification",
+  ],
 };

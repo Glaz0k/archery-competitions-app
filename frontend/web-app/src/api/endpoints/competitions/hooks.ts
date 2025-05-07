@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import type { Competition, CompetitorCompetitionDetail, IndividualGroup } from "../../../entities";
-import { COMPETITIONS_QUERY_KEYS } from "../../query-keys/competitions";
-import { COMPETITORS_QUERY_KEYS } from "../../query-keys/competitors";
-import { INDIVIDUAL_GROUPS_QUERY_KEYS } from "../../query-keys/individualGroups";
+import {
+  COMPETITIONS_QUERY_KEYS,
+  COMPETITORS_QUERY_KEYS,
+  INDIVIDUAL_GROUPS_QUERY_KEYS,
+} from "../../query-keys";
 import type { CompetitorAdd, CompetitorToggle } from "../competitors/types";
 import type { IndividualGroupCreate } from "../individual-groups/types";
 import { competitionsApi } from "./api";

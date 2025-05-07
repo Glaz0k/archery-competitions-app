@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import type { Competitor } from "../../../entities";
-import { COMPETITORS_QUERY_KEYS } from "../../query-keys/competitors";
+import { COMPETITORS_QUERY_KEYS } from "../../query-keys";
 import { competitorsApi } from "./api";
 import type { CompetitorEdit } from "./types";
 

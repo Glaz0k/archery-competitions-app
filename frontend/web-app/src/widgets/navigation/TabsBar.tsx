@@ -7,7 +7,6 @@ import {
 } from "@tabler/icons-react";
 import { Link, type To } from "react-router";
 import { ActionIcon, Group, LoadingOverlay, Stack, Title, Tooltip } from "@mantine/core";
-import { TextButton } from "../buttons/TextButton";
 import { ControlsCard } from "../cards/ControlsCard";
 
 export interface TabsBarProps {
@@ -41,20 +40,20 @@ export function TabsBar({
             </ActionIcon>
           </Tooltip>
         )}
-        <Stack flex={1} gap="xs">
+        <Stack flex={1} gap={0}>
           {title ? <Title order={2}>{title}</Title> : "Загрузка..."}
           {subtitle && <Title order={3}>{subtitle}</Title>}
         </Stack>
         {onComplete && (
-          <TextButton
-            label="Завершить"
-            leftSection={<IconCircleDashedCheck />}
-            onClick={onComplete}
-          />
+          <Tooltip label="Завершить">
+            <ActionIcon onClick={onComplete}>
+              <IconCircleDashedCheck />
+            </ActionIcon>
+          </Tooltip>
         )}
         {onExport && (
           <Tooltip label="Экспорт PDF">
-            <ActionIcon onClick={onRefresh}>
+            <ActionIcon onClick={onExport}>
               <IconFileTypePdf />
             </ActionIcon>
           </Tooltip>

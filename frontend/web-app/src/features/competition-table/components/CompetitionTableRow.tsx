@@ -83,13 +83,13 @@ function ActivatingTd({ active, loading, toggleFn }: ActivatingTdProps) {
     <Table.Td>
       {!active ? (
         <Tooltip label="Активировать">
-          <ActionIcon variant="transparent" onClick={toggleFn} loading={loading}>
+          <ActionIcon variant="transparent" onClick={toggleFn} loading={loading} size="md">
             <IconCheck />
           </ActionIcon>
         </Tooltip>
       ) : (
         <Tooltip label="Деактивировать">
-          <ActionIcon variant="transparent" onClick={toggleFn} loading={loading}>
+          <ActionIcon variant="transparent" onClick={toggleFn} loading={loading} size="md">
             <IconX />
           </ActionIcon>
         </Tooltip>
@@ -107,7 +107,7 @@ function DeletingTd({ loading, deleteFn }: DeletingTdProps) {
   return (
     <Table.Td>
       <Tooltip label="Исключить">
-        <ActionIcon variant="transparent" loading={loading} onClick={deleteFn}>
+        <ActionIcon variant="transparent" loading={loading} onClick={deleteFn} size="md">
           <IconMinus />
         </ActionIcon>
       </Tooltip>

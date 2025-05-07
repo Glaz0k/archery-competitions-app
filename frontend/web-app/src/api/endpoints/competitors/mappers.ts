@@ -3,6 +3,7 @@ import type {
   Competitor,
   CompetitorCompetitionDetail,
   CompetitorGroupDetail,
+  CompetitorShrinked,
 } from "../../../entities";
 import type {
   CompetitorAdd,
@@ -13,6 +14,7 @@ import type {
   CompetitorCompetitionDetailAPI,
   CompetitorEdit,
   CompetitorGroupDetailAPI,
+  CompetitorShrinkedAPI,
   CompetitorToggle,
 } from "./types";
 
@@ -72,5 +74,12 @@ export const mapToCompetitorGroupDetail = (
   return {
     groupId: response.group_id,
     competitor: mapToCompetitor(response.competitor),
+  };
+};
+
+export const mapToCompetitorShrinked = (response: CompetitorShrinkedAPI): CompetitorShrinked => {
+  return {
+    id: response.id,
+    fullName: response.full_name,
   };
 };

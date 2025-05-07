@@ -12,7 +12,6 @@ import {
   ThemeIcon,
   Tooltip,
   type ComboboxData,
-  type ModalProps,
 } from "@mantine/core";
 import {
   useAddCompetitorToCompetition,
