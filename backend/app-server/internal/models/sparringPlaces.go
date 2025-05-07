@@ -15,8 +15,8 @@ type RangeScorePair struct {
 }
 
 type Shot struct {
-	ShotOrdinal int    `json:"shot_ordinal"`
-	Score       string `json:"score"`
+	ShotOrdinal int     `json:"shot_ordinal"`
+	Score       *string `json:"score"`
 }
 
 type ShootOuts struct {

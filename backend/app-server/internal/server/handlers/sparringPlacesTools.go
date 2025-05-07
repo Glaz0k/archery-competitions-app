@@ -70,7 +70,10 @@ func getRangeGroup(rg *models.RangeGroup) error {
 		if int(shotOrdinal.Int64) != 0 {
 			shot := models.Shot{
 				ShotOrdinal: int(shotOrdinal.Int64),
-				Score:       score.String,
+				Score:       &score.String,
+			}
+			if !score.Valid {
+				shot.Score = nil
 			}
 			rangesMap[int(rangeID.Int64)].Shots = append(rangesMap[int(rangeID.Int64)].Shots, shot)
 		}

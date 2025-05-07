@@ -13,12 +13,15 @@ type Range struct {
 func (r Range) CalculateScore() int {
 	score := 0
 	for _, shot := range r.Shots {
-		if shot.Score == "X" {
+		if shot.Score == nil {
+			continue
+		}
+		if *shot.Score == "X" {
 			score += 10
-		} else if shot.Score == "M" {
+		} else if *shot.Score == "M" {
 			score += 0
-		} else if shot.Score != "" {
-			val, _ := strconv.Atoi(shot.Score)
+		} else if *shot.Score != "" {
+			val, _ := strconv.Atoi(*shot.Score)
 			score += val
 		}
 	}
@@ -29,7 +32,7 @@ type RangeGroup struct {
 	ID             int     `json:"id"`
 	RangesMaxCount int     `json:"ranges_max_count"`
 	RangeSize      int     `json:"range_size"`
-	Type           string  `json:"range_type"`
+	Type           string  `json:"type"`
 	Ranges         []Range `json:"ranges"`
 	TotalScore     int     `json:"total_score"`
 }

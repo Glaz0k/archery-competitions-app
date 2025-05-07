@@ -174,7 +174,7 @@ func EditSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	for _, c := range changeRange.Shots {
-		if !isValidScore(c.Score, typeRange) {
+		if c.Score == nil || !isValidScore(*c.Score, typeRange) {
 			e := dto.ErrorInvalidType{
 				Error: "INVALID SCORE",
 				Details: dto.DetailsInvalidType{

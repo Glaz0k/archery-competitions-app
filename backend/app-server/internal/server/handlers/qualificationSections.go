@@ -512,6 +512,22 @@ func GetQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var bowType string
+	err = conn.QueryRow(context.Background(), `SELECT ig.bow
+		FROM individual_groups ig
+		JOIN qualifications q ON ig.id = q.group_id
+		JOIN qualification_sections qs ON q.group_id = qs.group_id
+		WHERE qs.id = $1`, sectionId).Scan(&bowType)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	rangeGroup.Type = "1-10"
+	if bowType == "block" || bowType == "classic" {
+		rangeGroup.Type = "6-10"
+	}
+
 	rangeGroup.Ranges = ranges
 	rangeGroup.TotalScore = totalScore
 	tools.WriteJSON(w, http.StatusOK, rangeGroup)
@@ -523,6 +539,7 @@ func getShotsFromRange(r *models.Range) error {
 		return fmt.Errorf("failed Acquire")
 	}
 	defer conn.Release()
+
 	query := `SELECT shot_ordinal, score FROM shots WHERE range_id = $1`
 	rows, err := conn.Query(context.Background(), query, r.ID)
 	if err != nil {
@@ -530,15 +547,22 @@ func getShotsFromRange(r *models.Range) error {
 	}
 	defer rows.Close()
 
-	var s models.Shot
 	var shots []models.Shot
-	var score sql.NullString
 	for rows.Next() {
+		var s models.Shot
+		var score sql.NullString
+
 		err = rows.Scan(&s.ShotOrdinal, &score)
 		if err != nil {
 			return err
 		}
-		s.Score = score.String
+
+		if score.Valid {
+			s.Score = &score.String
+		} else {
+			s.Score = nil
+		}
+
 		shots = append(shots, s)
 	}
 	r.Shots = shots
@@ -549,7 +573,10 @@ func getRangeScore(shots []models.Shot) (int, error) {
 	var rangeScore int
 	pattern := regexp.MustCompile(`^(10|[1-9])$`)
 	for _, shot := range shots {
-		score := shot.Score
+		if shot.Score == nil {
+			continue
+		}
+		score := *shot.Score
 		if pattern.MatchString(score) {
 			s, err := strconv.Atoi(score)
 			if err != nil {
@@ -655,7 +682,7 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		}
 		if typeRange == "6-10" {
 			for _, c := range changeRange.Shots {
-				if c.Score != "X" && c.Score != "M" && c.Score < "6" {
+				if c.Score == nil || (*c.Score != "X" && *c.Score != "M" && *c.Score < "6") {
 					e := dto.ErrorInvalidType{
 						Error: "INVALID SCORE",
 						Details: dto.DetailsInvalidType{
