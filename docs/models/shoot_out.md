@@ -6,7 +6,7 @@
 <shoot_out>
 {
   "id": <number>,
-  "score": <string>,
+  "score": <string | null>,
   "priority": <bool | null>
 }
 ```
@@ -17,6 +17,16 @@ _Специальные значения:_
 
 ### Пример
 
+Только созданная:
+```json
+{
+  "id": 239871243,
+  "score": null,
+  "priority": null
+}
+```
+
+Заполненная:
 ```json
 {
   "id": 234098123,
