@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/page/widgets/onion_bar.dart';
 
 class MainCompetitionPage extends StatefulWidget {
   const MainCompetitionPage({super.key});
@@ -15,13 +16,7 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
       gestures: [GestureType.onTap],
       child: GestureDetector(
         child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              "Соревнования",
-              style: Theme.of(context).appBarTheme.titleTextStyle,
-            ),
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          ),
+          appBar: OnionBar("Соревнования", context),
           body: Center(
             child: ListView(
               children: [
