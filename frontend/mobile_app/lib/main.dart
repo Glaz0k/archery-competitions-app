@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/fake.dart';
 import 'package:mobile_app/page/main_competition_page.dart';
-import 'package:mobile_app/page/profile_page.dart';
-import 'package:mobile_app/page/range_input_page.dart';
 import 'package:mobile_app/page/widgets/user.dart';
 import 'package:provider/provider.dart';
 
@@ -22,58 +20,7 @@ void main() => runApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
-      home: Onion(),
+      home: MainCompetitionPage(),
     ),
   ),
 );
-
-class Onion extends StatefulWidget {
-  Onion({super.key});
-
-  final List<Widget> _mainPages = [
-    MainCompetitionPage(),
-    SeriesPage(),
-    ProfilePage(),
-  ];
-
-  @override
-  State<StatefulWidget> createState() => _OnionState();
-}
-
-class _OnionState extends State<Onion> {
-  static const List<NavigationDestination> _destinations = [
-    NavigationDestination(
-      selectedIcon: Icon(Icons.info),
-      icon: Icon(Icons.info_outline),
-      label: 'Соревнования',
-    ),
-    NavigationDestination(
-      selectedIcon: Icon(Icons.scoreboard),
-      icon: Icon(Icons.scoreboard_outlined),
-      label: 'Серии',
-    ),
-    NavigationDestination(
-      selectedIcon: Icon(Icons.account_circle),
-      icon: Icon(Icons.account_circle_outlined),
-      label: 'Профиль',
-    ),
-  ];
-
-  int _currentPage = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: widget._mainPages[_currentPage],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentPage,
-        destinations: _destinations,
-        onDestinationSelected:
-            (idx) => setState(() {
-              _currentPage = idx;
-            }),
-        //labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      ),
-    );
-  }
-}
