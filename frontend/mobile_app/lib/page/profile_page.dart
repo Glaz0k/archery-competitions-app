@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
       gestures: [GestureType.onTap],
       child: GestureDetector(
         child: Scaffold(
-          appBar: OnionBar("Профиль", context),
+          appBar: OnionBar.withoutProfile("Профиль", context),
           body: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(), //BouncingScrollPhysics
             child: Container(

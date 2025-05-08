@@ -18,7 +18,7 @@ void main() => runApp(
     ],
     child: MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
       ),
       home: MainCompetitionPage(),
     ),

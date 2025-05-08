@@ -48,7 +48,7 @@ class _EditProfilePage extends State<EditProfilePage> {
       gestures: [GestureType.onTap],
       child: GestureDetector(
         child: Scaffold(
-          appBar: OnionBar("Редактирование профиля", context),
+          appBar: OnionBar.withoutProfile("Редактирование профиля", context),
           body: KeyboardDismisser(
             gestures: [GestureType.onTap],
             child: GestureDetector(
