@@ -3,25 +3,13 @@ import 'package:mobile_app/api/common.dart';
 import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
-import 'responses.dart';
 
 const Duration delay = Duration(milliseconds: 500);
 
 class FakeServer implements Api {
-
   final Map<int, Cup> _cups = {
-    1: Cup(
-       1,
-      "World Archery Championship",
-      "Berlin, Germany",
-      "2023-2024",
-    ),
-    2: Cup(
-      2,
-      "European Archery Cup",
-      "Paris, France",
-      "2023",
-    ),
+    1: Cup(1, "World Archery Championship", "Berlin, Germany", "2023-2024"),
+    2: Cup(2, "European Archery Cup", "Paris, France", "2023"),
   };
   @override
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(

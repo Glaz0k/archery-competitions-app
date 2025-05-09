@@ -40,8 +40,8 @@ class CompetitorFull {
     this.club,
   );
 
-<
-  factory CompetitorFull.fromJson(Map<String, dynamic> json) => _$CompetitorFullFromJson(json);
+  factory CompetitorFull.fromJson(Map<String, dynamic> json) =>
+      _$CompetitorFullFromJson(json);
   Map<String, dynamic> toJson() => _$CompetitorFullToJson(this);
 
   CompetitorShrinked shrink() {
@@ -71,7 +71,8 @@ class CompetitorCompetitionDetail {
     this.createdAt,
   );
 
-  factory CompetitorCompetitionDetail.fromJson(Map<String, dynamic> json) => _$CompetitorCompetitionDetailFromJson(json);
+  factory CompetitorCompetitionDetail.fromJson(Map<String, dynamic> json) =>
+      _$CompetitorCompetitionDetailFromJson(json);
   Map<String, dynamic> toJson() => _$CompetitorCompetitionDetailToJson(this);
 }
 
@@ -80,7 +81,8 @@ class CompetitorCompetitionDetail {
 // "bow": <bow_class>,
 // "identity": <gender | null>,
 // "state": <group_state>
-@JsonSerializable(createToJson: true,
+@JsonSerializable(
+  createToJson: true,
   fieldRename: FieldRename.snake,
   explicitToJson: true,
 )
@@ -99,7 +101,8 @@ class IndividualGroup {
     this.state,
   );
 
-  factory IndividualGroup.fromJson(Map<String, dynamic> json) => _$IndividualGroupFromJson(json);
+  factory IndividualGroup.fromJson(Map<String, dynamic> json) =>
+      _$IndividualGroupFromJson(json);
   Map<String, dynamic> toJson() => _$IndividualGroupToJson(this);
 }
 

@@ -6,10 +6,6 @@ import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:http/http.dart' as http;
 
-import 'exceptions.dart';
-
-const String backend = "thebestbackend.com";
-
 const String backend = "example.com";
 
 class RealServer implements Api {
@@ -79,19 +75,29 @@ class RealServer implements Api {
   }
 
   @override
-  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(int competitionId) async {
-    final response = await client.get(Uri.https(backend,"/competitions/$competitionId/competitors"));
+  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
+    int competitionId,
+  ) async {
+    final response = await client.get(
+      Uri.https(backend, "/competitions/$competitionId/competitors"),
+    );
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => CompetitorCompetitionDetail.fromJson(json)).toList();
+      return jsonList
+          .map((json) => CompetitorCompetitionDetail.fromJson(json))
+          .toList();
     } else {
       throw NotFoundException("Соревнование не найдено");
     }
   }
 
   @override
-  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(int competitionId) async {
-    final response = await client.get(Uri.https(backend,"/competitions/$competitionId/individual_groups"));
+  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
+    int competitionId,
+  ) async {
+    final response = await client.get(
+      Uri.https(backend, "/competitions/$competitionId/individual_groups"),
+    );
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
       return jsonList.map((json) => IndividualGroup.fromJson(json)).toList();
@@ -102,7 +108,9 @@ class RealServer implements Api {
 
   @override
   Future<CompetitorFull> getCompetitor(int competitorId) async {
-    final response = await client.get(Uri.https(backend,"/competitors/$competitorId"));
+    final response = await client.get(
+      Uri.https(backend, "/competitors/$competitorId"),
+    );
     if (response.statusCode == 200) {
       return CompetitorFull.fromJson(jsonDecode(response.body));
     } else {
@@ -112,7 +120,7 @@ class RealServer implements Api {
 
   @override
   Future<Cup> getCup(int cupId) async {
-    final response = await client.get(Uri.https(backend,"/cups/$cupId"));
+    final response = await client.get(Uri.https(backend, "/cups/$cupId"));
     if (response.statusCode == 200) {
       return Cup.fromJson(jsonDecode(response.body));
     } else {
@@ -122,7 +130,7 @@ class RealServer implements Api {
 
   @override
   Future<List<Cup>> getCups() async {
-    final response = await client.get(Uri.https(backend,"/cups"));
+    final response = await client.get(Uri.https(backend, "/cups"));
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
       return jsonList.map((json) => Cup.fromJson(json)).toList();

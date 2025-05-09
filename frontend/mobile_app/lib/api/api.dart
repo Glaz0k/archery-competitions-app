@@ -1,7 +1,6 @@
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
 
-
 abstract class Api {
   /// POST /auth/registration
   ///
@@ -46,7 +45,9 @@ abstract class Api {
   /// - NotFoundException(Соревнование не найдено)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idcompetitors
-  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(int competitionId);
+  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
+    int competitionId,
+  );
 
   /// PUT /competitions/{competition_id}/competitors/{competitor_id}
   ///
@@ -75,7 +76,9 @@ abstract class Api {
   /// - NotFoundException(Соревнование не найдено)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/competitions.md#get-competitionscompetition_idindividual_groups
-  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(int competitionId);
+  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
+    int competitionId,
+  );
 
   /// POST /competitors/registration
   ///
