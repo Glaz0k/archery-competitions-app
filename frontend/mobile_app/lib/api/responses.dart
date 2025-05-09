@@ -31,6 +31,10 @@ class CompetitorFull {
     this.federation,
     this.club,
   );
+
+  CompetitorShrinked shrink() {
+    return CompetitorShrinked(id, fullName);
+  }
 }
 
 // "competition_id": <number>,
@@ -241,7 +245,7 @@ class Sparring {
 // "shoot_out": <shoot_out | null>,
 // "sparring_score": <number>
 class SparringPlace {
-  int number;
+  int id;
   CompetitorShrinked competitor;
   RangeGroup rangeGroup;
   bool isActive;
@@ -249,7 +253,7 @@ class SparringPlace {
   int sparringScore;
 
   SparringPlace(
-    this.number,
+    this.id,
     this.competitor,
     this.rangeGroup,
     this.isActive,
@@ -265,7 +269,7 @@ class SparringPlace {
 // "ranges": <[ <range> ]>,
 // "total_score": <number | null>
 class RangeGroup {
-  int number;
+  int id;
   int rangesMaxCount;
   int rangeSize;
   RangeType type;
@@ -273,7 +277,7 @@ class RangeGroup {
   int? totalScore;
 
   RangeGroup(
-    this.number,
+    this.id,
     this.rangesMaxCount,
     this.rangeSize,
     this.type,
@@ -301,11 +305,11 @@ class Range {
 // "score": <string>,
 // "priority": <bool | null>
 class ShootOut {
-  int number;
+  int id;
   String score;
   bool? priority;
 
-  ShootOut(this.number, this.score, this.priority);
+  ShootOut(this.id, this.score, this.priority);
 }
 
 // "section_id": <number>,
