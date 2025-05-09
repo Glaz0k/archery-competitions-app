@@ -20,7 +20,7 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/../AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.16/android" />
+            <option value="$PROJECT_DIR$/../AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.17/android" />
             <option value="$PROJECT_DIR$/frontend/mobile_app/android" />
             <option value="$PROJECT_DIR$/frontend/mobile_app/android/app" />
             <option value="$PROJECT_DIR$/../../../flutter/flutter_windows_3.29.2-stable/flutter/packages/flutter_tools/gradle" />

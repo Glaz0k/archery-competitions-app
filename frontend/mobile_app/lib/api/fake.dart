@@ -1,8 +1,25 @@
 import 'package:mobile_app/api/api.dart';
+import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
+import 'responses.dart';
 
 class FakeServer implements Api {
+
+  final Map<int, Cup> _cups = {
+    1: Cup(
+       1,
+      "World Archery Championship",
+      "Berlin, Germany",
+      "2023-2024",
+    ),
+    2: Cup(
+      2,
+      "European Archery Cup",
+      "Paris, France",
+      "2023",
+    ),
+  };
   @override
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(int competitionId, int competitorId, bool status) {
     // TODO: implement changeCompetitorStatus
@@ -40,9 +57,12 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<Cup> getCup(int cupId) {
-    // TODO: implement getCup
-    throw UnimplementedError();
+  Future<Cup> getCup(int cupId) async {
+    if (_cups.containsKey(cupId)) {
+      return _cups[cupId]!;
+    } else {
+      throw NotFoundException("Кубок не найден");
+    }
   }
 
   @override

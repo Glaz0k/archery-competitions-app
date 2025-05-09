@@ -5,6 +5,9 @@
 // first_class
 // second_class
 // third_class
+import 'package:json_annotation/json_annotation.dart';
+
+@JsonEnum(fieldRename: FieldRename.snake)
 enum SportsRank {
   meritedMaster,
   masterInternational,
@@ -17,6 +20,7 @@ enum SportsRank {
 
 // male
 // female
+@JsonEnum()
 enum Gender { male, female }
 
 // classic
@@ -27,14 +31,20 @@ enum Gender { male, female }
 // 3D_long
 // peripheral
 // peripheral_with_ring
+@JsonEnum()
 enum BowClass {
   classic,
   block,
+  @JsonValue("classic_newbie")
   classicNewbie,
+  @JsonValue("3D_classic")
   classic3D,
+  @JsonValue("3D_compound")
   compound3D,
+  @JsonValue("3D_long")
   long3D,
   peripheral,
+  @JsonValue("peripheral_with_ring")
   peripheralWithRing,
 }
 
