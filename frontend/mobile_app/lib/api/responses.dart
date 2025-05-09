@@ -12,6 +12,11 @@ part 'responses.g.dart';
 // "region": <string | null>,
 // "federation": <string | null>,
 // "club": <string | null>
+@JsonSerializable(
+  createToJson: true,
+  fieldRename: FieldRename.snake,
+  explicitToJson: true,
+)
 class CompetitorFull {
   int id;
   String fullName;
@@ -35,6 +40,10 @@ class CompetitorFull {
     this.club,
   );
 
+<
+  factory CompetitorFull.fromJson(Map<String, dynamic> json) => _$CompetitorFullFromJson(json);
+  Map<String, dynamic> toJson() => _$CompetitorFullToJson(this);
+
   CompetitorShrinked shrink() {
     return CompetitorShrinked(id, fullName);
   }
@@ -44,6 +53,11 @@ class CompetitorFull {
 // "competitor": <competitor_full>,
 // "is_active": <bool>,
 // "created_at": <YYYY-MM-DDThh:mm:ss±hh ISO 8601>
+@JsonSerializable(
+  createToJson: true,
+  fieldRename: FieldRename.snake,
+  explicitToJson: true,
+)
 class CompetitorCompetitionDetail {
   int competitionId;
   CompetitorFull competitor;
@@ -56,6 +70,9 @@ class CompetitorCompetitionDetail {
     this.isActive,
     this.createdAt,
   );
+
+  factory CompetitorCompetitionDetail.fromJson(Map<String, dynamic> json) => _$CompetitorCompetitionDetailFromJson(json);
+  Map<String, dynamic> toJson() => _$CompetitorCompetitionDetailToJson(this);
 }
 
 // "id": <number>,
@@ -63,6 +80,10 @@ class CompetitorCompetitionDetail {
 // "bow": <bow_class>,
 // "identity": <gender | null>,
 // "state": <group_state>
+@JsonSerializable(createToJson: true,
+  fieldRename: FieldRename.snake,
+  explicitToJson: true,
+)
 class IndividualGroup {
   int id;
   int competitionId;
@@ -77,19 +98,35 @@ class IndividualGroup {
     this.identity,
     this.state,
   );
+
+  factory IndividualGroup.fromJson(Map<String, dynamic> json) => _$IndividualGroupFromJson(json);
+  Map<String, dynamic> toJson() => _$IndividualGroupToJson(this);
 }
 
 // "id": <number>,
 // "title": <string>,
 // "address": <string | null>,
 // "season": <string | null>
+
+@JsonSerializable(
+  createToJson: true,
+  fieldRename: FieldRename.snake,
+  explicitToJson: true,
+)
 class Cup {
   int id;
+
   String title;
+
   String? address;
+
   String? season;
 
   Cup(this.id, this.title, this.address, this.season);
+
+  factory Cup.fromJson(Map<String, dynamic> json) => _$CupFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CupToJson(this);
 }
 
 // "id": <number>,

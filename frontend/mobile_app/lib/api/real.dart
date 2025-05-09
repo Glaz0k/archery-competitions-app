@@ -1,15 +1,20 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
+import 'package:http/http.dart' as http;
+
+import 'exceptions.dart';
+
+const String backend = "thebestbackend.com";
 
 const String backend = "example.com";
 
 class RealServer implements Api {
   final http.Client client = http.Client();
+
   void validate(
     http.Response response, {
     String? notFoundMessage,
@@ -74,37 +79,56 @@ class RealServer implements Api {
   }
 
   @override
-  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
-    int competitionId,
-  ) {
-    // TODO: implement getCompetitionsCompetitors
-    throw UnimplementedError();
+  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(int competitionId) async {
+    final response = await client.get(Uri.https(backend,"/competitions/$competitionId/competitors"));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => CompetitorCompetitionDetail.fromJson(json)).toList();
+    } else {
+      throw NotFoundException("Соревнование не найдено");
+    }
   }
 
   @override
-  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
-    int competitionId,
-  ) {
-    // TODO: implement getCompetitionsIndividualGroups
-    throw UnimplementedError();
+  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(int competitionId) async {
+    final response = await client.get(Uri.https(backend,"/competitions/$competitionId/individual_groups"));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => IndividualGroup.fromJson(json)).toList();
+    } else {
+      throw NotFoundException("Соревнование не найдено");
+    }
   }
 
   @override
-  Future<CompetitorFull> getCompetitor(int competitorId) {
-    // TODO: implement getCompetitor
-    throw UnimplementedError();
+  Future<CompetitorFull> getCompetitor(int competitorId) async {
+    final response = await client.get(Uri.https(backend,"/competitors/$competitorId"));
+    if (response.statusCode == 200) {
+      return CompetitorFull.fromJson(jsonDecode(response.body));
+    } else {
+      throw NotFoundException("Участник не найден");
+    }
   }
 
   @override
-  Future<Cup> getCup(int cupId) {
-    // TODO: implement getCup
-    throw UnimplementedError();
+  Future<Cup> getCup(int cupId) async {
+    final response = await client.get(Uri.https(backend,"/cups/$cupId"));
+    if (response.statusCode == 200) {
+      return Cup.fromJson(jsonDecode(response.body));
+    } else {
+      throw NotFoundException("Кубок не найден");
+    }
   }
 
   @override
-  Future<List<Cup>> getCups() {
-    // TODO: implement getCups
-    throw UnimplementedError();
+  Future<List<Cup>> getCups() async {
+    final response = await client.get(Uri.https(backend,"/cups"));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => Cup.fromJson(json)).toList();
+    } else {
+      throw NotFoundException("Кубки не найдены");
+    }
   }
 
   @override
