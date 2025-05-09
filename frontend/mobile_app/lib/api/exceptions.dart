@@ -1,5 +1,3 @@
-import 'package:mobile_app/api/common.dart';
-
 abstract class OnionException implements Exception {
   final String message;
 
@@ -24,6 +22,6 @@ class BadActionException extends OnionException {
 
 class InvalidScoreException extends OnionException {
   final int shotOrdinal;
-  final RangeType rangeType;
+  final String rangeType;
   InvalidScoreException(super.message, this.shotOrdinal, this.rangeType);
 }

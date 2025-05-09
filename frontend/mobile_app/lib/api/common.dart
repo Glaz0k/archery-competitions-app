@@ -7,6 +7,8 @@
 // third_class
 import 'package:json_annotation/json_annotation.dart';
 
+part 'common.g.dart';
+
 @JsonEnum(fieldRename: FieldRename.snake)
 enum SportsRank {
   meritedMaster,
@@ -74,17 +76,26 @@ enum CompetitionStage { I, II, III, F }
 // ongoing
 // top_win
 // bot_win
+@JsonEnum(fieldRename: FieldRename.snake)
 enum SparringState { ongoing, topWin, botWin }
 
 // "1-10"
 // "6-10"
-enum RangeType { one2ten, six2ten }
+@JsonEnum()
+enum RangeType {
+  @JsonValue("1-10")
+  one2ten,
+  @JsonValue("6-10")
+  six2ten,
+}
 
 // "shot_ordinal": <number>,
 // "score": <string | null>
+@JsonSerializable()
 class Shot {
   int shotOrdinal;
   String? score;
 
   Shot(this.shotOrdinal, this.score);
+  factory Shot.fromJson(Map<String, dynamic> json) => _$ShotFromJson(json);
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:mobile_app/api/api.dart';
+import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:http/http.dart' as http;
@@ -9,17 +10,64 @@ import 'exceptions.dart';
 
 const String backend = "thebestbackend.com";
 
+const String backend = "example.com";
+
 class RealServer implements Api {
   final http.Client client = http.Client();
 
+  void validate(
+    http.Response response, {
+    String? notFoundMessage,
+    String? invalidParametersMessage,
+    String? alreadyExistsMessage,
+    String? badActionMessage,
+    String? invalidScoreMessage,
+  }) {
+    var defaultMessage = "Получена некорректная ошибка от сервера";
+    switch (response.statusCode) {
+      case 404:
+        throw NotFoundException(notFoundMessage!);
+
+      case 400:
+        Map<String, dynamic> body = jsonDecode(response.body);
+        switch (body["error"]) {
+          case "INVALID PARAMETERS":
+            throw InvalidParametersException(
+              invalidParametersMessage ?? defaultMessage,
+            );
+          case "EXISTS":
+            throw AlreadyExistException(alreadyExistsMessage ?? defaultMessage);
+          case "BAD ACTION":
+            throw BadActionException(badActionMessage ?? defaultMessage);
+          case "INVALID SCORE":
+            Map<String, dynamic> details = body["details"];
+            throw InvalidScoreException(
+              invalidScoreMessage ?? defaultMessage,
+              details["shot_ordinal"],
+              details["type"],
+            );
+        }
+      case 200:
+        return;
+    }
+  }
+
   @override
-  Future<CompetitorCompetitionDetail> changeCompetitorStatus(int competitionId, int competitorId, bool status) {
+  Future<CompetitorCompetitionDetail> changeCompetitorStatus(
+    int competitionId,
+    int competitorId,
+    bool status,
+  ) {
     // TODO: implement changeCompetitorStatus
     throw UnimplementedError();
   }
 
   @override
-  Future<Range> endQualificationSectionsRoundsRange(int sectionId, int roundOrdinal, int rangeOrdinal) {
+  Future<Range> endQualificationSectionsRoundsRange(
+    int sectionId,
+    int roundOrdinal,
+    int rangeOrdinal,
+  ) {
     // TODO: implement endQualificationSectionsRoundsRange
     throw UnimplementedError();
   }
@@ -96,15 +144,20 @@ class RealServer implements Api {
   }
 
   @override
-  Future<List<CompetitorGroupDetail>> getIndividualGroupCompetitors(int groupId) {
+  Future<List<CompetitorGroupDetail>> getIndividualGroupCompetitors(
+    int groupId,
+  ) {
     // TODO: implement getIndividualGroupCompetitors
     throw UnimplementedError();
   }
 
   @override
-  Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) {
-    // TODO: implement getIndividualGroupFinalGrid
-    throw UnimplementedError();
+  Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) async {
+    var response = await client.get(
+      Uri.https(backend, "/individual_groups/$groupId/final_grid"),
+    );
+    validate(response, notFoundMessage: "Группа или сетка не найдена");
+    return FinalGrid.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -120,13 +173,19 @@ class RealServer implements Api {
   }
 
   @override
-  Future<QualificationRoundFull> getQualificationSectionsRound(int sectionId, int roundOrdinal) {
+  Future<QualificationRoundFull> getQualificationSectionsRound(
+    int sectionId,
+    int roundOrdinal,
+  ) {
     // TODO: implement getQualificationSectionsRound
     throw UnimplementedError();
   }
 
   @override
-  Future<RangeGroup> getQualificationSectionsRoundsRanges(int sectionId, int roundOrdinal) {
+  Future<RangeGroup> getQualificationSectionsRoundsRanges(
+    int sectionId,
+    int roundOrdinal,
+  ) {
     // TODO: implement getQualificationSectionsRoundsRanges
     throw UnimplementedError();
   }
@@ -156,13 +215,20 @@ class RealServer implements Api {
   }
 
   @override
-  Future<CompetitorFull> putCompetitor(int competitorId, ChangeCompetitor request) {
+  Future<CompetitorFull> putCompetitor(
+    int competitorId,
+    ChangeCompetitor request,
+  ) {
     // TODO: implement putCompetitor
     throw UnimplementedError();
   }
 
   @override
-  Future<Range> putQualificationSectionsRoundsRange(int sectionId, int roundOrdinal, ChangeRange request) {
+  Future<Range> putQualificationSectionsRoundsRange(
+    int sectionId,
+    int roundOrdinal,
+    ChangeRange request,
+  ) {
     // TODO: implement putQualificationSectionsRoundsRange
     throw UnimplementedError();
   }
@@ -174,7 +240,10 @@ class RealServer implements Api {
   }
 
   @override
-  Future<ShootOut> putSparringPlacesShootOut(int placeId, ChangeShootOut request) {
+  Future<ShootOut> putSparringPlacesShootOut(
+    int placeId,
+    ChangeShootOut request,
+  ) {
     // TODO: implement putSparringPlacesShootOut
     throw UnimplementedError();
   }
@@ -190,5 +259,4 @@ class RealServer implements Api {
     // TODO: implement registerCompetitor
     throw UnimplementedError();
   }
-  
 }
