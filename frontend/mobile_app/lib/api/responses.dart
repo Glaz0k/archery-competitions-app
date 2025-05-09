@@ -195,6 +195,7 @@ class FinalGrid {
   int groupId;
   Quarterfinal quarterfinal;
   Semifinal? semifinal;
+  @JsonKey(name: "final")
   Final? fina1;
 
   FinalGrid(this.groupId, this.quarterfinal, this.semifinal, this.fina1);
@@ -329,12 +330,12 @@ class Range {
 }
 
 // id": <number>,
-// "score": <string>,
+// "score": <string | null>,
 // "priority": <bool | null>
 @JsonSerializable()
 class ShootOut {
   int id;
-  String score;
+  String? score;
   bool? priority;
 
   ShootOut(this.id, this.score, this.priority);

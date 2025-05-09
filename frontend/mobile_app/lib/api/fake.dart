@@ -111,7 +111,7 @@ class FakeServer implements Api {
           : null,
       SparringState.ongoing,
     );
-    List<Sparring> sparrings = [
+    var sparringList = <Sparring>[
       defineSparring(1, lebedev, piyavkin),
       defineSparring(2, kozakova, dudkina),
       defineSparring(3, kravchenko, null),
@@ -129,9 +129,9 @@ class FakeServer implements Api {
       () => switch (groupId) {
         1 => FinalGrid(
           1,
-          Quarterfinal(sparrings[0], sparrings[1], sparrings[2], sparrings[3]),
-          Semifinal(sparrings[4], sparrings[5]),
-          Final(sparrings[6], sparrings[7]),
+          Quarterfinal(sparringList[0], sparringList[1], sparringList[2], sparringList[3]),
+          Semifinal(sparringList[4], sparringList[5]),
+          Final(sparringList[6], sparringList[7]),
         ),
         _ => throw NotFoundException("Группа или сетка не найдена"),
       },
