@@ -1,16 +1,28 @@
 import 'package:mobile_app/api/api.dart';
+import 'package:mobile_app/api/common.dart';
+import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
 
+const Duration delay = Duration(milliseconds: 500);
+
 class FakeServer implements Api {
   @override
-  Future<CompetitorCompetitionDetail> changeCompetitorStatus(int competitionId, int competitorId, bool status) {
+  Future<CompetitorCompetitionDetail> changeCompetitorStatus(
+    int competitionId,
+    int competitorId,
+    bool status,
+  ) {
     // TODO: implement changeCompetitorStatus
     throw UnimplementedError();
   }
 
   @override
-  Future<Range> endQualificationSectionsRoundsRange(int sectionId, int roundOrdinal, int rangeOrdinal) {
+  Future<Range> endQualificationSectionsRoundsRange(
+    int sectionId,
+    int roundOrdinal,
+    int rangeOrdinal,
+  ) {
     // TODO: implement endQualificationSectionsRoundsRange
     throw UnimplementedError();
   }
@@ -22,13 +34,17 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(int competitionId) {
+  Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
+    int competitionId,
+  ) {
     // TODO: implement getCompetitionsCompetitors
     throw UnimplementedError();
   }
 
   @override
-  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(int competitionId) {
+  Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
+    int competitionId,
+  ) {
     // TODO: implement getCompetitionsIndividualGroups
     throw UnimplementedError();
   }
@@ -64,15 +80,67 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<List<CompetitorGroupDetail>> getIndividualGroupCompetitors(int groupId) {
+  Future<List<CompetitorGroupDetail>> getIndividualGroupCompetitors(
+    int groupId,
+  ) {
     // TODO: implement getIndividualGroupCompetitors
     throw UnimplementedError();
   }
 
   @override
   Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) {
-    // TODO: implement getIndividualGroupFinalGrid
-    throw UnimplementedError();
+    defineSparring(sparringId, top, bottom) => Sparring(
+      sparringId,
+      SparringPlace(
+        top.id,
+        top.shrink(),
+        RangeGroup(1, 3, 3, RangeType.one2ten, [], 0),
+        false,
+        null,
+        0,
+      ),
+      bottom != null
+          ? SparringPlace(
+            bottom.id,
+            bottom.shrink(),
+            RangeGroup(1, 3, 3, RangeType.one2ten, [], 0),
+            false,
+            null,
+            0,
+          )
+          : null,
+      SparringState.ongoing,
+    );
+    var sparringList = <Sparring>[
+      defineSparring(1, lebedev, piyavkin),
+      defineSparring(2, kozakova, dudkina),
+      defineSparring(3, kravchenko, null),
+      defineSparring(4, demidenko, novokhatskiy),
+
+      defineSparring(5, lebedev, kozakova),
+      defineSparring(6, novokhatskiy, kravchenko),
+
+      defineSparring(7, kozakova, kravchenko),
+
+      defineSparring(8, lebedev, novokhatskiy),
+    ];
+    return Future.delayed(
+      delay,
+      () => switch (groupId) {
+        1 => FinalGrid(
+          1,
+          Quarterfinal(
+            sparringList[0],
+            sparringList[1],
+            sparringList[2],
+            sparringList[3],
+          ),
+          Semifinal(sparringList[4], sparringList[5]),
+          Final(sparringList[6], sparringList[7]),
+        ),
+        _ => throw NotFoundException("Группа или сетка не найдена"),
+      },
+    );
   }
 
   @override
@@ -88,13 +156,19 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<QualificationRoundFull> getQualificationSectionsRound(int sectionId, int roundOrdinal) {
+  Future<QualificationRoundFull> getQualificationSectionsRound(
+    int sectionId,
+    int roundOrdinal,
+  ) {
     // TODO: implement getQualificationSectionsRound
     throw UnimplementedError();
   }
 
   @override
-  Future<RangeGroup> getQualificationSectionsRoundsRanges(int sectionId, int roundOrdinal) {
+  Future<RangeGroup> getQualificationSectionsRoundsRanges(
+    int sectionId,
+    int roundOrdinal,
+  ) {
     // TODO: implement getQualificationSectionsRoundsRanges
     throw UnimplementedError();
   }
@@ -124,13 +198,20 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<CompetitorFull> putCompetitor(int competitorId, ChangeCompetitor request) {
+  Future<CompetitorFull> putCompetitor(
+    int competitorId,
+    ChangeCompetitor request,
+  ) {
     // TODO: implement putCompetitor
     throw UnimplementedError();
   }
 
   @override
-  Future<Range> putQualificationSectionsRoundsRange(int sectionId, int roundOrdinal, ChangeRange request) {
+  Future<Range> putQualificationSectionsRoundsRange(
+    int sectionId,
+    int roundOrdinal,
+    ChangeRange request,
+  ) {
     // TODO: implement putQualificationSectionsRoundsRange
     throw UnimplementedError();
   }
@@ -142,7 +223,10 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<ShootOut> putSparringPlacesShootOut(int placeId, ChangeShootOut request) {
+  Future<ShootOut> putSparringPlacesShootOut(
+    int placeId,
+    ChangeShootOut request,
+  ) {
     // TODO: implement putSparringPlacesShootOut
     throw UnimplementedError();
   }
@@ -158,5 +242,82 @@ class FakeServer implements Api {
     // TODO: implement registerCompetitor
     throw UnimplementedError();
   }
-  
+
+  static final CompetitorFull lebedev = CompetitorFull(
+    1,
+    "Лебедев Антон",
+    DateTime(2000),
+    Gender.male,
+    BowClass.classic,
+    SportsRank.masterInternational,
+    "Минск",
+    null,
+    null,
+  );
+  static final CompetitorFull piyavkin = CompetitorFull(
+    2,
+    "Пиявкин Антон",
+    DateTime(2000),
+    Gender.male,
+    BowClass.block,
+    SportsRank.master,
+    null,
+    "Федерация водоплавающих",
+    null,
+  );
+  static final CompetitorFull kozakova = CompetitorFull(
+    3,
+    "Козакова Анна",
+    DateTime(2000),
+    Gender.female,
+    BowClass.classic3D,
+    SportsRank.candidateForMaster,
+    null,
+    null,
+    "Клуб go",
+  );
+  static final CompetitorFull dudkina = CompetitorFull(
+    4,
+    "Дудкина София",
+    DateTime(2000),
+    Gender.female,
+    BowClass.classicNewbie,
+    SportsRank.firstClass,
+    null,
+    "Федерация бекенда",
+    "Клуб go",
+  );
+  static final CompetitorFull kravchenko = CompetitorFull(
+    5,
+    "Кравченко Никита",
+    DateTime(2000),
+    Gender.male,
+    BowClass.compound3D,
+    SportsRank.meritedMaster,
+    "Россия",
+    "Федерация фулстека",
+    "Клуб js",
+  );
+  static final CompetitorFull demidenko = CompetitorFull(
+    6,
+    "Демиденко Никита",
+    DateTime(2000),
+    Gender.male,
+    BowClass.long3D,
+    SportsRank.secondClass,
+    "СПБ",
+    null,
+    "Клуб rust",
+  );
+  static final CompetitorFull novokhatskiy = CompetitorFull(
+    7,
+    "Новохацкий Данил",
+    DateTime(2000),
+    Gender.male,
+    BowClass.peripheral,
+    SportsRank.thirdClass,
+    "Владивосток",
+    "Федерация фронтеда",
+    null,
+  );
 }

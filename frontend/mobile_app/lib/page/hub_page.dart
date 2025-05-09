@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/page/final_page.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 
 class HubPage extends StatelessWidget {
@@ -32,7 +33,7 @@ class HubPage extends StatelessWidget {
           children: [
             Center(child: Text("Страница участников (Даня)")),
             Center(child: Text("Страница секции (Тоже Даня)")),
-            Center(child: Text("Финал (Никита)")),
+            FinalPage(groupId: individualGroupId),
           ],
         ),
       ),
