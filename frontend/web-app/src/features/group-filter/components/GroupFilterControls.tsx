@@ -10,7 +10,7 @@ export function GroupFilterControls() {
 
   return (
     <ControlsCard>
-      <Title order={3}>{"Фильтры"}</Title>
+      <Title order={3}>Фильтры</Title>
       <Stack align="start" pos="relative" justify="stretch" gap="sm">
         <BowSelect
           setBow={(bow) =>

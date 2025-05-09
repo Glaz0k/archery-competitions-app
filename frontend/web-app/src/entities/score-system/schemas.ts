@@ -3,6 +3,7 @@ import { RangeType } from "./types";
 
 export const ScoreSchema = z
   .string()
+  .trim()
   .regex(/^(M|[1-9]|10|X)$/)
   .nullable();
 

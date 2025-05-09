@@ -3,6 +3,7 @@ export * from "./endpoints/competitions/hooks";
 export * from "./endpoints/individual-groups/hooks";
 export * from "./endpoints/competitors/hooks";
 export * from "./endpoints/qualification-section/hooks";
+export * from "./endpoints/sparring-places/hooks";
 
 export type { CupEdit } from "./endpoints/cups/types";
 export type { CompetitionCreate, CompetitionEdit } from "./endpoints/competitions/types";
@@ -13,6 +14,7 @@ export type {
   CompetitorEdit,
 } from "./endpoints/competitors/types";
 export type { RangeEdit } from "./endpoints/shared/types";
+export type { ShootOutEdit } from "./endpoints/sparring-places/types";
 
 export { CupEditSchema } from "./endpoints/cups/schemas";
 export { CompetitionCreateSchema, CompetitionEditSchema } from "./endpoints/competitions/schemas";
@@ -23,6 +25,7 @@ export {
   CompetitorEditSchema,
 } from "./endpoints/competitors/schemas";
 export { RangeEditSchema } from "./endpoints/shared/schemas";
+export type { ShootOutEditSchema } from "./endpoints/sparring-places/schemas";
 
 export { default as apiClient } from "./axios/config";
 export { queryClient } from "./queryClient";

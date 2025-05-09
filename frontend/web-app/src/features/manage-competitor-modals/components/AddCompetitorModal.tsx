@@ -62,13 +62,11 @@ export function AddCompetitorModal({ competitionId, stack }: AddCompetitorModalP
             <>
               <Text size="sm">{pickedCompetitor.fullName}</Text>
               <Text size="sm">
-                {getGenderDescription(pickedCompetitor.identity) +
-                  ", " +
-                  format(pickedCompetitor.birthDate, "dd.MM.yyyy")}
+                {`${getGenderDescription(pickedCompetitor.identity)}, ${format(pickedCompetitor.birthDate, "dd.MM.yyyy")}`}
               </Text>
             </>
           ) : (
-            <Text>{"Участник не выбран"}</Text>
+            <Text>Участник не выбран</Text>
           )}
         </Stack>
       </Group>

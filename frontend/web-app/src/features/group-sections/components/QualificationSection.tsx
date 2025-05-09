@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { IconFlag } from "@tabler/icons-react";
-import { Center, Stack, Table, Title, useMantineTheme } from "@mantine/core";
+import { Stack, Table, useMantineTheme } from "@mantine/core";
 import { useEndQualification, useQualification, useStartQualification } from "../../../api";
 import { GroupState, type Qualification, type QualificationSection } from "../../../entities";
 import { getSportsRankDescription } from "../../../utils";
-import { ControlsCard, PageLoader, TableCard, TextButton } from "../../../widgets";
+import { PageLoader, TableCard } from "../../../widgets";
 import { NO_SCORE_VALUE } from "../../constants";
 import { useGroupSections } from "../context/useGroupSections";
 import { SectionTab } from "./SectionTab";
+import { StartCard } from "./StartCard";
 
 export function QualificationSection({ groupId }: { groupId: number }) {
   const {
@@ -31,11 +31,10 @@ export function QualificationSection({ groupId }: { groupId: number }) {
   } = useQualification(groupId, hasStarted);
 
   const { mutate: startQual, isPending: isQualStarting } = useStartQualification();
-
   const { mutate: endQual, isPending: isQualEnding } = useEndQualification();
 
-  const handleGroupExport = () => {
-    console.warn("handleGroupExport temporary unavailable");
+  const handleQualExport = () => {
+    console.warn("handleQualExport temporary unavailable");
   };
 
   useEffect(() => {
@@ -51,7 +50,7 @@ export function QualificationSection({ groupId }: { groupId: number }) {
         (state) => state !== GroupState.CREATED && state !== GroupState.QUAL_START
       );
       if (exportStates.includes(group.state)) {
-        exportFn = handleGroupExport;
+        exportFn = handleQualExport;
       }
     }
     setContext((prev) => ({
@@ -68,19 +67,11 @@ export function QualificationSection({ groupId }: { groupId: number }) {
 
   if (!hasStarted) {
     return (
-      <Center flex={1}>
-        <ControlsCard>
-          <Stack>
-            <Title order={3}>{"Квалификация еще не началась"}</Title>
-            <TextButton
-              label="Начать"
-              rightSection={<IconFlag />}
-              loading={isQualStarting}
-              onClick={() => startQual(group.id)}
-            />
-          </Stack>
-        </ControlsCard>
-      </Center>
+      <StartCard
+        title="Квалификация еще не началась"
+        loading={isQualStarting}
+        onStart={() => startQual(group.id)}
+      />
     );
   }
 
@@ -112,8 +103,8 @@ function QualificationTableHead({ qual }: { qual: Qualification }) {
   return (
     <Table.Thead>
       <Table.Tr>
-        <Table.Th w={50}>{"Место"}</Table.Th>
-        <Table.Th>{"Спортсмен"}</Table.Th>
+        <Table.Th w={50}>Место</Table.Th>
+        <Table.Th>Спортсмен</Table.Th>
         {Array(qual.roundCount)
           .fill(0)
           .map((_, index) => (
@@ -121,10 +112,10 @@ function QualificationTableHead({ qual }: { qual: Qualification }) {
               {`${qual.distance} ${NO_SCORE_VALUE} ${index + 1}`}
             </Table.Th>
           ))}
-        <Table.Th w={100}>{"Итог"}</Table.Th>
-        <Table.Th w={100}>{"10's"}</Table.Th>
-        <Table.Th w={100}>{"9's"}</Table.Th>
-        <Table.Th w={120}>{"Вып. разряд"}</Table.Th>
+        <Table.Th w={100}>Итог</Table.Th>
+        <Table.Th w={100}>10's</Table.Th>
+        <Table.Th w={100}>9's</Table.Th>
+        <Table.Th w={120}>Вып. разряд</Table.Th>
       </Table.Tr>
     </Table.Thead>
   );

@@ -1,9 +1,10 @@
 import type { CompetitorGroupDetail, IndividualGroup, Qualification } from "../../../entities";
+import type { FinalGrid } from "../../../entities/final-grid/types";
 import apiClient from "../../axios/config";
 import { mapToCompetitorGroupDetail } from "../competitors/mappers";
 import { CompetitorGroupDetailAPISchema } from "../competitors/schemas";
-import { mapToIndividualGroup, mapToQualification } from "./mappers";
-import { IndividualGroupAPISchema, QualificationAPISchema } from "./schemas";
+import { mapToFinalGrid, mapToIndividualGroup, mapToQualification } from "./mappers";
+import { FinalGridAPISchema, IndividualGroupAPISchema, QualificationAPISchema } from "./schemas";
 
 export const individualGroupsApi = {
   getGroup: async (groupId: number): Promise<IndividualGroup> => {
@@ -44,5 +45,30 @@ export const individualGroupsApi = {
     const response = await apiClient.post(`/individual_groups/${groupId}/qualification/end`);
     const validatedResponse = QualificationAPISchema.parse(response.data);
     return mapToQualification(validatedResponse);
+  },
+  getFinalGrid: async (groupId: number): Promise<FinalGrid> => {
+    const response = await apiClient.get(`/individual_groups/${groupId}/final_grid`);
+    const validatedResponse = FinalGridAPISchema.parse(response.data);
+    return mapToFinalGrid(validatedResponse);
+  },
+  startQuarterfinal: async (groupId: number): Promise<FinalGrid> => {
+    const response = await apiClient.post(`/individual_groups/${groupId}/quarterfinal/start`);
+    const validatedResponse = FinalGridAPISchema.parse(response.data);
+    return mapToFinalGrid(validatedResponse);
+  },
+  startSemifinal: async (groupId: number): Promise<FinalGrid> => {
+    const response = await apiClient.post(`/individual_groups/${groupId}/semifinal/start`);
+    const validatedResponse = FinalGridAPISchema.parse(response.data);
+    return mapToFinalGrid(validatedResponse);
+  },
+  startFinal: async (groupId: number): Promise<FinalGrid> => {
+    const response = await apiClient.post(`/individual_groups/${groupId}/final/start`);
+    const validatedResponse = FinalGridAPISchema.parse(response.data);
+    return mapToFinalGrid(validatedResponse);
+  },
+  endFinal: async (groupId: number): Promise<FinalGrid> => {
+    const response = await apiClient.post(`/individual_groups/${groupId}/final/end`);
+    const validatedResponse = FinalGridAPISchema.parse(response.data);
+    return mapToFinalGrid(validatedResponse);
   },
 };

@@ -16,3 +16,6 @@ export * from "./score-system/types";
 
 export * from "./qualification/schemas";
 export * from "./qualification/types";
+
+export * from "./final-grid/schemas";
+export * from "./final-grid/types";

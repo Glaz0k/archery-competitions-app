@@ -3,6 +3,7 @@ import { notifications } from "@mantine/notifications";
 import type { Range, RangeGroup } from "../../../entities";
 import { SECTIONS_QUERY_KEYS } from "../../query-keys";
 import type { RangeEdit } from "../shared/types";
+import { updateRangeGroup } from "../shared/utils";
 import { qualificationSectionsApi } from "./api";
 
 export const useQualificationSection = (sectionId: number, enabled: boolean = true) => {
@@ -43,17 +44,12 @@ export const useEditSectionRange = (onSuccess?: () => unknown) => {
     mutationFn: async ([sectionId, roundOrdinal, data]) =>
       await qualificationSectionsApi.putRange(sectionId, roundOrdinal, data),
     onSuccess: (edited, [sectionId, roundOrdinal]) => {
+      queryClient.invalidateQueries({
+        queryKey: SECTIONS_QUERY_KEYS.round(sectionId, roundOrdinal),
+      });
       queryClient.setQueryData(
         SECTIONS_QUERY_KEYS.rangeGroup(sectionId, roundOrdinal),
-        (prev: RangeGroup): RangeGroup | undefined => {
-          if (!prev) {
-            return undefined;
-          }
-          return {
-            ...prev,
-            ranges: prev.ranges.map((range) => (range.ordinal !== edited.ordinal ? range : edited)),
-          };
-        }
+        (prev: RangeGroup | undefined) => updateRangeGroup(prev, edited)
       );
       onSuccess?.();
     },
@@ -67,7 +63,7 @@ export const useEditSectionRange = (onSuccess?: () => unknown) => {
   });
 };
 
-export const useCompeteSectionRange = (onSuccess?: () => unknown) => {
+export const useCompleteSectionRange = (onSuccess?: () => unknown) => {
   const queryClient = useQueryClient();
   return useMutation<Range, Error, [number, number, number]>({
     mutationFn: async ([sectionId, roundOrdinal, rangeOrdinal]) =>

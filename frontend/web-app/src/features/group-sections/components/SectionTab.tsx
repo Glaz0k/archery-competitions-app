@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Group, LoadingOverlay, Stack, Tabs, Title } from "@mantine/core";
 import {
-  useCompeteSectionRange,
+  useCompleteSectionRange,
   useEditSectionRange,
   useQualificationSection,
   useSectionRangeGroup,
@@ -91,23 +91,25 @@ function RoundTab({ sectionId, roundOrd }: RoundTabProps) {
       {round && rangeGroup && (
         <Stack>
           <TopBar
-            title={`Раунд ${roundOrd}` + round.isActive ? "| Активен" : ""}
+            title={`Раунд ${roundOrd}${round.isActive ? "| Активен" : ""}`}
             onRefresh={() => {
               refetchRound();
               refetchRangeGroup();
             }}
             loading={isRoundFetching || isRangeGroupFetching}
           />
-          {rangeGroup.ranges.map((range) => (
-            <SectionRangeCard
-              key={`${sectionId}$round${roundOrd}$range${range.ordinal}`}
-              sectionId={sectionId}
-              roundOrd={round.ordinal}
-              range={range}
-              rangeSize={rangeGroup.rangeSize}
-              rangeType={rangeGroup.type}
-            />
-          ))}
+          {[...rangeGroup.ranges]
+            .sort(({ ordinal: a }, { ordinal: b }) => a - b)
+            .map((range) => (
+              <SectionRangeCard
+                key={`${sectionId}$round${roundOrd}$range${range.ordinal}`}
+                sectionId={sectionId}
+                roundOrd={round.ordinal}
+                range={range}
+                rangeSize={rangeGroup.rangeSize}
+                rangeType={rangeGroup.type}
+              />
+            ))}
         </Stack>
       )}
     </PageLoader>
@@ -127,11 +129,10 @@ function SectionRangeCard({
   roundOrd,
   range,
   rangeSize,
-  rangeType: type,
+  rangeType,
 }: SectionRangeCardProps) {
   const { mutate: editRange, isPending: isRangeEditing } = useEditSectionRange();
-
-  const { mutate: competeRange, isPending: isRangeCompleting } = useCompeteSectionRange();
+  const { mutate: completeRange, isPending: isRangeCompleting } = useCompleteSectionRange();
 
   const shotOrdinals = [...Array(rangeSize).keys()].map((i) => i + 1);
   const shots = shotOrdinals.map((ord) => {
@@ -153,11 +154,11 @@ function SectionRangeCard({
     >
       <RangeSection
         shots={shots}
-        type={type}
+        type={rangeType}
         editFn={(editedShots) =>
           editRange([sectionId, roundOrd, { ordinal: range.ordinal, shots: editedShots }])
         }
-        completeFn={() => competeRange([sectionId, roundOrd, range.ordinal])}
+        completeFn={() => completeRange([sectionId, roundOrd, range.ordinal])}
         active={range.isActive}
       />
     </RangeCard>

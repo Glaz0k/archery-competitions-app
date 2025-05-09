@@ -15,15 +15,15 @@ export function CompetitionTableHead() {
     <Table.Thead>
       <Table.Tr>
         <Table.Th />
-        <Table.Th>{"Отметка времени (МСК)"}</Table.Th>
-        <Table.Th>{"Фамилия, Имя"}</Table.Th>
-        <Table.Th>{"Дата рождения"}</Table.Th>
-        <Table.Th>{"Пол"}</Table.Th>
-        <Table.Th>{"Класс лука"}</Table.Th>
-        <Table.Th>{"Разряд"}</Table.Th>
-        <Table.Th>{"Регион"}</Table.Th>
-        <Table.Th>{"Федерация"}</Table.Th>
-        <Table.Th>{"Клуб"}</Table.Th>
+        <Table.Th>Отметка времени (МСК)</Table.Th>
+        <Table.Th>Фамилия, Имя</Table.Th>
+        <Table.Th>Дата рождения</Table.Th>
+        <Table.Th>Пол</Table.Th>
+        <Table.Th>Класс лука</Table.Th>
+        <Table.Th>Разряд</Table.Th>
+        <Table.Th>Регион</Table.Th>
+        <Table.Th>Федерация</Table.Th>
+        <Table.Th>Клуб</Table.Th>
         <Table.Th />
       </Table.Tr>
     </Table.Thead>

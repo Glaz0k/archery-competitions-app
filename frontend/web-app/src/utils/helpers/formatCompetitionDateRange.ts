@@ -17,7 +17,6 @@ export function formatCompetitionDateRange(startDate: Date | null, endDate: Date
     return `${format(startDate, "d")}-${format(endDate, "d MMMM yyyy")}`;
   } else if (format(startDate, "yyyy") === format(endDate, "yyyy")) {
     return `${format(startDate, "d MMMM")}-${format(endDate, "d MMMM yyyy")}`;
-  } else {
-    return `${format(startDate, "d MMMM yyyy")} — ${format(endDate, "d MMMM yyyy")}`;
   }
+  return `${format(startDate, "d MMMM yyyy")} — ${format(endDate, "d MMMM yyyy")}`;
 }

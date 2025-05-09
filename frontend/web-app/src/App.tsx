@@ -1,18 +1,16 @@
 import { Route, Routes } from "react-router";
-import CompetitorsContent from "./components/pages/competition/CompetitorsContent";
-import GroupsContent from "./components/pages/competition/GroupsContent";
-import CompetitionPage from "./components/pages/CompetitionPage";
-import CompetitorsPage from "./components/pages/CompetitorsPage";
-import ContentLayout from "./components/pages/ContentLayout";
-import CupPage from "./components/pages/CupPage";
-import CupsPage from "./components/pages/CupsPage";
-import IndividualGroupPage from "./components/pages/IndividualGroupPage";
-import LoginPage from "./components/pages/LoginPage";
+import CompetitorsContent from "./pages/competition/CompetitorsContent";
+import GroupsContent from "./pages/competition/GroupsContent";
+import CompetitionPage from "./pages/CompetitionPage";
+import CompetitorsPage from "./pages/CompetitorsPage";
+import ContentLayout from "./pages/ContentLayout";
+import CupPage from "./pages/CupPage";
+import CupsPage from "./pages/CupsPage";
+import IndividualGroupPage from "./pages/IndividualGroupPage";
 
 export default function App() {
   return (
     <Routes>
-      <Route path="login" element={<LoginPage />} />
       <Route element={<ContentLayout />}>
         <Route path="cups">
           <Route index element={<CupsPage />} />

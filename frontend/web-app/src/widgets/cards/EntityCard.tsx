@@ -83,7 +83,7 @@ export function EntityCardSkeleton({
         <Skeleton circle height={ICON_SIZE} />
         <Stack flex={1} gap="md">
           <Skeleton height={rem(theme.headings.sizes.h3.fontSize)} width={200}>
-            <Title>{"placeholder"}</Title>
+            <Title>placeholder</Title>
           </Skeleton>
           {children && <Stack gap="sm">{children}</Stack>}
         </Stack>

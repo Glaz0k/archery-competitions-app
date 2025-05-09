@@ -11,4 +11,5 @@ export const INDIVIDUAL_GROUPS_QUERY_KEYS = {
     ...INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId),
     "qualification",
   ],
+  finalGrid: (groupId: number) => [...INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId), "final-grid"],
 };

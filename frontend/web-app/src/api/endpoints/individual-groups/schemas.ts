@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { BowClass, Gender, GroupState, IndividualGroupSchema, SportsRank } from "../../../entities";
+import {
+  BowClass,
+  Gender,
+  GroupState,
+  IndividualGroupSchema,
+  ScoreSchema,
+  SparringState,
+  SportsRank,
+} from "../../../entities";
 import { CompetitorShrinkedAPISchema } from "../competitors/schemas";
 import { RangeGroupAPISchema } from "../shared/schemas";
 
@@ -51,4 +59,50 @@ export const QualificationAPISchema = z.object({
   distance: z.string(),
   round_count: z.number().positive(),
   sections: QualificationSectionAPISchema.array(),
+});
+
+export const ShootOutAPISchema = z.object({
+  id: z.number(),
+  score: ScoreSchema,
+  priority: z.boolean().nullable(),
+});
+
+export const SparringPlaceAPISchema = z.object({
+  id: z.number(),
+  competitor: CompetitorShrinkedAPISchema,
+  range_group: RangeGroupAPISchema,
+  is_active: z.boolean(),
+  shoot_out: ShootOutAPISchema.nullable(),
+  sparring_score: z.number().nonnegative(),
+});
+
+export const SparringAPISchema = z.object({
+  id: z.number(),
+  top_place: SparringPlaceAPISchema.nullable(),
+  bot_place: SparringPlaceAPISchema.nullable(),
+  state: z.nativeEnum(SparringState),
+});
+
+export const QuarterfinalAPISchema = z.object({
+  sparring_1: SparringAPISchema.nullable(),
+  sparring_2: SparringAPISchema.nullable(),
+  sparring_3: SparringAPISchema.nullable(),
+  sparring_4: SparringAPISchema.nullable(),
+});
+
+export const SemifinalAPISchema = z.object({
+  sparring_5: SparringAPISchema.nullable(),
+  sparring_6: SparringAPISchema.nullable(),
+});
+
+export const FinalAPISchema = z.object({
+  sparring_gold: SparringAPISchema.nullable(),
+  sparring_bronze: SparringAPISchema.nullable(),
+});
+
+export const FinalGridAPISchema = z.object({
+  group_id: z.number(),
+  quarterfinal: QuarterfinalAPISchema,
+  semifinal: SemifinalAPISchema.nullable(),
+  final: FinalAPISchema.nullable(),
 });

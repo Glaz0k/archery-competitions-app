@@ -1,19 +1,11 @@
 import { useState } from "react";
-import { IconCheck, IconCircleDashedCheck, IconEdit, IconX } from "@tabler/icons-react";
 import { Fragment } from "react/jsx-runtime";
-import {
-  ActionIcon,
-  Card,
-  Divider,
-  Group,
-  TextInput,
-  Tooltip,
-  useMantineTheme,
-} from "@mantine/core";
+import { Divider, Group, TextInput, useMantineTheme } from "@mantine/core";
 import { RangeType, type Shot } from "../../../entities";
 import { NO_SCORE_VALUE } from "../../constants";
 import { useShotsForm } from "../hooks/useShotsForm";
 import { ScoreCard } from "../widgets/ScoreCard";
+import { ShotsFormControls } from "./ShotsFormControls";
 
 export interface RangeSectionProps {
   shots: Shot[];
@@ -38,7 +30,7 @@ export function RangeSection({ shots, type, editFn, completeFn, active }: RangeS
 
   return (
     <form
-      onSubmit={shotsForm.onSubmit(({ shots }) => {
+      onSubmit={shotsForm.onSubmit((shots) => {
         editFn(shots);
       })}
     >
@@ -50,7 +42,7 @@ export function RangeSection({ shots, type, editFn, completeFn, active }: RangeS
         active={active}
         onEdit={() => {
           shotsForm.setValues({
-            shots: shots,
+            shots,
           });
           setEditing(true);
         }}
@@ -88,62 +80,12 @@ function ShotsFormCard({ shot, index, form, editing }: ShotsFormCardProps) {
             font: theme.headings.fontFamily,
             fontSize: theme.headings.sizes.h2.fontSize,
             fontWeight: theme.headings.sizes.h2.fontWeight,
-            color: form.errors[formIndex] == undefined ? theme.white : theme.colors.red[6],
+            color: form.errors[formIndex] === undefined ? theme.white : theme.colors.red[6],
           },
         }}
         key={form.key(formIndex)}
         {...form.getInputProps(formIndex, { withError: false })}
       />
     </ScoreCard>
-  );
-}
-
-interface ShotsFormControlsProps {
-  editing: boolean;
-  active: boolean;
-  onEdit: () => unknown;
-  onCancelEdit: () => unknown;
-  onComplete: () => unknown;
-}
-
-function ShotsFormControls({
-  editing,
-  active,
-  onEdit,
-  onComplete,
-  onCancelEdit,
-}: ShotsFormControlsProps) {
-  return (
-    <Card p="xs">
-      <Group gap="sm">
-        {!editing ? (
-          <>
-            <Tooltip label="Редактировать">
-              <ActionIcon onClick={onEdit}>
-                <IconEdit />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Завершить">
-              <ActionIcon disabled={!active} onClick={onComplete}>
-                <IconCircleDashedCheck />
-              </ActionIcon>
-            </Tooltip>
-          </>
-        ) : (
-          <>
-            <Tooltip label="Отменить">
-              <ActionIcon onClick={onCancelEdit}>
-                <IconX />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Завершить">
-              <ActionIcon type="submit">
-                <IconCheck />
-              </ActionIcon>
-            </Tooltip>
-          </>
-        )}
-      </Group>
-    </Card>
   );
 }
