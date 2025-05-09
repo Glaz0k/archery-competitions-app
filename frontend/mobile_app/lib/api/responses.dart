@@ -1,4 +1,7 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'common.dart';
+
+part 'responses.g.dart';
 
 // "id": <number>,
 // "full_name": <string>,
@@ -163,11 +166,13 @@ class Section {
 
 // "id": <number>,
 // "full_name": <string>
+@JsonSerializable()
 class CompetitorShrinked {
   int id;
   String fullName;
 
   CompetitorShrinked(this.id, this.fullName);
+  factory CompetitorShrinked.fromJson(Map<String, dynamic> json) => _$CompetitorShrinkedFromJson(json);
 }
 
 // "round_ordinal": <number>,
@@ -185,6 +190,7 @@ class QualificationRoundShrinked {
 // "quarterfinal": <quarterfinal>,
 // "semifinal": <semifinal | null>,
 // "final": <final | null>
+@JsonSerializable()
 class FinalGrid {
   int groupId;
   Quarterfinal quarterfinal;
@@ -192,12 +198,14 @@ class FinalGrid {
   Final? fina1;
 
   FinalGrid(this.groupId, this.quarterfinal, this.semifinal, this.fina1);
+  factory FinalGrid.fromJson(Map<String, dynamic> json) => _$FinalGridFromJson(json);
 }
 
 // "sparring_1": <sparring | null>,
 // "sparring_2": <sparring | null>,
 // "sparring_3": <sparring | null>,
 // "sparring_4": <sparring | null>
+@JsonSerializable()
 class Quarterfinal {
   Sparring? sparring1;
   Sparring? sparring2;
@@ -205,37 +213,47 @@ class Quarterfinal {
   Sparring? sparring4;
 
   Quarterfinal(this.sparring1, this.sparring2, this.sparring3, this.sparring4);
+  factory Quarterfinal.fromJson(Map<String, dynamic> json) => _$QuarterfinalFromJson(json);
 }
 
 // "sparring_5": <sparring | null>,
 // "sparring_6": <sparring | null>
+@JsonSerializable()
 class Semifinal {
   Sparring? sparring5;
   Sparring? sparring6;
 
   Semifinal(this.sparring5, this.sparring6);
+  factory Semifinal.fromJson(Map<String, dynamic> json) => _$SemifinalFromJson(json);
+
 }
 
 // "sparring_gold": <sparring | null>,
 // "sparring_bronze": <sparring | null>
+@JsonSerializable()
 class Final {
   Sparring? sparringGold;
   Sparring? sparringBronze;
 
   Final(this.sparringGold, this.sparringBronze);
+  factory Final.fromJson(Map<String, dynamic> json) => _$FinalFromJson(json);
+
 }
 
 // "id": <number>,
 // "top_place": <sparring_place | null>,
 // "bot_place": <sparring_place | null>,
 // "state": <sparring_state>
+@JsonSerializable()
 class Sparring {
-  int number;
+  int id;
   SparringPlace? topPlace;
   SparringPlace? botPlace;
   SparringState state;
 
-  Sparring(this.number, this.topPlace, this.botPlace, this.state);
+  Sparring(this.id, this.topPlace, this.botPlace, this.state);
+  factory Sparring.fromJson(Map<String, dynamic> json) => _$SparringFromJson(json);
+
 }
 
 // "id": <number>,
@@ -244,6 +262,7 @@ class Sparring {
 // "is_active": <bool>,
 // "shoot_out": <shoot_out | null>,
 // "sparring_score": <number>
+@JsonSerializable()
 class SparringPlace {
   int id;
   CompetitorShrinked competitor;
@@ -260,6 +279,8 @@ class SparringPlace {
     this.shootOut,
     this.sparringScore,
   );
+  factory SparringPlace.fromJson(Map<String, dynamic> json) => _$SparringPlaceFromJson(json);
+
 }
 
 // "id": <number>,
@@ -268,6 +289,7 @@ class SparringPlace {
 // "type": <range_type>
 // "ranges": <[ <range> ]>,
 // "total_score": <number | null>
+@JsonSerializable()
 class RangeGroup {
   int id;
   int rangesMaxCount;
@@ -284,6 +306,8 @@ class RangeGroup {
     this.ranges,
     this.totalScore,
   );
+  factory RangeGroup.fromJson(Map<String, dynamic> json) => _$RangeGroupFromJson(json);
+
 }
 
 // "id": <number>,
@@ -291,6 +315,7 @@ class RangeGroup {
 // "is_active": <bool>,
 // "shots": <[ <shot> ] | null>,
 // "range_score": <number | null>
+@JsonSerializable()
 class Range {
   int id;
   int rangeOrdinal;
@@ -299,17 +324,22 @@ class Range {
   int? rangeScore;
 
   Range(this.id, this.rangeOrdinal, this.isActive, this.shots, this.rangeScore);
+  factory Range.fromJson(Map<String, dynamic> json) => _$RangeFromJson(json);
+
 }
 
 // id": <number>,
 // "score": <string>,
 // "priority": <bool | null>
+@JsonSerializable()
 class ShootOut {
   int id;
   String score;
   bool? priority;
 
   ShootOut(this.id, this.score, this.priority);
+  factory ShootOut.fromJson(Map<String, dynamic> json) => _$ShootOutFromJson(json);
+
 }
 
 // "section_id": <number>,
@@ -336,6 +366,7 @@ class QualificationRoundFull {
 // "is_active": <bool>,
 // "shoot_out": <shoot_out | null>,
 // "sparring_score": <number>
+@JsonSerializable()
 class SparingPlace {
   int id;
   CompetitorShrinked competitor;
@@ -352,4 +383,5 @@ class SparingPlace {
     this.shootOut,
     this.sparringScore,
   );
+  factory SparingPlace.fromJson(Map<String, dynamic> json) => _$SparingPlaceFromJson(json);
 }

@@ -1,8 +1,42 @@
+import 'dart:convert';
+
 import 'package:mobile_app/api/api.dart';
+import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
+import 'package:http/http.dart' as http;
 
+const String backend = "example.com";
 class RealServer implements Api {
+  final http.Client client = http.Client();
+  void validate(http.Response response, {
+    String? notFoundMessage,
+    String? invalidParametersMessage,
+    String? alreadyExistsMessage,
+    String? badActionMessage,
+    String? invalidScoreMessage,
+}){
+    switch (response.statusCode) {
+      case 404:
+        throw NotFoundException(notFoundMessage!);
+
+      case 400:
+        Map<String, dynamic> body = jsonDecode(response.body);
+        switch (body["error"]) {
+          case "INVALID PARAMETERS":
+            throw InvalidParametersException(invalidParametersMessage!);
+          case "EXISTS":
+            throw AlreadyExistException(alreadyExistsMessage!);
+          case "BAD ACTION":
+            throw BadActionException(badActionMessage!);
+          case "INVALID SCORE":
+            Map<String, dynamic> details = body["details"];
+            throw InvalidScoreException(invalidScoreMessage!, details["shot_ordinal"], details["type"]);
+        }
+      case 200:
+        return;
+    }
+}
   @override
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(int competitionId, int competitorId, bool status) {
     // TODO: implement changeCompetitorStatus
@@ -70,9 +104,10 @@ class RealServer implements Api {
   }
 
   @override
-  Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) {
-    // TODO: implement getIndividualGroupFinalGrid
-    throw UnimplementedError();
+  Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) async {
+    var response = await client.get(Uri.https(backend, "/individual_groups/$groupId/final_grid"));
+    validate(response, notFoundMessage: "Группа или сетка не найдена");
+    return FinalGrid.fromJson(jsonDecode(response.body));
   }
 
   @override
