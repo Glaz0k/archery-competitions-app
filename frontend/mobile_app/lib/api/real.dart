@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
-import 'package:http/http.dart' as http;
 
 const String backend = "example.com";
 
@@ -18,6 +18,7 @@ class RealServer implements Api {
     String? badActionMessage,
     String? invalidScoreMessage,
   }) {
+    var defaultMessage = "Получена некорректная ошибка от сервера";
     switch (response.statusCode) {
       case 404:
         throw NotFoundException(notFoundMessage!);
@@ -26,15 +27,17 @@ class RealServer implements Api {
         Map<String, dynamic> body = jsonDecode(response.body);
         switch (body["error"]) {
           case "INVALID PARAMETERS":
-            throw InvalidParametersException(invalidParametersMessage!);
+            throw InvalidParametersException(
+              invalidParametersMessage ?? defaultMessage,
+            );
           case "EXISTS":
-            throw AlreadyExistException(alreadyExistsMessage!);
+            throw AlreadyExistException(alreadyExistsMessage ?? defaultMessage);
           case "BAD ACTION":
-            throw BadActionException(badActionMessage!);
+            throw BadActionException(badActionMessage ?? defaultMessage);
           case "INVALID SCORE":
             Map<String, dynamic> details = body["details"];
             throw InvalidScoreException(
-              invalidScoreMessage!,
+              invalidScoreMessage ?? defaultMessage,
               details["shot_ordinal"],
               details["type"],
             );
