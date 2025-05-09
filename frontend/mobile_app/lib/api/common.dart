@@ -73,7 +73,12 @@ enum SparringState { ongoing, topWin, botWin }
 // "1-10"
 // "6-10"
 @JsonEnum()
-enum RangeType { @JsonValue("1-10") one2ten, @JsonValue("6-10") six2ten }
+enum RangeType {
+  @JsonValue("1-10")
+  one2ten,
+  @JsonValue("6-10")
+  six2ten,
+}
 
 // "shot_ordinal": <number>,
 // "score": <string | null>

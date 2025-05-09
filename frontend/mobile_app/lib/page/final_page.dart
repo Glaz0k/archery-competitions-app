@@ -34,24 +34,39 @@ class _FinalPageState extends State<FinalPage> {
     var api = context.watch<Api>();
     var grid = _grid;
     return RefreshIndicator(
-      child: ListView(scrollDirection: Axis.vertical, children: [
-        if (grid?.fina1?.sparringGold != null)
-          FinalCard(title: "Финал", sparringList: [grid?.fina1?.sparringGold]),
-        if (grid?.fina1?.sparringBronze != null)
-          FinalCard(title: "Финал за 3-е место", sparringList: [grid?.fina1?.sparringBronze]),
-        if (grid?.semifinal != null) 
-          FinalCard(title: "Полуфинал", sparringList: [
-            grid?.semifinal?.sparring5,
-            grid?.semifinal?.sparring6,
-          ]),
-        if (grid?.quarterfinal != null) 
-          FinalCard(title: "Четвертьфинал", sparringList: [
-            grid?.quarterfinal.sparring1,
-            grid?.quarterfinal.sparring2,
-            grid?.quarterfinal.sparring3,
-            grid?.quarterfinal.sparring4,
-          ])
-      ]),
+      child: ListView(
+        scrollDirection: Axis.vertical,
+        children: [
+          if (grid?.fina1?.sparringGold != null)
+            FinalCard(
+              title: "Финал",
+              sparringList: [grid?.fina1?.sparringGold],
+            ),
+          if (grid?.fina1?.sparringBronze != null)
+            FinalCard(
+              title: "Финал за 3-е место",
+              sparringList: [grid?.fina1?.sparringBronze],
+            ),
+          if (grid?.semifinal != null)
+            FinalCard(
+              title: "Полуфинал",
+              sparringList: [
+                grid?.semifinal?.sparring5,
+                grid?.semifinal?.sparring6,
+              ],
+            ),
+          if (grid?.quarterfinal != null)
+            FinalCard(
+              title: "Четвертьфинал",
+              sparringList: [
+                grid?.quarterfinal.sparring1,
+                grid?.quarterfinal.sparring2,
+                grid?.quarterfinal.sparring3,
+                grid?.quarterfinal.sparring4,
+              ],
+            ),
+        ],
+      ),
       onRefresh: () async {
         grid = await api.getIndividualGroupFinalGrid(widget.groupId);
         setState(() {

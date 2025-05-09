@@ -172,7 +172,8 @@ class CompetitorShrinked {
   String fullName;
 
   CompetitorShrinked(this.id, this.fullName);
-  factory CompetitorShrinked.fromJson(Map<String, dynamic> json) => _$CompetitorShrinkedFromJson(json);
+  factory CompetitorShrinked.fromJson(Map<String, dynamic> json) =>
+      _$CompetitorShrinkedFromJson(json);
 }
 
 // "round_ordinal": <number>,
@@ -199,7 +200,8 @@ class FinalGrid {
   Final? fina1;
 
   FinalGrid(this.groupId, this.quarterfinal, this.semifinal, this.fina1);
-  factory FinalGrid.fromJson(Map<String, dynamic> json) => _$FinalGridFromJson(json);
+  factory FinalGrid.fromJson(Map<String, dynamic> json) =>
+      _$FinalGridFromJson(json);
 }
 
 // "sparring_1": <sparring | null>,
@@ -214,7 +216,8 @@ class Quarterfinal {
   Sparring? sparring4;
 
   Quarterfinal(this.sparring1, this.sparring2, this.sparring3, this.sparring4);
-  factory Quarterfinal.fromJson(Map<String, dynamic> json) => _$QuarterfinalFromJson(json);
+  factory Quarterfinal.fromJson(Map<String, dynamic> json) =>
+      _$QuarterfinalFromJson(json);
 }
 
 // "sparring_5": <sparring | null>,
@@ -225,8 +228,8 @@ class Semifinal {
   Sparring? sparring6;
 
   Semifinal(this.sparring5, this.sparring6);
-  factory Semifinal.fromJson(Map<String, dynamic> json) => _$SemifinalFromJson(json);
-
+  factory Semifinal.fromJson(Map<String, dynamic> json) =>
+      _$SemifinalFromJson(json);
 }
 
 // "sparring_gold": <sparring | null>,
@@ -238,7 +241,6 @@ class Final {
 
   Final(this.sparringGold, this.sparringBronze);
   factory Final.fromJson(Map<String, dynamic> json) => _$FinalFromJson(json);
-
 }
 
 // "id": <number>,
@@ -253,8 +255,8 @@ class Sparring {
   SparringState state;
 
   Sparring(this.id, this.topPlace, this.botPlace, this.state);
-  factory Sparring.fromJson(Map<String, dynamic> json) => _$SparringFromJson(json);
-
+  factory Sparring.fromJson(Map<String, dynamic> json) =>
+      _$SparringFromJson(json);
 }
 
 // "id": <number>,
@@ -280,8 +282,8 @@ class SparringPlace {
     this.shootOut,
     this.sparringScore,
   );
-  factory SparringPlace.fromJson(Map<String, dynamic> json) => _$SparringPlaceFromJson(json);
-
+  factory SparringPlace.fromJson(Map<String, dynamic> json) =>
+      _$SparringPlaceFromJson(json);
 }
 
 // "id": <number>,
@@ -307,8 +309,8 @@ class RangeGroup {
     this.ranges,
     this.totalScore,
   );
-  factory RangeGroup.fromJson(Map<String, dynamic> json) => _$RangeGroupFromJson(json);
-
+  factory RangeGroup.fromJson(Map<String, dynamic> json) =>
+      _$RangeGroupFromJson(json);
 }
 
 // "id": <number>,
@@ -326,7 +328,6 @@ class Range {
 
   Range(this.id, this.rangeOrdinal, this.isActive, this.shots, this.rangeScore);
   factory Range.fromJson(Map<String, dynamic> json) => _$RangeFromJson(json);
-
 }
 
 // id": <number>,
@@ -339,8 +340,8 @@ class ShootOut {
   bool? priority;
 
   ShootOut(this.id, this.score, this.priority);
-  factory ShootOut.fromJson(Map<String, dynamic> json) => _$ShootOutFromJson(json);
-
+  factory ShootOut.fromJson(Map<String, dynamic> json) =>
+      _$ShootOutFromJson(json);
 }
 
 // "section_id": <number>,
@@ -384,5 +385,6 @@ class SparingPlace {
     this.shootOut,
     this.sparringScore,
   );
-  factory SparingPlace.fromJson(Map<String, dynamic> json) => _$SparingPlaceFromJson(json);
+  factory SparingPlace.fromJson(Map<String, dynamic> json) =>
+      _$SparingPlaceFromJson(json);
 }
