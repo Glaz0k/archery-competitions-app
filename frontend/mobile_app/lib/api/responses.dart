@@ -138,7 +138,7 @@ class Cup {
 // "end_date": <YYYY-MM-DD ISO 8601 | null>,
 // "is_ended": <bool>
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable()
 class Competition {
   int id;
   CompetitionStage stage;
