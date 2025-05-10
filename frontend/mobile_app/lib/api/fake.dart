@@ -13,9 +13,22 @@ class FakeServer implements Api {
   };
 
   final Map<int, Competition> _competitions = {
-    1: Competition(1,CompetitionStage.I, DateTime(2025, 2, 3),DateTime(2025,2, 17), false),
-    2: Competition(2,CompetitionStage.II, DateTime(2025, 3, 22),DateTime(2025,3, 28), true),
+    1: Competition(
+      1,
+      CompetitionStage.I,
+      DateTime(2025, 2, 3),
+      DateTime(2025, 2, 17),
+      false,
+    ),
+    2: Competition(
+      2,
+      CompetitionStage.II,
+      DateTime(2025, 3, 22),
+      DateTime(2025, 3, 28),
+      true,
+    ),
   };
+
   @override
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(
     int competitionId,
@@ -90,7 +103,6 @@ class FakeServer implements Api {
     List<Competition> competitions = _competitions.values.toList();
 
     return Future.delayed(delay, () => competitions);
-
   }
 
   @override

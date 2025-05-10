@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/responses.dart';
+import 'package:mobile_app/page/widgets/CompetitionField.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -26,21 +27,15 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
   @override
   Widget build(BuildContext context) {
     var competitions = _competitions;
-
     return RefreshIndicator(
       onRefresh: _loadCompetitions,
-      child: KeyboardDismisser(
-        gestures: [GestureType.onTap],
-        child: GestureDetector(
-          child: Scaffold(
-            appBar: OnionBar("Соревнования", context),
-            body: Center(
-              child: ListView.builder(itemCount: competitions?.length, itemBuilder:(context, index) {
-                final competition = competitions?[index];
-                return buildCompetitionField(competition?.stage.name, _formatCompetitionDate(competition?.startDate, competition?.endDate));
-              })
-            ),
-          ),
+      child: Scaffold(
+        appBar: OnionBar("Соревнования", context),
+        body: Center(
+          child: ListView.builder(itemCount: competitions?.length, itemBuilder:(context, index) {
+            final competition = competitions?[index];
+            return CompetitionField(nameOfComp: competition!.stage.name, date: _formatCompetitionDate(competition.startDate, competition.endDate));
+          })
         ),
       ),
     );
@@ -71,33 +66,6 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     } catch (e) {
       throw "$e";
     }
-  }
-
-  Widget buildCompetitionField(String? nameOfComp, String date) {
-    nameOfComp ??= "";
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
-      child: ListTile(
-        title: Text(
-          nameOfComp,
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text('Даты проведения $date'),
-        leading: IconButton(
-          icon: Icon(Icons.info_outline),
-          color: Colors.teal,
-          onPressed: () {
-            Navigator.pushNamed(context, '/individual_group');
-          },
-        ),
-        trailing: IconButton(
-          onPressed: () {
-            Navigator.pushNamed(context, "/profile_page");
-          },
-          icon: Icon(Icons.person),
-        ),
-      ),
-    );
   }
 
   String _formatCompetitionDate(DateTime? start, DateTime? end) {
