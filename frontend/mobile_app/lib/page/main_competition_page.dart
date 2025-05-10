@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:mobile_app/page/widgets/CompetitionField.dart';
@@ -14,9 +13,9 @@ class MainCompetitionPage extends StatefulWidget {
 }
 
 class _MainCompetitionPage extends State<MainCompetitionPage> {
-  List<Competition>? _competitions;
-  List<Cup>? _cups;
-   int _idCup = 0;
+  Map<int, List<Competition>> _competitions = {};
+  List<Cup> _cups = [];
+  Map<int, List<IndividualGroup>> _individualGroups = {};
 
   @override
   void initState() {
@@ -24,48 +23,52 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     _loadData();
   }
 
+  Future<void> _loadData() async {
+    try {
+      final api = context.read<Api>();
+      final cups = await api.getCups();
+      final cupCompetitions = <int, List<Competition>>{};
+
+      for (final cup in cups) {
+        final competitions = await api.getCupsCompetitions(cup.id);
+        cupCompetitions[cup.id] = competitions;
+
+        final individualGroups = <int, List<IndividualGroup>>{};
+        for (final competition in competitions) {
+          final groups = await api.getCompetitionsIndividualGroups(competition.id);
+          individualGroups[competition.id] = groups;
+        }
+        setState(() {
+          _individualGroups.addAll(individualGroups);
+        });
+      }
+      setState(() {
+        _cups = cups;
+        _competitions = cupCompetitions;
+      });
+    } catch (e) {
+      throw "Ошибка с обновлением данных: $e";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var competitions = _competitions;
     return RefreshIndicator(
-      onRefresh: _loadCompetitions,
+      onRefresh:_loadData,
       child: Scaffold(
         appBar: OnionBar("Соревнования", context),
         body: Center(
-          child: ListView.builder(itemCount: competitions?.length, itemBuilder:(context, index) {
-            final competition = competitions?[index];
-            return CompetitionField(nameOfComp: competition!.stage.name, date: _formatCompetitionDate(competition.startDate, competition.endDate));
-          })
+            child: ListView.builder(
+                itemCount: competitions.length, itemBuilder: (context, index) {
+              final competition = competitions[index];
+              return CompetitionField(nameOfComp: competition!.stage.name,
+                  date: _formatCompetitionDate(
+                      competition.startDate, competition.endDate));
+            })
         ),
       ),
     );
-  }
-
-  Future<void> _loadData() async {
-    final api = context.read<Api>();
-    try {
-      final cups = await api.getCups();
-      if (cups.isNotEmpty) {
-        setState(() {
-          _cups = cups;
-          _idCup = cups.first.id;
-        });
-      }
-      _loadCompetitions();
-    } catch (e) {
-      throw "$e";
-    }
-  }
-
-  Future<void> _loadCompetitions() async {
-    try {
-      final competitions = await context.read<Api>().getCupsCompetitions(_idCup);
-      setState(() {
-        _competitions = competitions;
-      });
-    } catch (e) {
-      throw "$e";
-    }
   }
 
   String _formatCompetitionDate(DateTime? start, DateTime? end) {
