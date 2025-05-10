@@ -81,14 +81,11 @@ class RealServer implements Api {
     final response = await client.get(
       Uri.https(backend, "/competitions/$competitionId/competitors"),
     );
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList
-          .map((json) => CompetitorCompetitionDetail.fromJson(json))
-          .toList();
-    } else {
-      throw NotFoundException("Соревнование не найдено");
-    }
+    validate(response, notFoundMessage: "Соревнование не найдено");
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList
+        .map((json) => CompetitorCompetitionDetail.fromJson(json))
+        .toList();
   }
 
   @override
@@ -98,12 +95,9 @@ class RealServer implements Api {
     final response = await client.get(
       Uri.https(backend, "/competitions/$competitionId/individual_groups"),
     );
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => IndividualGroup.fromJson(json)).toList();
-    } else {
-      throw NotFoundException("Соревнование не найдено");
-    }
+    validate(response, notFoundMessage: "Соревнование не найдено");
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList.map((json) => IndividualGroup.fromJson(json)).toList();
   }
 
   @override
@@ -111,53 +105,42 @@ class RealServer implements Api {
     final response = await client.get(
       Uri.https(backend, "/competitors/$competitorId"),
     );
-    if (response.statusCode == 200) {
-      return CompetitorFull.fromJson(jsonDecode(response.body));
-    } else {
-      throw NotFoundException("Участник не найден");
-    }
+    validate(response, notFoundMessage: "Участник не найден");
+    return CompetitorFull.fromJson(jsonDecode(response.body));
   }
 
   @override
   Future<Cup> getCup(int cupId) async {
     final response = await client.get(Uri.https(backend, "/cups/$cupId"));
-    if (response.statusCode == 200) {
-      return Cup.fromJson(jsonDecode(response.body));
-    } else {
-      throw NotFoundException("Кубок не найден");
-    }
+    validate(response, notFoundMessage: "Кубок не найден");
+    return Cup.fromJson(jsonDecode(response.body));
   }
 
   @override
   Future<List<Cup>> getCups() async {
     final response = await client.get(Uri.https(backend, "/cups"));
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => Cup.fromJson(json)).toList();
-    } else {
-      throw NotFoundException("Кубки не найдены");
-    }
+    validate(response, notFoundMessage: "Кубки не найдены");
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList.map((json) => Cup.fromJson(json)).toList();
   }
 
   @override
   Future<List<Competition>> getCupsCompetitions(int cupId) async {
-    final response = await client.get(Uri.https(backend, "/cups/$cupId/competitions"));
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => Competition.fromJson(json)).toList();
-    } else {
-      throw NotFoundException("Кубок не найдены");
-    }
+    final response = await client.get(
+      Uri.https(backend, "/cups/$cupId/competitions"),
+    );
+    validate(response, notFoundMessage: "Кубок не найден");
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList.map((json) => Competition.fromJson(json)).toList();
   }
 
   @override
   Future<IndividualGroup> getIndividualGroup(int groupId) async {
-    final response = await client.get(Uri.https(backend, "/individual_groups/$groupId"));
-    if (response.statusCode == 200) {
-      return IndividualGroup.fromJson(jsonDecode(response.body));
-    } else {
-      throw NotFoundException("Индивидуальная группа не найдена");
-    }
+    final response = await client.get(
+      Uri.https(backend, "/individual_groups/$groupId"),
+    );
+    validate(response, notFoundMessage: "Группа не найдена");
+    return IndividualGroup.fromJson(jsonDecode(response.body));
   }
 
   @override
