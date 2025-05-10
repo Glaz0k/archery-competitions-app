@@ -137,6 +137,8 @@ class Cup {
 // "start_date": <YYYY-MM-DD ISO 8601 | null>,
 // "end_date": <YYYY-MM-DD ISO 8601 | null>,
 // "is_ended": <bool>
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class Competition {
   int id;
   CompetitionStage stage;
@@ -145,6 +147,8 @@ class Competition {
   bool isEnded;
 
   Competition(this.id, this.stage, this.startDate, this.endDate, this.isEnded);
+
+  factory Competition.fromJson(Map<String, dynamic> json) => _$CompetitionFromJson(json);
 }
 
 // "group_id": <number>,

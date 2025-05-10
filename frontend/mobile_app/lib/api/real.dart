@@ -140,15 +140,24 @@ class RealServer implements Api {
   }
 
   @override
-  Future<List<Competition>> getCupsCompetitions(int cupId) {
-    // TODO: implement getCupsCompetitions
-    throw UnimplementedError();
+  Future<List<Competition>> getCupsCompetitions(int cupId) async {
+    final response = await client.get(Uri.https(backend, "/cups/$cupId/competitions"));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => Competition.fromJson(json)).toList();
+    } else {
+      throw NotFoundException("Кубок не найдены");
+    }
   }
 
   @override
-  Future<IndividualGroup> getIndividualGroup(int groupId) {
-    // TODO: implement getIndividualGroup
-    throw UnimplementedError();
+  Future<IndividualGroup> getIndividualGroup(int groupId) async {
+    final response = await client.get(Uri.https(backend, "/individual_groups/$groupId"));
+    if (response.statusCode == 200) {
+      return IndividualGroup.fromJson(jsonDecode(response.body));
+    } else {
+      throw NotFoundException("Индивидуальная группа не найдена");
+    }
   }
 
   @override
