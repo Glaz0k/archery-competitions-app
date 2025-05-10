@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
-import 'package:mobile_app/api/real.dart';
+import 'package:provider/provider.dart';
 
 class MainCompetitionPage extends StatefulWidget {
   const MainCompetitionPage({super.key});
@@ -12,36 +13,44 @@ class MainCompetitionPage extends StatefulWidget {
 }
 
 class _MainCompetitionPage extends State<MainCompetitionPage> {
+  List<Competition>? _competitions;
+  List<Cup>? _cups;
+  final int _idCup = 0;
 
-  RealServer api = RealServer();
-  late Future<List<Competition>> competitionsFuture = _loadCompetitions();
+  @override
+  void initState() {
+    super.initState();
+    var api = context.read<Api>();
+    api.getCups().then((cups) => setState(() {
+      _cups = cups;
+    }));
+    api.getCupsCompetitions(_idCup).then((competitions) => setState(() {
+      _competitions = competitions;
+    }));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardDismisser(
-      gestures: [GestureType.onTap],
-      child: GestureDetector(
-        child: Scaffold(
-          appBar: OnionBar("Соревнования", context),
-          body: Center(
-            child: FutureBuilder(future: competitionsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Ошибка: ${snapshot.error}");
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text("Нет доступных соревнований");
-                  } else {
-                    final competitions = snapshot.data!;
-                    return ListView.builder(itemCount: competitions.length,
-                      itemBuilder: (context, index) {
-                        final competition = competitions[index];
-                        return buildCompetitionField(competition.stage.name, _formatCompetitionDate(competition.startDate, competition.endDate));
-                      },
-                    );
-                  }
-                }
+    var api = context.watch<Api>();
+    var competitions = _competitions;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        competitions = await api.getCupsCompetitions(_idCup);
+        setState(() {
+          _competitions = competitions;
+        });
+      },
+      child: KeyboardDismisser(
+        gestures: [GestureType.onTap],
+        child: GestureDetector(
+          child: Scaffold(
+            appBar: OnionBar("Соревнования", context),
+            body: Center(
+              child: ListView.builder(itemCount: competitions?.length, itemBuilder:(context, index) {
+                final competition = competitions?[index];
+                return buildCompetitionField(competition?.stage.name, _formatCompetitionDate(competition?.startDate, competition?.endDate));
+              })
             ),
           ),
         ),
@@ -49,7 +58,8 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     );
   }
 
-  Widget buildCompetitionField(String nameOfComp, String date) {
+  Widget buildCompetitionField(String? nameOfComp, String date) {
+    nameOfComp ??= "";
     return Card(
       margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
       child: ListTile(
@@ -57,7 +67,7 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
           nameOfComp,
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('Даты проведения: $date'),
+        subtitle: Text('Даты проведения $date'),
         leading: IconButton(
           icon: Icon(Icons.info_outline),
           color: Colors.teal,
@@ -75,20 +85,9 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     );
   }
 
-  Future<List<Competition>> _loadCompetitions() async {
-    try {
-      List<Cup> cups = await api.getCups();
-      if (cups.isEmpty) return [];
-      int cupId = cups.first.id;
-      return await api.getCupsCompetitions(cupId);
-    } catch (e) {
-      throw Exception('Не удалось загрузить соревнования');
-    }
-  }
-
   String _formatCompetitionDate(DateTime? start, DateTime? end) {
     if (start == null && end == null) {
-      return "Даты проведения соревнований не указаны";
+      return "соревнований не указаны";
     }
     if (start == null) return 'до ${_formatDate(end!)}';
     if (end == null) return 'с ${_formatDate(start)}';
