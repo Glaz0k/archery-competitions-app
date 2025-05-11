@@ -211,7 +211,7 @@ class RealServer implements Api {
   }
 
   @override
-  Future<void> login(Credentials credentials) {
+  Future<int> login(Credentials credentials) {
     // TODO: implement login
     throw UnimplementedError();
   }

@@ -1,123 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/api/exceptions.dart';
+import 'package:mobile_app/api/requests.dart';
+import 'package:mobile_app/page/widgets/onion_bar.dart';
+import 'package:provider/provider.dart';
+
+import '../api/api.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPage();
+  State<StatefulWidget> createState() => _LoginPageState();
 }
 
-class _LoginPage extends State<LoginPage> {
-  final _sizeBlackText = const TextStyle(fontSize: 12, color: Colors.black);
-  final _sizeWhiteText = const TextStyle(fontSize: 15, color: Colors.white);
+const String requiredField = "Обязательное поле";
 
-  bool isPasswordVisible = true;
-
-  final myController = TextEditingController();
-  var text = '';
-
-  @override
-  void dispose() {
-    myController.dispose();
-    super.dispose();
-  }
-
+class _LoginPageState extends State<LoginPage> {
+  Future<int> _userId = Future(() => 0);
+  String? _errorMessage;
+  final Credentials _credentials = Credentials("", "");
   @override
   Widget build(BuildContext context) {
-    return KeyboardDismisser(
-      gestures: [GestureType.onTap],
-      child: GestureDetector(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text('Вход'),
-            backgroundColor: Colors.green,
-            centerTitle: true,
-          ),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  width: 300,
-                  child: TextFormField(
-                    controller: myController,
-                    decoration: InputDecoration(
-                      label: Text(
-                        "Логин",
-                        style: TextStyle(color: Colors.green, fontSize: 20),
-                      ),
-                      prefixIcon: const Icon(Icons.person),
-                      hintText: 'Введите логин',
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal, width: 2.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal, width: 2.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    validator: (String? value) {},
-                    onChanged: null,
-                  ),
-                ),
-                Container(
-                  width: 300,
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      label: Text(
-                        "Пароль",
-                        style: TextStyle(color: Colors.green, fontSize: 20),
-                      ),
-                      hintText: 'Введите пароль',
-                      prefixIcon: const Icon(Icons.person),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal, width: 2.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.teal, width: 2.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed:
-                            () => setState(
-                              () => isPasswordVisible = !isPasswordVisible,
-                            ),
-                        icon:
-                            isPasswordVisible
-                                ? Icon(Icons.visibility_off)
-                                : Icon(Icons.visibility),
-                      ),
-                    ),
-
-                    obscureText: isPasswordVisible,
-                    style: _sizeBlackText,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 25.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/profile_page');
-                    },
-                    style: ButtonStyle(
-                      minimumSize: WidgetStateProperty.all(const Size(200, 40)),
-                      backgroundColor: WidgetStateProperty.all(Colors.green),
-                      overlayColor: WidgetStateProperty.all(Colors.blueAccent),
-                    ),
-                    child: Text("Войти", style: _sizeWhiteText),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed:
-                      () => Navigator.pushNamed(context, "/competition_page"),
-                  child: Text("Перейти на страницу соревнований"),
-                ),
-              ],
-            ),
+    var api = context.watch<Api>();
+    return Scaffold(
+      appBar: OnionBar.withoutProfile("Вход", context),
+      body: Form(
+        child: Padding(
+          padding: EdgeInsets.all(50),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextFormField(
+                decoration: const InputDecoration(label: Text("Логин")),
+                onSaved: (text) => _credentials.login = text ?? '',
+                textInputAction: TextInputAction.next,
+                forceErrorText: _errorMessage,
+                onChanged: (_) {
+                  if (_errorMessage != null) {
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  }
+                },
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return requiredField;
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                decoration: const InputDecoration(label: Text("Пароль")),
+                onSaved: (text) => _credentials.password = text ?? '',
+                forceErrorText: _errorMessage,
+                onChanged: (_) {
+                  if (_errorMessage != null) {
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  }
+                },
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return requiredField;
+                  }
+                  return null;
+                },
+              ),
+              FutureBuilder(
+                future: _userId,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return FilledButton(
+                      onPressed: () {
+                        var formState = Form.of(context);
+                        if (formState.validate()) {
+                          formState.save();
+                          setState(() {
+                            _userId = api.login(_credentials).onError((e, st) {
+                              var errorMessage = (e as OnionException).message;
+                              setState(() {
+                                _errorMessage = errorMessage;
+                              });
+                              return 0;
+                            });
+                          });
+                        }
+                      },
+                      child: Text("Войти"),
+                    );
+                  } else {
+                    return FilledButton(
+                      onPressed: null,
+                      child: Text("Входим..."),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),

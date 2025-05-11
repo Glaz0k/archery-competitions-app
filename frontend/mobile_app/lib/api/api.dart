@@ -23,7 +23,7 @@ abstract class Api {
   /// - InvalidParametersException(Неверные параметры входа)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/auth.md#post-authlogin
-  Future<void> login(Credentials credentials);
+  Future<int> login(Credentials credentials);
 
   /// POST /auth/logout
   ///
