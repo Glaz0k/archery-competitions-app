@@ -883,6 +883,10 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 	case "semifinal":
 		sf := result.(*models.Semifinal)
 		for i, sparring := range sparrings {
+			if sparring == nil {
+				sf = nil
+				return nil
+			}
 			if i == 0 {
 				sf.Sparring5 = *sparring
 			} else if i == 1 {
@@ -892,6 +896,10 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 	case "final":
 		f := result.(*models.Final)
 		for i, sparring := range sparrings {
+			if sparring == nil {
+				f = nil
+				return nil
+			}
 			if i == 0 {
 				f.SparringGold = *sparring
 			} else if i == 1 {
