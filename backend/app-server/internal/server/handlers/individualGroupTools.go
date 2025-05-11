@@ -1057,26 +1057,9 @@ func deleteShots(ctx context.Context, tx pgx.Tx, groupID int) error {
             SELECT r.id 
             FROM ranges r
             JOIN range_groups rg ON r.group_id = rg.id
-            JOIN sparring_places sp ON sp.range_group_id = rg.id
-            JOIN sparrings s ON sp.id = s.top_place_id OR sp.id = s.bot_place_id
-            JOIN (
-                SELECT group_id, sparring1_id AS sparring_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring2_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring3_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring4_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring5_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring6_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_gold_id FROM finals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_bronze_id FROM finals WHERE group_id = $1
-            ) stages ON s.id = stages.sparring_id
-            WHERE stages.group_id = $1
+            JOIN qualification_rounds qr ON qr.range_group_id = rg.id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
         )`, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete shots: %w", err)
@@ -1090,25 +1073,9 @@ func deleteShootOuts(ctx context.Context, tx pgx.Tx, groupID int) error {
         WHERE place_id IN (
             SELECT sp.id 
             FROM sparring_places sp
-            JOIN sparrings s ON sp.id = s.top_place_id OR sp.id = s.bot_place_id
-            JOIN (
-                SELECT group_id, sparring1_id AS sparring_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring2_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring3_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring4_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring5_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring6_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_gold_id FROM finals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_bronze_id FROM finals WHERE group_id = $1
-            ) stages ON s.id = stages.sparring_id
-            WHERE stages.group_id = $1
+            JOIN qualification_rounds qr ON sp.range_group_id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
         )`, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete shoot outs: %w", err)
@@ -1120,24 +1087,12 @@ func deleteSparrings(ctx context.Context, tx pgx.Tx, groupID int) error {
 	_, err := tx.Exec(ctx, `
         DELETE FROM sparrings 
         WHERE id IN (
-            SELECT sparring_id 
-            FROM (
-                SELECT sparring1_id AS sparring_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT sparring2_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT sparring3_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT sparring4_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT sparring5_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT sparring6_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT sparring_gold_id FROM finals WHERE group_id = $1
-                UNION
-                SELECT sparring_bronze_id FROM finals WHERE group_id = $1
-            ) stages
+            SELECT s.id 
+            FROM sparrings s
+            JOIN sparring_places sp ON sp.id = s.top_place_id OR sp.id = s.bot_place_id
+            JOIN qualification_rounds qr ON sp.range_group_id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
         )`, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete sparrings: %w", err)
@@ -1151,25 +1106,9 @@ func deleteSparringPlaces(ctx context.Context, tx pgx.Tx, groupID int) error {
         WHERE id IN (
             SELECT sp.id 
             FROM sparring_places sp
-            JOIN sparrings s ON sp.id = s.top_place_id OR sp.id = s.bot_place_id
-            JOIN (
-                SELECT group_id, sparring1_id AS sparring_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring2_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring3_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring4_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring5_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring6_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_gold_id FROM finals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_bronze_id FROM finals WHERE group_id = $1
-            ) stages ON s.id = stages.sparring_id
-            WHERE stages.group_id = $1
+            JOIN qualification_rounds qr ON sp.range_group_id = qr.range_group_id
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
         )`, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete sparring places: %w", err)
@@ -1181,28 +1120,10 @@ func deleteRanges(ctx context.Context, tx pgx.Tx, groupID int) error {
 	_, err := tx.Exec(ctx, `
         DELETE FROM ranges 
         WHERE group_id IN (
-            SELECT rg.id 
-            FROM range_groups rg
-            JOIN sparring_places sp ON sp.range_group_id = rg.id
-            JOIN sparrings s ON sp.id = s.top_place_id OR sp.id = s.bot_place_id
-            JOIN (
-                SELECT group_id, sparring1_id AS sparring_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring2_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring3_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring4_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring5_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring6_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_gold_id FROM finals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_bronze_id FROM finals WHERE group_id = $1
-            ) stages ON s.id = stages.sparring_id
-            WHERE stages.group_id = $1
+            SELECT qr.range_group_id
+            FROM qualification_rounds qr
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
         )`, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete ranges: %w", err)
@@ -1214,28 +1135,10 @@ func deleteRangeGroups(ctx context.Context, tx pgx.Tx, groupID int) error {
 	_, err := tx.Exec(ctx, `
         DELETE FROM range_groups 
         WHERE id IN (
-            SELECT rg.id 
-            FROM range_groups rg
-            JOIN sparring_places sp ON sp.range_group_id = rg.id
-            JOIN sparrings s ON sp.id = s.top_place_id OR sp.id = s.bot_place_id
-            JOIN (
-                SELECT group_id, sparring1_id AS sparring_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring2_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring3_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring4_id FROM quarterfinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring5_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring6_id FROM semifinals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_gold_id FROM finals WHERE group_id = $1
-                UNION
-                SELECT group_id, sparring_bronze_id FROM finals WHERE group_id = $1
-            ) stages ON s.id = stages.sparring_id
-            WHERE stages.group_id = $1
+            SELECT qr.range_group_id
+            FROM qualification_rounds qr
+            JOIN qualification_sections qs ON qr.section_id = qs.id
+            WHERE qs.group_id = $1
         )`, groupID)
 	if err != nil {
 		return fmt.Errorf("failed to delete range groups: %w", err)
@@ -1308,18 +1211,6 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 		return fmt.Errorf("failed to delete shoot outs: %v", err)
 	}
 
-	if err := deleteFinals(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete finals: %v", err)
-	}
-
-	if err := deleteSemifinals(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete semifinals: %v", err)
-	}
-
-	if err := deleteQuarterfinals(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete quarterfinals: %v", err)
-	}
-
 	if err := deleteShots(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete shots: %v", err)
 	}
@@ -1336,16 +1227,50 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 		return fmt.Errorf("failed to delete sparring places: %v", err)
 	}
 
-	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete range groups: %v", err)
+	var rangeGroupIDs []int
+	rows, err := tx.Query(ctx, `
+        SELECT qr.range_group_id 
+        FROM qualification_rounds qr
+        JOIN qualification_sections qs ON qr.section_id = qs.id
+        WHERE qs.group_id = $1`, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to select range group IDs: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int
+		if err := rows.Scan(&id); err != nil {
+			return fmt.Errorf("failed to scan range group ID: %w", err)
+		}
+		rangeGroupIDs = append(rangeGroupIDs, id)
 	}
 
 	if err := deleteQualificationRounds(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete qualification rounds: %v", err)
 	}
 
+	if len(rangeGroupIDs) > 0 {
+		_, err := tx.Exec(ctx, `DELETE FROM range_groups WHERE id = ANY($1)`, rangeGroupIDs)
+		if err != nil {
+			return fmt.Errorf("failed to delete range groups: %w", err)
+		}
+	}
+
 	if err := deleteQualificationSections(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete qualification sections: %v", err)
+	}
+
+	if err := deleteFinals(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete finals: %v", err)
+	}
+
+	if err := deleteSemifinals(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete semifinals: %v", err)
+	}
+
+	if err := deleteQuarterfinals(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete quarterfinals: %v", err)
 	}
 
 	if err := deleteQualifications(ctx, tx, groupID); err != nil {
