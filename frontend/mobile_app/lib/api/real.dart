@@ -150,7 +150,7 @@ class RealServer implements Api {
     final response = await client.get(Uri.https(backend,"/individual_groups/$groupId/competitors"));
     validate(response, notFoundMessage: "Группа не найдена");
     final List<dynamic> jsonList = jsonDecode(response.body);
-    return jsonList.map((json) => CompetitorGroupDetail.fromJson(json)).toList();
+    return jsonList.map((json) { return CompetitorGroupDetail(json['group_id'] as int, CompetitorFull.fromJson(json['competitor']),);}).toList();
   }
 
   @override
