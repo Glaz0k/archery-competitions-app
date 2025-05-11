@@ -179,7 +179,7 @@ func getSemifinalsTx(tx pgx.Tx, ctx context.Context, groupID int, sf *models.Sem
 			return fmt.Errorf("failed to scan sparring: %w", err)
 		}
 
-		s.TopPlace = models.SparringPlace{ID: int(topPlaceID.Int64), IsActive: true}
+		s.TopPlace = &models.SparringPlace{ID: int(topPlaceID.Int64), IsActive: true}
 		if topCompetitorID.Valid {
 			s.TopPlace.Competitor = models.CompetitorShrinked{
 				ID:       int(topCompetitorID.Int64),
@@ -193,7 +193,7 @@ func getSemifinalsTx(tx pgx.Tx, ctx context.Context, groupID int, sf *models.Sem
 			}
 		}
 
-		s.BotPlace = models.SparringPlace{ID: int(botPlaceID.Int64)}
+		s.BotPlace = &models.SparringPlace{ID: int(botPlaceID.Int64)}
 		if botCompetitorID.Valid {
 			s.BotPlace.Competitor = models.CompetitorShrinked{
 				ID:       int(botCompetitorID.Int64),
@@ -212,6 +212,11 @@ func getSemifinalsTx(tx pgx.Tx, ctx context.Context, groupID int, sf *models.Sem
 	}
 	if err := rows.Err(); err != nil {
 		return fmt.Errorf("error iterating sparring rows: %w", err)
+	}
+
+	if sf.Sparring6.BotPlace.Competitor.FullName == "" {
+		sf = nil
+		return nil
 	}
 
 	if len(sparrings) > 0 {
@@ -416,7 +421,7 @@ func createShotsTx(tx pgx.Tx, ctx context.Context, rangeIDs []int64, rangeSize i
 			_, err := tx.Exec(ctx, `
                 INSERT INTO shots (range_id, shot_ordinal, score)
                 VALUES ($1, $2, $3)`,
-				rangeID, shotOrdinal, "0")
+				rangeID, shotOrdinal, nil)
 			if err != nil {
 				return fmt.Errorf("failed to create shot for range_id %d, shot_ordinal %d: %w", rangeID, shotOrdinal, err)
 			}
@@ -596,9 +601,29 @@ func getQuarterfinalsTx(tx pgx.Tx, ctx context.Context, groupID int, qf *models.
 			}
 		}
 
-		sparring.TopPlace = topPlace
-		sparring.BotPlace = botPlace
+		sparring.TopPlace = &topPlace
+		sparring.BotPlace = &botPlace
 
+		if topPlace.Competitor.FullName == "" {
+			sparring.TopPlace = nil
+		}
+		if botPlace.Competitor.FullName == "" {
+			sparring.BotPlace = nil
+		}
+
+		if sparring.BotPlace == nil || sparring.TopPlace == nil {
+			if sparring.TopPlace == nil {
+				sparring.BotPlace.IsActive = false
+				sparring.BotPlace.RangeGroup.Type = "1-10"
+				rgs := make([]models.Range, 0)
+				sparring.BotPlace.RangeGroup.Ranges = rgs
+			} else {
+				sparring.TopPlace.IsActive = false
+				sparring.TopPlace.RangeGroup.Type = "1-10"
+				rgs := make([]models.Range, 0)
+				sparring.TopPlace.RangeGroup.Ranges = rgs
+			}
+		}
 		if info.SparringNum > 0 {
 			sparrings[info.SparringNum-1] = &sparring
 		}
@@ -813,8 +838,15 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 			}
 		}
 
-		sparring.TopPlace = topPlace
-		sparring.BotPlace = botPlace
+		sparring.TopPlace = &topPlace
+		sparring.BotPlace = &botPlace
+
+		if topPlace.Competitor.FullName == "" {
+			sparring.TopPlace = nil
+		}
+		if botPlace.Competitor.FullName == "" {
+			sparring.BotPlace = nil
+		}
 
 		if info.SparringNum > 0 {
 			sparrings[info.SparringNum-1] = &sparring
@@ -825,6 +857,19 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 	case "quarterfinal":
 		qf := result.(*models.Quarterfinal)
 		for i, sparring := range sparrings {
+			if sparring.BotPlace == nil || sparring.TopPlace == nil {
+				if sparring.TopPlace == nil {
+					sparring.BotPlace.IsActive = false
+					sparring.BotPlace.RangeGroup.Type = "1-10"
+					rgs := make([]models.Range, 0)
+					sparring.BotPlace.RangeGroup.Ranges = rgs
+				} else {
+					sparring.TopPlace.IsActive = false
+					sparring.TopPlace.RangeGroup.Type = "1-10"
+					rgs := make([]models.Range, 0)
+					sparring.TopPlace.RangeGroup.Ranges = rgs
+				}
+			}
 			if i == 0 {
 				qf.Sparring1 = *sparring
 			} else if i == 1 {
@@ -953,7 +998,7 @@ func getSectionRoundsStats(sectionID int) ([]models.RoundShrinked, int, int, int
 	}
 	rows.Close()
 
-	for _, round := range rounds {
+	for i, round := range rounds {
 		roundScore, tens, nines, err := getRoundStats(sectionID, round.RoundOrdinal)
 		if err != nil {
 			return nil, 0, 0, 0, fmt.Errorf("get round stats failed: %w", err)
@@ -964,6 +1009,7 @@ func getSectionRoundsStats(sectionID int) ([]models.RoundShrinked, int, int, int
 		totalScore += roundScore
 		tensCount += tens
 		ninesCount += nines
+		rounds[i] = round
 	}
 
 	return rounds, totalScore, tensCount, ninesCount, nil
@@ -1488,7 +1534,7 @@ func getFinalsTx(tx pgx.Tx, ctx context.Context, groupID int, f *models.Final) e
 			return fmt.Errorf("failed to scan sparring: %w", err)
 		}
 
-		s.TopPlace = models.SparringPlace{ID: int(topPlaceID.Int64), IsActive: true}
+		s.TopPlace = &models.SparringPlace{ID: int(topPlaceID.Int64), IsActive: true}
 		if topCompetitorID.Valid {
 			s.TopPlace.Competitor = models.CompetitorShrinked{
 				ID:       int(topCompetitorID.Int64),
@@ -1502,7 +1548,7 @@ func getFinalsTx(tx pgx.Tx, ctx context.Context, groupID int, f *models.Final) e
 			}
 		}
 
-		s.BotPlace = models.SparringPlace{ID: int(botPlaceID.Int64)}
+		s.BotPlace = &models.SparringPlace{ID: int(botPlaceID.Int64)}
 		if botCompetitorID.Valid {
 			s.BotPlace.Competitor = models.CompetitorShrinked{
 				ID:       int(botCompetitorID.Int64),
@@ -1521,6 +1567,11 @@ func getFinalsTx(tx pgx.Tx, ctx context.Context, groupID int, f *models.Final) e
 	}
 	if err := rows.Err(); err != nil {
 		return fmt.Errorf("error iterating sparring rows: %w", err)
+	}
+
+	if f.SparringGold.BotPlace.Competitor.FullName == "" {
+		f = nil
+		return nil
 	}
 
 	if len(sparrings) > 0 {

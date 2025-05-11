@@ -26,8 +26,8 @@ type ShootOuts struct {
 }
 
 type Sparring struct {
-	ID       int           `json:"id"`
-	TopPlace SparringPlace `json:"top_place"`
-	BotPlace SparringPlace `json:"bot_place"`
-	State    string        `json:"state"`
+	ID       int            `json:"id"`
+	TopPlace *SparringPlace `json:"top_place"`
+	BotPlace *SparringPlace `json:"bot_place"`
+	State    string         `json:"state"`
 }

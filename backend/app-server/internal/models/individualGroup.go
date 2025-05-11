@@ -11,8 +11,8 @@ type IndividualGroup struct {
 type FinalGrid struct {
 	GroupID      int          `json:"group_id"`
 	Quarterfinal Quarterfinal `json:"quarterfinal"`
-	Semifinal    Semifinal    `json:"semifinal"`
-	Final        Final        `json:"final"`
+	Semifinal    *Semifinal   `json:"semifinal"`
+	Final        *Final       `json:"final"`
 }
 
 type Quarterfinal struct {

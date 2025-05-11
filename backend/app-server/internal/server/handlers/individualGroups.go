@@ -352,11 +352,11 @@ func GetFinalGrid(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get quarterfinals"})
 		return
 	}
-	if err := getSemifinals(r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+	if err := getSemifinals(r.Context(), groupID, finalGrid.Semifinal); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 		return
 	}
-	if err := getFinals(r.Context(), groupID, &finalGrid.Final); err != nil {
+	if err := getFinals(r.Context(), groupID, finalGrid.Final); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get finals"})
 		return
 	}
@@ -495,7 +495,7 @@ func StartSemifinal(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := getSemifinalsTx(tx, r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+		if err := getSemifinalsTx(tx, r.Context(), groupID, finalGrid.Semifinal); err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 			return
 		}
@@ -548,7 +548,7 @@ func StartSemifinal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := getSemifinals(r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+	if err := getSemifinals(r.Context(), groupID, finalGrid.Semifinal); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 		return
 	}
@@ -595,11 +595,11 @@ func StartFinal(w http.ResponseWriter, r *http.Request) {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get quarterfinals"})
 			return
 		}
-		if err := getSemifinalsTx(tx, r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+		if err := getSemifinalsTx(tx, r.Context(), groupID, finalGrid.Semifinal); err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 			return
 		}
-		if err := getFinalsTx(tx, r.Context(), groupID, &finalGrid.Final); err != nil {
+		if err := getFinalsTx(tx, r.Context(), groupID, finalGrid.Final); err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get finals"})
 			return
 		}
@@ -651,11 +651,11 @@ func StartFinal(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get quarterfinals"})
 		return
 	}
-	if err := getSemifinals(r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+	if err := getSemifinals(r.Context(), groupID, finalGrid.Semifinal); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 		return
 	}
-	if err := getFinals(r.Context(), groupID, &finalGrid.Final); err != nil {
+	if err := getFinals(r.Context(), groupID, finalGrid.Final); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get finals"})
 		return
 	}
@@ -701,11 +701,11 @@ func EndFinal(w http.ResponseWriter, r *http.Request) {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get quarterfinals"})
 			return
 		}
-		if err := getSemifinalsTx(tx, r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+		if err := getSemifinalsTx(tx, r.Context(), groupID, finalGrid.Semifinal); err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 			return
 		}
-		if err := getFinalsTx(tx, r.Context(), groupID, &finalGrid.Final); err != nil {
+		if err := getFinalsTx(tx, r.Context(), groupID, finalGrid.Final); err != nil {
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get finals"})
 			return
 		}
@@ -738,11 +738,11 @@ func EndFinal(w http.ResponseWriter, r *http.Request) {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get quarterfinals"})
 		return
 	}
-	if err := getSemifinals(r.Context(), groupID, &finalGrid.Semifinal); err != nil {
+	if err := getSemifinals(r.Context(), groupID, finalGrid.Semifinal); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get semifinals"})
 		return
 	}
-	if err := getFinals(r.Context(), groupID, &finalGrid.Final); err != nil {
+	if err := getFinals(r.Context(), groupID, finalGrid.Final); err != nil {
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to get finals"})
 		return
 	}
