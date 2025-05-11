@@ -8,10 +8,6 @@ class NotFoundException extends OnionException {
   NotFoundException(super.message);
 }
 
-class FetchingDataException extends OnionException {
-  FetchingDataException(super.message);
-}
-
 class InvalidParametersException extends OnionException {
   InvalidParametersException(super.message);
 }
@@ -27,5 +23,6 @@ class BadActionException extends OnionException {
 class InvalidScoreException extends OnionException {
   final int shotOrdinal;
   final String rangeType;
+
   InvalidScoreException(super.message, this.shotOrdinal, this.rangeType);
 }

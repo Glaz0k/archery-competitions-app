@@ -25,40 +25,36 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
   }
 
   Future<void> _loadData() async {
-    try {
-      final api = context.read<Api>();
-      final cups = await api.getCups();
-      if (cups.isEmpty) return;
+    final api = context.read<Api>();
+    final cups = await api.getCups();
+    if (cups.isEmpty) return;
 
-      final competitionsFuture = cups.map(
-        (cup) => api.getCupsCompetitions(cup.id),
-      );
-      final allCompetitions = await Future.wait(competitionsFuture);
+    final competitionsFuture = cups.map(
+      (cup) => api.getCupsCompetitions(cup.id),
+    );
+    final allCompetitions = await Future.wait(competitionsFuture);
 
-      final cupCompetitions = {
-        for (int i = 0; i < cups.length; i++) cups[i].id: allCompetitions[i],
-      };
+    final cupCompetitions = {
+      for (int i = 0; i < cups.length; i++) cups[i].id: allCompetitions[i],
+    };
 
-      final allGroups = await Future.wait(
-        allCompetitions
-            .expand((competitions) => competitions)
-            .map(
-              (competition) =>
-                  api.getCompetitionsIndividualGroups(competition.id),
-            ),
-      );
-      final individualGroups = {
-        for (int i = 0; i < allCompetitions.expand((c) => c).length; i++)
-          allCompetitions.expand((c) => c).elementAt(i).id: allGroups[i],
-      };
-      setState(() {
-        _cups = cups;
-        _competitions = cupCompetitions;
-        _individualGroups = individualGroups;
-      });
-    } catch (e) {
-      throw FetchingDataException("Ошибка в загрузки данных");
-    }
+    final allGroups = await Future.wait(
+      allCompetitions
+          .expand((competitions) => competitions)
+          .map(
+            (competition) =>
+                api.getCompetitionsIndividualGroups(competition.id),
+          ),
+    );
+    final individualGroups = {
+      for (int i = 0; i < allCompetitions.expand((c) => c).length; i++)
+        allCompetitions.expand((c) => c).elementAt(i).id: allGroups[i],
+    };
+    setState(() {
+      _cups = cups;
+      _competitions = cupCompetitions;
+      _individualGroups = individualGroups;
+    });
   }
 
   @override
