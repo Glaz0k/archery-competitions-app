@@ -8,6 +8,10 @@ class NotFoundException extends OnionException {
   NotFoundException(super.message);
 }
 
+class FetchingDataException extends OnionException {
+  FetchingDataException(super.message);
+}
+
 class InvalidParametersException extends OnionException {
   InvalidParametersException(super.message);
 }

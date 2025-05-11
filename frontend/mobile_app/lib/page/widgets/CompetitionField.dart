@@ -17,7 +17,7 @@ class CompetitionField extends StatelessWidget {
         subtitle: Text('Даты проведения $date'),
         leading: IconButton(
           icon: Icon(Icons.info_outline),
-          color: Colors.teal,
+          color: Theme.of(context).primaryColor,
           onPressed: () {
             Navigator.pushNamed(context, '/individual_group');
           },

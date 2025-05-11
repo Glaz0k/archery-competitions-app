@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/api.dart';
+import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:mobile_app/page/widgets/CompetitionField.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
@@ -27,45 +28,61 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     try {
       final api = context.read<Api>();
       final cups = await api.getCups();
-      final cupCompetitions = <int, List<Competition>>{};
+      if (cups.isEmpty) return;
 
-      for (final cup in cups) {
-        final competitions = await api.getCupsCompetitions(cup.id);
-        cupCompetitions[cup.id] = competitions;
+      final competitionsFuture = cups.map(
+        (cup) => api.getCupsCompetitions(cup.id),
+      );
+      final allCompetitions = await Future.wait(competitionsFuture);
 
-        final individualGroups = <int, List<IndividualGroup>>{};
-        for (final competition in competitions) {
-          final groups = await api.getCompetitionsIndividualGroups(competition.id);
-          individualGroups[competition.id] = groups;
-        }
-        setState(() {
-          _individualGroups.addAll(individualGroups);
-        });
-      }
+      final cupCompetitions = {
+        for (int i = 0; i < cups.length; i++) cups[i].id: allCompetitions[i],
+      };
+
+      final allGroups = await Future.wait(
+        allCompetitions
+            .expand((competitions) => competitions)
+            .map(
+              (competition) =>
+                  api.getCompetitionsIndividualGroups(competition.id),
+            ),
+      );
+      final individualGroups = {
+        for (int i = 0; i < allCompetitions.expand((c) => c).length; i++)
+          allCompetitions.expand((c) => c).elementAt(i).id: allGroups[i],
+      };
       setState(() {
         _cups = cups;
         _competitions = cupCompetitions;
+        _individualGroups = individualGroups;
       });
     } catch (e) {
-      throw "Ошибка с обновлением данных: $e";
+      throw FetchingDataException("Ошибка в загрузки данных");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    var competitions = _competitions;
+    final allCompetitions =
+        _competitions.values.expand((list) => list).toList();
     return RefreshIndicator(
-      onRefresh:_loadData,
+      onRefresh: _loadData,
       child: Scaffold(
         appBar: OnionBar("Соревнования", context),
         body: Center(
-            child: ListView.builder(
-                itemCount: competitions.length, itemBuilder: (context, index) {
-              final competition = competitions[index];
-              return CompetitionField(nameOfComp: competition!.stage.name,
-                  date: _formatCompetitionDate(
-                      competition.startDate, competition.endDate));
-            })
+          child: ListView.builder(
+            itemCount: allCompetitions.length,
+            itemBuilder: (context, index) {
+              final competition = allCompetitions[index];
+              return CompetitionField(
+                nameOfComp: competition.stage.name,
+                date: _formatCompetitionDate(
+                  competition.startDate,
+                  competition.endDate,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -78,14 +95,14 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     if (start == null) return 'до ${_formatDate(end!)}';
     if (end == null) return 'с ${_formatDate(start)}';
 
-    if (start.day == end.day && start.month == end.month &&
+    if (start.day == end.day &&
+        start.month == end.month &&
         start.year == end.year) {
       return _formatDate(start);
     }
 
     if (start.year == end.year && start.month == end.month) {
-      return '${start.day}-${end.day} ${_getMonth(start.month)} ${start
-          .year} г.';
+      return '${start.day}-${end.day} ${_getMonth(start.month)} ${start.year} г.';
     }
 
     if (start.year == end.year) {
@@ -97,8 +114,20 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
   }
 
   String _getMonth(int month) {
-    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    const months = [
+      'января',
+      'февраля',
+      'марта',
+      'апреля',
+      'мая',
+      'июня',
+      'июля',
+      'августа',
+      'сентября',
+      'октября',
+      'ноября',
+      'декабря',
+    ];
     return months[month - 1];
   }
 
