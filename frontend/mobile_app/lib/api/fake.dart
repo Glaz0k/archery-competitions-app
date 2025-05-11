@@ -115,8 +115,22 @@ class FakeServer implements Api {
   Future<List<CompetitorGroupDetail>> getIndividualGroupCompetitors(
     int groupId,
   ) {
-    // TODO: implement getIndividualGroupCompetitors
-    throw UnimplementedError();
+    return Future.delayed(delay, () {
+      switch(groupId) {
+        case 1:
+          return [
+            CompetitorGroupDetail(1, lebedev),
+            CompetitorGroupDetail(1, piyavkin),
+            CompetitorGroupDetail(1, kozakova),
+            CompetitorGroupDetail(1, dudkina),
+            CompetitorGroupDetail(1, kravchenko),
+            CompetitorGroupDetail(1, demidenko),
+            CompetitorGroupDetail(1, novokhatskiy),
+          ];
+        default:
+          throw NotFoundException("Группа не найдена");
+      }
+    });
   }
 
   @override

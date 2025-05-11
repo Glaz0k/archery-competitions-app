@@ -153,11 +153,14 @@ class Competition {
 
 // "group_id": <number>,
 // "competitor": <competitor_full>
+@JsonSerializable()
 class CompetitorGroupDetail {
   int groupId;
   CompetitorFull competitor;
 
   CompetitorGroupDetail(this.groupId, this.competitor);
+
+  factory CompetitorGroupDetail.fromJson(Map<String, dynamic> json) => _$CompetitorGroupDetailFromJson(json);
 }
 
 // "group_id": <number>,
