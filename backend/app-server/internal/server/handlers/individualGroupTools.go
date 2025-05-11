@@ -882,6 +882,7 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 		}
 	case "semifinal":
 		sf := result.(*models.Semifinal)
+		sf = &models.Semifinal{}
 		for i, sparring := range sparrings {
 			if sparring == nil {
 				sf = nil
@@ -895,6 +896,7 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 		}
 	case "final":
 		f := result.(*models.Final)
+		f = &models.Final{}
 		for i, sparring := range sparrings {
 			if sparring == nil {
 				f = nil
