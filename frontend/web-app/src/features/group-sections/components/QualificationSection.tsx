@@ -139,19 +139,19 @@ function QualificationTableRow({ section, selected, setSelected }: Qualification
       onClick={() => setSelected(section.id)}
       bg={selected ? `${theme.colors.yellow[0]}33` : undefined}
     >
-      <Table.Td>{section.place || NO_SCORE_VALUE}</Table.Td>
+      <Table.Td>{section.place ?? NO_SCORE_VALUE}</Table.Td>
       <Table.Td>{section.competitor.fullName}</Table.Td>
       {rounds.map((round) => (
         <Table.Td
           key={`${section.id}$round${round.ordinal}`}
           bg={round.isActive ? `${theme.colors.yellow[8]}33` : undefined}
         >
-          {round.totalScore || NO_SCORE_VALUE}
+          {round.totalScore ?? NO_SCORE_VALUE}
         </Table.Td>
       ))}
-      <Table.Td>{section.total || NO_SCORE_VALUE}</Table.Td>
-      <Table.Td>{section.count10 || NO_SCORE_VALUE}</Table.Td>
-      <Table.Td>{section.count9 || NO_SCORE_VALUE}</Table.Td>
+      <Table.Td>{section.total ?? NO_SCORE_VALUE}</Table.Td>
+      <Table.Td>{section.count10 ?? NO_SCORE_VALUE}</Table.Td>
+      <Table.Td>{section.count9 ?? NO_SCORE_VALUE}</Table.Td>
       <Table.Td>
         {section.rankGained ? getSportsRankDescription(section.rankGained) : NO_SCORE_VALUE}
       </Table.Td>

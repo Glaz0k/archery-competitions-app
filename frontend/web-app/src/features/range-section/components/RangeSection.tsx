@@ -32,6 +32,7 @@ export function RangeSection({ shots, type, editFn, completeFn, active }: RangeS
     <form
       onSubmit={shotsForm.onSubmit((shots) => {
         editFn(shots);
+        setEditing(false);
       })}
     >
       <Group gap="sm" wrap="nowrap">

@@ -117,12 +117,14 @@ export default function CompetitionPage() {
       <DatePickerInput
         w="100%"
         label="Дата начала"
+        clearable
         key={editCompetitionForm.key("startDate")}
         {...editCompetitionForm.getInputProps("startDate")}
       />
       <DatePickerInput
         w="100%"
         label="Дата окончания"
+        clearable
         key={editCompetitionForm.key("endDate")}
         {...editCompetitionForm.getInputProps("endDate")}
       />
