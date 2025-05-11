@@ -1298,26 +1298,6 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 		return fmt.Errorf("failed to delete shoot outs: %v", err)
 	}
 
-	if err := deleteShots(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete shots: %v", err)
-	}
-
-	if err := deleteRanges(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete ranges: %v", err)
-	}
-
-	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete range groups: %v", err)
-	}
-
-	if err := deleteSparringPlaces(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete sparring places: %v", err)
-	}
-
-	if err := deleteSparrings(ctx, tx, groupID); err != nil {
-		return fmt.Errorf("failed to delete sparrings: %v", err)
-	}
-
 	if err := deleteFinals(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete finals: %v", err)
 	}
@@ -1328,6 +1308,26 @@ func deleteAllGroupData(ctx context.Context, tx pgx.Tx, groupID int) error {
 
 	if err := deleteQuarterfinals(ctx, tx, groupID); err != nil {
 		return fmt.Errorf("failed to delete quarterfinals: %v", err)
+	}
+
+	if err := deleteShots(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete shots: %v", err)
+	}
+
+	if err := deleteRanges(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete ranges: %v", err)
+	}
+
+	if err := deleteSparrings(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete sparrings: %v", err)
+	}
+
+	if err := deleteSparringPlaces(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete sparring places: %v", err)
+	}
+
+	if err := deleteRangeGroups(ctx, tx, groupID); err != nil {
+		return fmt.Errorf("failed to delete range groups: %v", err)
 	}
 
 	if err := deleteQualificationRounds(ctx, tx, groupID); err != nil {
