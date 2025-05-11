@@ -146,9 +146,11 @@ class RealServer implements Api {
   @override
   Future<List<CompetitorGroupDetail>> getIndividualGroupCompetitors(
     int groupId,
-  ) {
-    // TODO: implement getIndividualGroupCompetitors
-    throw UnimplementedError();
+  ) async {
+    final response = await client.get(Uri.https(backend,"/individual_groups/$groupId/competitors"));
+    validate(response, notFoundMessage: "Группа не найдена");
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList.map((json) => CompetitorGroupDetail.fromJson(json)).toList();
   }
 
   @override
