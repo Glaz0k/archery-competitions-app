@@ -11,6 +11,24 @@ class FakeServer implements Api {
     1: Cup(1, "World Archery Championship", "Berlin, Germany", "2023-2024"),
     2: Cup(2, "European Archery Cup", "Paris, France", "2023"),
   };
+
+  final Map<int, Competition> _competitions = {
+    1: Competition(
+      1,
+      CompetitionStage.I,
+      DateTime(2025, 2, 3),
+      DateTime(2025, 2, 17),
+      false,
+    ),
+    2: Competition(
+      2,
+      CompetitionStage.II,
+      DateTime(2025, 3, 22),
+      DateTime(2025, 3, 28),
+      true,
+    ),
+  };
+
   @override
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(
     int competitionId,
@@ -70,14 +88,21 @@ class FakeServer implements Api {
 
   @override
   Future<List<Cup>> getCups() {
-    // TODO: implement getCups
-    throw UnimplementedError();
+    if (_cups.isEmpty) {
+      throw NotFoundException("Кубки не найдены");
+    }
+    List<Cup> cups = _cups.values.toList();
+    return Future.delayed(delay, () => cups);
   }
 
   @override
   Future<List<Competition>> getCupsCompetitions(int cupId) {
-    // TODO: implement getCupsCompetitions
-    throw UnimplementedError();
+    if (_competitions.isEmpty) {
+      throw NotFoundException("Соревнования не найдены");
+    }
+    List<Competition> competitions = _competitions.values.toList();
+
+    return Future.delayed(delay, () => competitions);
   }
 
   @override

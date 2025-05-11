@@ -23,5 +23,6 @@ class BadActionException extends OnionException {
 class InvalidScoreException extends OnionException {
   final int shotOrdinal;
   final String rangeType;
+
   InvalidScoreException(super.message, this.shotOrdinal, this.rangeType);
 }
