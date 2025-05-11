@@ -1,11 +1,11 @@
 import { IconRefresh } from "@tabler/icons-react";
 import {
   ActionIcon,
-  Card,
+  Divider,
   Group,
   LoadingOverlay,
   Stack,
-  Text,
+  Title,
   Tooltip,
   useMantineTheme,
 } from "@mantine/core";
@@ -74,14 +74,14 @@ function SparringBar({ left, right, loading, refreshFn }: SparringBarProps) {
   return (
     <ControlsCard pos="relative">
       <LoadingOverlay visible={loading} />
-      <Group flex={1}>
+      <Group flex={1} gap="xl">
         <Group flex={1} justify="flex-end">
-          <Text>{`${left.competitor.fullName} - ${left.score}`}</Text>
+          <Title>{`${left.competitor.fullName} - ${left.score}`}</Title>
         </Group>
-        <Card bg={theme.white} w={5} p={0} />
+        <Divider orientation="vertical" size="md" my="xs" color={theme.white} />
         <Group flex={1} justify="flex-start">
           <Group flex={1} justify="flex-start">
-            <Text>{`${right.score} - ${right.competitor.fullName}`}</Text>
+            <Title>{`${right.score} - ${right.competitor.fullName}`}</Title>
           </Group>
           <Tooltip label="Обновить">
             <ActionIcon onClick={refreshFn}>

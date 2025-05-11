@@ -38,7 +38,7 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
         <Group gap={0} align="stretch" justify="center" wrap="nowrap">
           <Stack gap={GAP_BETWEEN_SPARRINGS}>
             <Group gap={0} wrap="inherit">
-              <Stack gap={GAP_HEADER}>
+              <Group gap={0} wrap="inherit">
                 <Stack h="100%" gap={GAP_BETWEEN_SPARRINGS}>
                   <SparringView
                     sparring={grid.quarterfinal.sparring1}
@@ -63,7 +63,7 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
                     />
                   </Center>
                 </Stack>
-              </Stack>
+              </Group>
             </Group>
             <Group gap={0} wrap="inherit">
               <Stack h="100%" gap={GAP_BETWEEN_SPARRINGS}>
