@@ -136,6 +136,9 @@ export const useStartQuarterfinal = (onSuccess?: () => void) => {
   return useMutation<FinalGrid, Error, number>({
     mutationFn: individualGroupsApi.startQuarterfinal,
     onSuccess: (grid, groupId) => {
+      queryClient.invalidateQueries({
+        queryKey: INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId),
+      });
       queryClient.setQueryData(INDIVIDUAL_GROUPS_QUERY_KEYS.finalGrid(groupId), grid);
       notifications.show({
         title: "Четвертьфинал успешно начался",
@@ -159,6 +162,9 @@ export const useStartSemifinal = (onSuccess?: () => void) => {
   return useMutation<FinalGrid, Error, number>({
     mutationFn: individualGroupsApi.startSemifinal,
     onSuccess: (grid, groupId) => {
+      queryClient.invalidateQueries({
+        queryKey: INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId),
+      });
       queryClient.invalidateQueries({
         queryKey: PLACES_QUERY_KEYS.all,
       });
@@ -186,6 +192,9 @@ export const useStartFinal = (onSuccess?: () => void) => {
     mutationFn: individualGroupsApi.startFinal,
     onSuccess: (grid, groupId) => {
       queryClient.invalidateQueries({
+        queryKey: INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId),
+      });
+      queryClient.invalidateQueries({
         queryKey: PLACES_QUERY_KEYS.all,
       });
       queryClient.setQueryData(INDIVIDUAL_GROUPS_QUERY_KEYS.finalGrid(groupId), grid);
@@ -211,6 +220,9 @@ export const useEndFinal = (onSuccess?: () => void) => {
   return useMutation<FinalGrid, Error, number>({
     mutationFn: individualGroupsApi.endFinal,
     onSuccess: (grid, groupId) => {
+      queryClient.invalidateQueries({
+        queryKey: INDIVIDUAL_GROUPS_QUERY_KEYS.element(groupId),
+      });
       queryClient.invalidateQueries({
         queryKey: PLACES_QUERY_KEYS.all,
       });

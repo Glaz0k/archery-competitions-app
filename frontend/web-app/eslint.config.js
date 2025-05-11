@@ -10,12 +10,16 @@ export default tseslint.config(
   ...pluginQuery.configs["flat/recommended"],
   { ignores: ["dist"] },
   {
-    files: ["**/*.{js,jsx}", "**/*.{mjs,cjs,js,d.ts,d.mts}"],
+    extends: [...tseslint.configs.recommended],
+    files: ["**/*.{ts,tsx}", "**/*.{mjs,cjs,js,d.ts,d.mts}"],
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
-    rules: { "no-console": "off" },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      "no-console": "off",
+    },
   },
   prettierConfig
 );

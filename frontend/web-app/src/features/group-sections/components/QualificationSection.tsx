@@ -42,8 +42,10 @@ export function QualificationSection({ groupId }: { groupId: number }) {
     let exportFn = undefined;
     let completeFn = undefined;
     if (group && !isQualError && !isQualLoading) {
-      if (group.state === GroupState.QUAL_START) {
+      if (hasStarted) {
         refreshFn = refreshQual;
+      }
+      if (group.state === GroupState.QUAL_START) {
         completeFn = () => endQual(group.id);
       }
       const exportStates: GroupState[] = Object.values(GroupState).filter(
@@ -61,7 +63,7 @@ export function QualificationSection({ groupId }: { groupId: number }) {
         onExport: exportFn,
       },
     }));
-  }, [endQual, group, isQualError, isQualLoading, refreshQual, setContext]);
+  }, [endQual, group, hasStarted, isQualError, isQualLoading, refreshQual, setContext]);
 
   if (!hasGroup) return;
 
@@ -82,14 +84,16 @@ export function QualificationSection({ groupId }: { groupId: number }) {
           <TableCard loading={isQualFetching}>
             <QualificationTableHead qual={qual} />
             <Table.Tbody>
-              {qual.sections.map((section) => (
-                <QualificationTableRow
-                  key={section.id}
-                  section={section}
-                  selected={selectedSectionId === section.id}
-                  setSelected={setSelectedSectionId}
-                />
-              ))}
+              {qual.sections
+                .sort(({ place: a }, { place: b }) => (a && b ? a - b : 0))
+                .map((section) => (
+                  <QualificationTableRow
+                    key={section.id}
+                    section={section}
+                    selected={selectedSectionId === section.id}
+                    setSelected={setSelectedSectionId}
+                  />
+                ))}
             </Table.Tbody>
           </TableCard>
         )}

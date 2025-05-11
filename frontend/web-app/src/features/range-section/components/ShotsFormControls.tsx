@@ -41,7 +41,7 @@ export function ShotsFormControls({
                 <IconX />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label="Завершить">
+            <Tooltip label="Применить">
               <ActionIcon type="submit">
                 <IconCheck />
               </ActionIcon>

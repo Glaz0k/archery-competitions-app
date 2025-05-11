@@ -36,22 +36,22 @@ export function RangeSection({ shots, type, editFn, completeFn, active }: RangeS
     >
       <Group gap="sm" wrap="nowrap">
         {renderShots}
+        <ShotsFormControls
+          editing={isEditing}
+          active={active}
+          onEdit={() => {
+            shotsForm.setValues({
+              shots,
+            });
+            setEditing(true);
+          }}
+          onCancelEdit={() => {
+            setEditing(false);
+            shotsForm.reset();
+          }}
+          onComplete={completeFn}
+        />
       </Group>
-      <ShotsFormControls
-        editing={isEditing}
-        active={active}
-        onEdit={() => {
-          shotsForm.setValues({
-            shots,
-          });
-          setEditing(true);
-        }}
-        onCancelEdit={() => {
-          setEditing(false);
-          shotsForm.reset();
-        }}
-        onComplete={completeFn}
-      />
     </form>
   );
 }

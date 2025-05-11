@@ -8,7 +8,7 @@ import {
   useStartSemifinal,
 } from "../../../api";
 import { GroupState, type Sparring } from "../../../entities";
-import { PageLoader } from "../../../widgets";
+import { CenterCard, PageLoader } from "../../../widgets";
 import { FinalGridView } from "../../final-grid-view";
 import { useGroupSections } from "../context/useGroupSections";
 import { SparringTab } from "./SparringTab";
@@ -83,9 +83,23 @@ export function FinalSection({ groupId }: { groupId: number }) {
         onExport: exportFn,
       },
     }));
-  });
+  }, [
+    endFinal,
+    group,
+    hasStarted,
+    isGridError,
+    isGridLoading,
+    refreshGrid,
+    setContext,
+    startFinal,
+    startSFinal,
+  ]);
 
   if (!hasGroup) return;
+
+  if (group.state === GroupState.CREATED || group.state === GroupState.QUAL_START) {
+    return <CenterCard label="Пока нельзя начать финал" />;
+  }
 
   if (!hasStarted) {
     return (

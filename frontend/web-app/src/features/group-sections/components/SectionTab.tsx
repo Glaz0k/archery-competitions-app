@@ -28,7 +28,7 @@ export function SectionTab({ sectionId }: SectionTabProps) {
   return (
     <PageLoader loading={isSectionLoading} error={isSectionError}>
       {section && (
-        <Group>
+        <Group flex={1} align="start">
           <SideBar>
             <ControlsCard pos="relative">
               <LoadingOverlay visible={isSectionFetching} />
@@ -89,9 +89,9 @@ function RoundTab({ sectionId, roundOrd }: RoundTabProps) {
       error={isRoundError || isRangeGroupError}
     >
       {round && rangeGroup && (
-        <Stack>
+        <Stack flex={1}>
           <TopBar
-            title={`Раунд ${roundOrd}${round.isActive ? "| Активен" : ""}`}
+            title={`Раунд ${roundOrd}${round.isActive ? " | Активен" : ""}`}
             onRefresh={() => {
               refetchRound();
               refetchRangeGroup();
