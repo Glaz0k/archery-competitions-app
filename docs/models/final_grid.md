@@ -13,22 +13,22 @@
 
 <quarterfinal>
 {
-  "sparring_1": <sparring | null>,
-  "sparring_2": <sparring | null>,
-  "sparring_3": <sparring | null>,
-  "sparring_4": <sparring | null>
+  "sparring_1": <sparring>,
+  "sparring_2": <sparring>,
+  "sparring_3": <sparring>,
+  "sparring_4": <sparring>
 }
 
 <semifinal>
 {
-  "sparring_5": <sparring | null>,
-  "sparring_6": <sparring | null>
+  "sparring_5": <sparring>,
+  "sparring_6": <sparring>
 }
 
 <final>
 {
-  "sparring_gold": <sparring | null>,
-  "sparring_bronze": <sparring | null>
+  "sparring_gold": <sparring>,
+  "sparring_bronze": <sparring>
 }
 ```
 
