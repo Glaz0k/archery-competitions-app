@@ -173,9 +173,12 @@ class RealServer implements Api {
   }
 
   @override
-  Future<Section> getQualificationSection(int sectionId) {
-    // TODO: implement getQualificationSection
-    throw UnimplementedError();
+  Future<Section> getQualificationSection(int sectionId) async {
+    var response = await client.get(
+      Uri.https(backend, "/qualification_sections/$sectionId"),
+    );
+    validate(response, notFoundMessage: "Секция не найдена");
+    return Section.fromJson(jsonDecode(response.body));
   }
 
   @override

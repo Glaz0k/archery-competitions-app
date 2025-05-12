@@ -12,6 +12,8 @@ class FakeServer implements Api {
     2: Cup(2, "European Archery Cup", "Paris, France", "2023"),
   };
 
+  final Section _section = Section(1, CompetitorShrinked(1,"Новохацкий Данил Дмитриевич"), 1, [], 100, 23, 24, SportsRank.masterInternational);
+  
   final Map<int, Competition> _competitions = {
     1: Competition(
       1,
@@ -197,8 +199,13 @@ class FakeServer implements Api {
 
   @override
   Future<Section> getQualificationSection(int sectionId) {
-    // TODO: implement getQualificationSection
-    throw UnimplementedError();
+    return Future.delayed(delay, () {
+      if (sectionId == 1) {
+        return _section;
+      } else {
+        throw NotFoundException("Секция не найдена");
+      }
+    });
   }
 
   @override
