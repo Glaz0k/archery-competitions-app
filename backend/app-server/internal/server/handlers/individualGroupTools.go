@@ -831,10 +831,10 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 			botPlace.IsActive = true
 		} else {
 			if info.TopPlaceID.Valid {
-				topPlace.IsActive = sparring.State == "top_win"
+				topPlace.IsActive = false
 			}
 			if info.BotPlaceID.Valid {
-				botPlace.IsActive = sparring.State == "bot_win"
+				botPlace.IsActive = false
 			}
 		}
 
@@ -843,9 +843,10 @@ func getStageSparrings(ctx context.Context, groupID int, stage string, result in
 
 		if topPlace.Competitor.FullName == "" {
 			sparring.TopPlace = nil
-		}
-		if botPlace.Competitor.FullName == "" {
+		} else if botPlace.Competitor.FullName == "" {
 			sparring.BotPlace = nil
+		} else {
+			calculateSparringPlaceScore(sparring.TopPlace, sparring.BotPlace, sparring.BotPlace.RangeGroup.Type)
 		}
 
 		if info.SparringNum > 0 {
