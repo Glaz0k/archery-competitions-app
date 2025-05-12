@@ -403,14 +403,16 @@ func findQualifier(qualifiers []qualifier, place int) *qualifier {
 
 func createRangesTx(tx pgx.Tx, ctx context.Context, rangeGroupID int64, maxSeries int) ([]int64, error) {
 	var rangeIDs []int64
+	isActive := true
 	for rangeOrdinal := 1; rangeOrdinal <= maxSeries; rangeOrdinal++ {
 		var rangeID int64
 		err := tx.QueryRow(ctx, `INSERT INTO ranges (group_id, range_ordinal, is_active) VALUES ($1, $2, $3) RETURNING id`,
-			rangeGroupID, rangeOrdinal, false).Scan(&rangeID)
+			rangeGroupID, rangeOrdinal, isActive).Scan(&rangeID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create range %d for group_id %d: %w", rangeOrdinal, rangeGroupID, err)
 		}
 		rangeIDs = append(rangeIDs, rangeID)
+		isActive = false
 	}
 	return rangeIDs, nil
 }
