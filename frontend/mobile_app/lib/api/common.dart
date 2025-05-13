@@ -17,13 +17,36 @@ enum SportsRank {
   candidateForMaster,
   firstClass,
   secondClass,
-  thirdClass,
+  thirdClass;
+
+  static List<String> stringValues = [
+  "Заслуженный мастер спорта",
+  "Мастер спорта международного класса",
+  "Мастер спорта",
+  "Кандидат в мастера спорта",
+  "Первый разряд",
+  "Второй разряд",
+  "Третий разряд",
+  ];
+  factory SportsRank.fromString(String str) => values[stringValues.indexOf(str)];
+
+  @override
+  String toString() => stringValues[index];
 }
 
 // male
 // female
 @JsonEnum()
-enum Gender { male, female }
+enum Gender {
+  male, female;
+  @override
+  String toString() {
+    return switch (this) {
+      Gender.male => "Мужчина",
+      Gender.female => "Женщина"
+    };
+  }
+}
 
 // classic
 // block
@@ -47,7 +70,22 @@ enum BowClass {
   long3D,
   peripheral,
   @JsonValue("peripheral_with_ring")
-  peripheralWithRing,
+  peripheralWithRing;
+
+  static List<String> stringValues = [
+  "Классический",
+  "Блочный",
+  "КЛ(новички)",
+  "3Д-классический лук",
+  "3Д-составной лук",
+  "3Д-длинный лук",
+  "Периферийный лук",
+  "Периферийный лук(с кольцом)",
+  ];
+  factory BowClass.fromString(String str) => values[stringValues.indexOf(str)];
+
+  @override
+  String toString() => stringValues[index];
 }
 
 // created
