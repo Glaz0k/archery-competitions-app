@@ -16,47 +16,70 @@ class MyQualificationTable extends StatelessWidget {
         border: Border.all(color: Theme.of(context).dividerColor),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: const [
-            DataColumn(
-              label: Text(
+      child: DataTable(
+        columnSpacing: 50,
+        columns: const [
+          DataColumn(
+            label: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
                 "Место",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              numeric: true,
             ),
-            DataColumn(
-              label: Text(
+            numeric: true,
+          ),
+          DataColumn(
+            label: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
                 "Участник",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            DataColumn(
-              label: Text(
+          ),
+          DataColumn(
+            label: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
                 "Итог",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              numeric: true,
             ),
-          ],
-          rows: [
-            DataRow(
-              cells: [
-                DataCell(Text(section!.place.toString())),
-                DataCell(
-                  Text(
+            numeric: true,
+          ),
+        ],
+        rows: [
+          DataRow(
+            cells: [
+              DataCell(
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(section!.place.toString()),
+                ),
+              ),
+              DataCell(
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Text(
                     section!.competitor.fullName,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                DataCell(Text(section!.total.toString())),
-              ],
-            ),
-          ],
-        ),
+              ),
+              DataCell(
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(section!.total.toString()),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -9,6 +9,7 @@ import '../api/responses.dart';
 
 class QualificationPage extends StatefulWidget {
   final int sectionId;
+
   const QualificationPage({super.key, required this.sectionId});
 
   @override
@@ -34,19 +35,28 @@ class _QualificationPageState extends State<QualificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(onRefresh: _loadData, child: Scaffold(
+    return Scaffold(
       appBar: OnionBar("Квалификация", context),
-      body: Padding(padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Секция ${_section?.id}", style: Theme.of(context).textTheme.titleLarge,),
-            const SizedBox(height: 16,),
-            MyQualificationTable(section: _section,),
-          ],
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Секция ${_section?.id}",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 16),
+                MyQualificationTable(section: _section),
+              ],
+            ),
+          ),
+        ),
       ),
-      ),
-    ));
+    );
   }
 }
-
