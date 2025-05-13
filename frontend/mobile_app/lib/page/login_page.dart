@@ -13,7 +13,6 @@ class LoginPage extends StatefulWidget {
   State<StatefulWidget> createState() => _LoginPageState();
 }
 
-const String requiredField = "Обязательное поле";
 
 class _LoginPageState extends State<LoginPage> {
   Future<int> _userId = Future(() => 0);
@@ -36,37 +35,15 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (text) => _credentials.login = text ?? '',
                 textInputAction: TextInputAction.next,
                 forceErrorText: _errorMessage,
-                onChanged: (_) {
-                  if (_errorMessage != null) {
-                    setState(() {
-                      _errorMessage = null;
-                    });
-                  }
-                },
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return requiredField;
-                  }
-                  return null;
-                },
+                onChanged: (_) => _clearError(),
+                validator: _validate,
               ),
               TextFormField(
                 decoration: const InputDecoration(label: Text("Пароль")),
                 onSaved: (text) => _credentials.password = text ?? '',
                 forceErrorText: _errorMessage,
-                onChanged: (_) {
-                  if (_errorMessage != null) {
-                    setState(() {
-                      _errorMessage = null;
-                    });
-                  }
-                },
-                validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                    return requiredField;
-                  }
-                  return null;
-                },
+                onChanged: (_) => _clearError(),
+                validator: _validate,
               ),
               FutureBuilder(
                 future: _userId,
@@ -103,5 +80,20 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  String? _validate(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Обязательное поле";
+    }
+    return null;
+  }
+
+  void _clearError() {
+    if (_errorMessage != null) {
+      setState(() {
+        _errorMessage = null;
+      });
+    }
   }
 }
