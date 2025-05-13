@@ -12,7 +12,7 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePage extends State<EditProfilePage> {
-  late TextEditingController fullNameController;
+  /*late TextEditingController fullNameController;
   late TextEditingController regionController;
   late TextEditingController clubController;
   String? chosenGender;
@@ -39,11 +39,12 @@ class _EditProfilePage extends State<EditProfilePage> {
     regionController.dispose();
     clubController.dispose();
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
+    return Placeholder();
+    /*final userProvider = Provider.of<UserProvider>(context);
     return KeyboardDismisser(
       gestures: [GestureType.onTap],
       child: GestureDetector(
@@ -261,10 +262,10 @@ class _EditProfilePage extends State<EditProfilePage> {
           ),
         ),
       ),
-    );
+    );*/
   }
 
-  Future chooseDate(BuildContext context) async {
+  /*Future chooseDate(BuildContext context) async {
     final newDate = await showDatePicker(
       context: context,
       initialDate: chosenTime,
@@ -314,5 +315,5 @@ class _EditProfilePage extends State<EditProfilePage> {
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.text,
     );
-  }
+  }*/
 }
