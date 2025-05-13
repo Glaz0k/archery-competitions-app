@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
-import 'package:http/http.dart' as http;
 
 const String backend = "example.com";
 
@@ -43,7 +43,7 @@ class RealServer implements Api {
               details["type"],
             );
         }
-      case 200:
+      case 200 || 204:
         return;
     }
   }
@@ -211,8 +211,8 @@ class RealServer implements Api {
   }
 
   @override
-  Future<int> login(Credentials credentials) {
-    // TODO: implement login
+  Future<int> login(Credentials credentials) async {
+    // TODO: эту фигню ещё не заимплементить
     throw UnimplementedError();
   }
 
