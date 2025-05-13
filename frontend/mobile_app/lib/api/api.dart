@@ -23,7 +23,7 @@ abstract class Api {
   /// - InvalidParametersException(Неверные параметры входа)
   ///
   /// https://github.com/Glaz0k/archery-competitions-app/blob/feature/api-docs/docs/api/auth.md#post-authlogin
-  Future<void> login(Credentials credentials);
+  Future<int> login(Credentials credentials);
 
   /// POST /auth/logout
   ///
@@ -266,7 +266,7 @@ abstract class Api {
     int rangeOrdinal,
   );
 
-  /// GET /sparring_places/{id}
+  /// GET /sparring_places/{place_id}
   ///
   /// Получить место. Участник имеет доступ только если это его место. При вычислении счёта по типу "победные очки" необходимо учитывать только серии, которые оба участника завершили
   ///

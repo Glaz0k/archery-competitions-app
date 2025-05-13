@@ -248,9 +248,11 @@ class FakeServer implements Api {
   }
 
   @override
-  Future<void> login(Credentials credentials) {
-    // TODO: implement login
-    throw UnimplementedError();
+  Future<int> login(Credentials credentials) async {
+    if (credentials.login == "Недотёпа") {
+      throw InvalidParametersException("Неверные параметры входа");
+    }
+    return Future.delayed(delay, () => 1);
   }
 
   @override

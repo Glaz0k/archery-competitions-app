@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'user.dart';
 
+/*
 class IndividualGroup extends StatefulWidget {
   const IndividualGroup({super.key});
 
@@ -69,3 +70,4 @@ class _IndividualGroup extends State<IndividualGroup> {
     );
   }
 }
+*/

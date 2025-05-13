@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import 'common.dart';
 
 part 'responses.g.dart';
@@ -12,11 +13,7 @@ part 'responses.g.dart';
 // "region": <string | null>,
 // "federation": <string | null>,
 // "club": <string | null>
-@JsonSerializable(
-  createToJson: true,
-  fieldRename: FieldRename.snake,
-  explicitToJson: true,
-)
+@JsonSerializable()
 class CompetitorFull {
   int id;
   String fullName;
@@ -54,11 +51,7 @@ class CompetitorFull {
 // "competitor": <competitor_full>,
 // "is_active": <bool>,
 // "created_at": <YYYY-MM-DDThh:mm:ss±hh ISO 8601>
-@JsonSerializable(
-  createToJson: true,
-  fieldRename: FieldRename.snake,
-  explicitToJson: true,
-)
+@JsonSerializable()
 class CompetitorCompetitionDetail {
   int competitionId;
   CompetitorFull competitor;
@@ -83,11 +76,7 @@ class CompetitorCompetitionDetail {
 // "bow": <bow_class>,
 // "identity": <gender | null>,
 // "state": <group_state>
-@JsonSerializable(
-  createToJson: true,
-  fieldRename: FieldRename.snake,
-  explicitToJson: true,
-)
+@JsonSerializable()
 class IndividualGroup {
   int id;
   int competitionId;
@@ -114,11 +103,7 @@ class IndividualGroup {
 // "address": <string | null>,
 // "season": <string | null>
 
-@JsonSerializable(
-  createToJson: true,
-  fieldRename: FieldRename.snake,
-  explicitToJson: true,
-)
+@JsonSerializable()
 class Cup {
   int id;
 
@@ -272,10 +257,10 @@ class FinalGrid {
 // "sparring_4": <sparring | null>
 @JsonSerializable()
 class Quarterfinal {
-  Sparring? sparring1;
-  Sparring? sparring2;
-  Sparring? sparring3;
-  Sparring? sparring4;
+  Sparring sparring1;
+  Sparring sparring2;
+  Sparring sparring3;
+  Sparring sparring4;
 
   Quarterfinal(this.sparring1, this.sparring2, this.sparring3, this.sparring4);
 
@@ -287,8 +272,8 @@ class Quarterfinal {
 // "sparring_6": <sparring | null>
 @JsonSerializable()
 class Semifinal {
-  Sparring? sparring5;
-  Sparring? sparring6;
+  Sparring sparring5;
+  Sparring sparring6;
 
   Semifinal(this.sparring5, this.sparring6);
 
@@ -300,8 +285,8 @@ class Semifinal {
 // "sparring_bronze": <sparring | null>
 @JsonSerializable()
 class Final {
-  Sparring? sparringGold;
-  Sparring? sparringBronze;
+  Sparring sparringGold;
+  Sparring sparringBronze;
 
   Final(this.sparringGold, this.sparringBronze);
 

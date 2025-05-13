@@ -27,7 +27,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).userPref;
+    return Placeholder();
+    /*final user = Provider.of<UserProvider>(context).userPref;
     return KeyboardDismisser(
       gestures: [GestureType.onTap],
       child: GestureDetector(
@@ -159,7 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-    );
+    );*/
   }
 }
 

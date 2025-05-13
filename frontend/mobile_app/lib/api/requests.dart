@@ -1,4 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import 'common.dart';
+
+part 'requests.g.dart';
 
 // "full_name": <string>,
 // "birth_date": <date ISO 8601>,
@@ -8,6 +12,7 @@ import 'common.dart';
 // "region": <string | null>,
 // "federation": <string | null>,
 // "club": <string | null>
+@JsonSerializable()
 class ChangeCompetitor {
   String fullName;
   DateTime birthDate;
@@ -28,6 +33,8 @@ class ChangeCompetitor {
     this.federation,
     this.club,
   );
+
+  Map<String, dynamic> toJson() => _$ChangeCompetitorToJson(this);
 }
 
 // "login": <string>,
