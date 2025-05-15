@@ -1,8 +1,7 @@
-import 'dart:collection';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/responses.dart';
 
-import '../api/common.dart';
 import '../api/requests.dart';
 
 class RangeModel with ChangeNotifier {
@@ -22,6 +21,9 @@ class RangeModel with ChangeNotifier {
 
   Future<void> registerAndEndRange(int rangeIdx) async {
     var range = rangeGroup.ranges[rangeIdx-1];
+    if (range.shots!.any((shot) => shot.score == null)) {
+      throw BadActionException("Нельзя закончить незаконченную серию");
+    }
     await _putRange(ChangeRange(rangeIdx,range.shots));
     await _endRange(rangeIdx);
     // Ибо сказал Господь: рефетчи.
