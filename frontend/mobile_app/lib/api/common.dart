@@ -139,4 +139,17 @@ class Shot {
 
   Shot(this.shotOrdinal, this.score);
   factory Shot.fromJson(Map<String, dynamic> json) => _$ShotFromJson(json);
+
+  void changeBySlider(double sliderValue, bool isShort) {
+    if (isShort && sliderValue < 6.0) {
+      score = "M";
+    } else {
+      var temp = sliderValue.round();
+      if (temp == 11) {
+        score = "X";
+      } else {
+        score = temp.toString();
+      }
+    }
+  }
 }

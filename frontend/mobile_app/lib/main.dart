@@ -14,7 +14,6 @@ import 'model/range_model.dart';
 void main() => runApp(
   MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => RangeModel([], 3, 3, false)),
       ChangeNotifierProvider(create: (context) => UserProvider()),
       Provider<Api>(create: (context) => FakeServer()),
     ],
