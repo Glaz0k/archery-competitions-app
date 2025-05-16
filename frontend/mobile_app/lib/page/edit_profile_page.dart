@@ -19,6 +19,7 @@ class _EditProfilePage extends State<EditProfilePage> {
   late TextEditingController fullNameController;
   late TextEditingController regionController;
   late TextEditingController clubController;
+  late TextEditingController federationController;
   Gender? chosenGender;
   BowClass? chosenBow;
   SportsRank? chosenRank;
@@ -32,6 +33,7 @@ class _EditProfilePage extends State<EditProfilePage> {
     fullNameController = TextEditingController(text: user?.fullName ?? '');
     regionController = TextEditingController(text: user?.region ?? '');
     clubController = TextEditingController(text: user?.club ?? '');
+    federationController = TextEditingController(text: user?.federation ?? '');
     chosenGender = user?.identity;
     chosenBow = user?.bow;
     chosenRank = user?.rank;
@@ -43,6 +45,7 @@ class _EditProfilePage extends State<EditProfilePage> {
     fullNameController.dispose();
     regionController.dispose();
     clubController.dispose();
+    federationController.dispose();
     super.dispose();
   }
 
@@ -131,6 +134,8 @@ class _EditProfilePage extends State<EditProfilePage> {
                         SizedBox(height: 7),
                         buildRegion(),
                         SizedBox(height: 7),
+                        buildFederation(),
+                        SizedBox(height: 7),
                         buildClub(),
                         SizedBox(height: 7),
                         SizedBox(
@@ -175,7 +180,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                                   chosenBow,
                                   chosenRank,
                                   regionController.text,
-                                  null,
+                                  federationController.text,
                                   clubController.text,
                                 );
 
@@ -240,7 +245,6 @@ class _EditProfilePage extends State<EditProfilePage> {
   }
 
   Future chooseDate(BuildContext context) async {
-    //if (birthDate == null) return;
     final initialDate = DateTime.parse(birthDate);
 
     final newDate = await showDatePicker(
@@ -276,6 +280,19 @@ class _EditProfilePage extends State<EditProfilePage> {
       decoration: InputDecoration(
         label: Text("Регион", style: TextStyle()),
         prefixIcon: Icon(Icons.apartment),
+        border: OutlineInputBorder(),
+      ),
+      textInputAction: TextInputAction.done,
+      keyboardType: TextInputType.text,
+    );
+  }
+
+  Widget buildFederation() {
+    return TextFormField(
+      controller: federationController,
+      decoration: InputDecoration(
+        label: Text("Федерация", style: TextStyle()),
+        prefixIcon: Icon(Icons.people_alt),
         border: OutlineInputBorder(),
       ),
       textInputAction: TextInputAction.done,

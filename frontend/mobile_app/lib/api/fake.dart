@@ -303,7 +303,7 @@ class FakeServer implements Api {
     BowClass.classic,
     SportsRank.masterInternational,
     "Минск",
-    null,
+    "Федерация водоплавающих",
     null,
   );
   static final CompetitorFull piyavkin = CompetitorFull(
@@ -325,7 +325,7 @@ class FakeServer implements Api {
     BowClass.classic3D,
     SportsRank.candidateForMaster,
     null,
-    null,
+    "Федерация водоплавающих",
     "Клуб go",
   );
   static final CompetitorFull dudkina = CompetitorFull(
@@ -358,7 +358,7 @@ class FakeServer implements Api {
     BowClass.long3D,
     SportsRank.secondClass,
     "СПБ",
-    null,
+    "Федерация водоплавающих",
     "Клуб rust",
   );
   static final CompetitorFull novokhatskiy = CompetitorFull(
