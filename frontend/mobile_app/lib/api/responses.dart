@@ -17,7 +17,7 @@ part 'responses.g.dart';
 class CompetitorFull {
   int id;
   String fullName;
-  DateTime birthDate;
+  String birthDate;
   Gender identity;
   BowClass? bow;
   SportsRank? rank;
@@ -56,7 +56,7 @@ class CompetitorCompetitionDetail {
   int competitionId;
   CompetitorFull competitor;
   bool isActive;
-  DateTime createdAt;
+  String createdAt;
 
   CompetitorCompetitionDetail(
     this.competitionId,
@@ -130,8 +130,8 @@ class Cup {
 class Competition {
   int id;
   CompetitionStage stage;
-  DateTime? startDate;
-  DateTime? endDate;
+  String? startDate;
+  String? endDate;
   bool isEnded;
 
   Competition(this.id, this.stage, this.startDate, this.endDate, this.isEnded);

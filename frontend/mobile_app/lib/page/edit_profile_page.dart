@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 import 'widgets/user.dart';
+
+const List<String> _bows = [
+  'Классический',
+  'Блочный',
+  "КЛ(новички)",
+  "3Д-классический лук",
+  "3Д-составной лук",
+  "3Д-длинный лук",
+  "Периферийный лук",
+  "Периферийный лук(с кольцом)",
+];
+
+const List<String> _ranks = [
+  'Мастер спорта',
+  'Кандидат мастера спорта',
+  "Первый разряд",
+  "Второй разряд",
+  "Третий разряд",
+  "Международный магистр",
+  "Периферийный лук",
+  "Заслуженный мастер спорта",
+];
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -12,25 +35,26 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePage extends State<EditProfilePage> {
-  /*late TextEditingController fullNameController;
+  late TextEditingController fullNameController;
   late TextEditingController regionController;
   late TextEditingController clubController;
   String? chosenGender;
   String? chosenBow;
   String? chosenRank;
-  late DateTime chosenTime;
+  String? chosenTime;
 
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<UserProvider>(context, listen: false).userPref;
-    fullNameController = TextEditingController(text: user.fullName);
-    regionController = TextEditingController(text: user.region);
-    clubController = TextEditingController(text: user.club);
-    chosenGender = user.identity.getGender;
-    chosenBow = user.bow?.getBowClass;
-    chosenRank = user.rank?.getSportsRank;
-    chosenTime = user.dateOfBirth;
+    final api = Provider.of<Api>(context);
+    final user = Provider.of<UserProvider>(context, listen: false).getUser(api);
+    fullNameController = TextEditingController(text: user?.fullName);
+    regionController = TextEditingController(text: user?.region);
+    clubController = TextEditingController(text: user?.club);
+    chosenGender = user?.identity.toString();
+    chosenBow = user?.bow?.toString();
+    chosenRank = user?.rank?.toString();
+    chosenTime = user?.birthDate;
   }
 
   @override
@@ -39,7 +63,7 @@ class _EditProfilePage extends State<EditProfilePage> {
     regionController.dispose();
     clubController.dispose();
     super.dispose();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,16 +115,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                                 border: OutlineInputBorder(),
                               ),
                               items:
-                                  [
-                                    'Классический',
-                                    'Блочный',
-                                    "КЛ(новички)",
-                                    "3Д-классический лук",
-                                    "3Д-составной лук",
-                                    "3Д-длинный лук",
-                                    "Периферийный лук",
-                                    "Периферийный лук(с кольцом)",
-                                  ].map((String value) {
+                                  _bows.map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
@@ -116,20 +131,11 @@ class _EditProfilePage extends State<EditProfilePage> {
                             DropdownButtonFormField<String>(
                               value: chosenRank,
                               decoration: InputDecoration(
-                                labelText: 'Спортивный разряд/звание',
+                                labelText: 'Спортивный разряд',
                                 border: OutlineInputBorder(),
                               ),
                               items:
-                                  [
-                                    'Мастер спорта',
-                                    'Кандидат мастера спорта',
-                                    "Первый разряд",
-                                    "Второй разряд",
-                                    "Третий разряд",
-                                    "Международный магистр",
-                                    "Периферийный лук",
-                                    "Заслуженный мастер спорта",
-                                  ].map((String value) {
+                                  _ranks.map((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),

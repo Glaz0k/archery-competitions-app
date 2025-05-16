@@ -24,20 +24,8 @@ class FakeServer implements Api {
   );
 
   final Map<int, Competition> _competitions = {
-    1: Competition(
-      1,
-      CompetitionStage.I,
-      DateTime(2025, 2, 3),
-      DateTime(2025, 2, 17),
-      false,
-    ),
-    2: Competition(
-      2,
-      CompetitionStage.II,
-      DateTime(2025, 3, 22),
-      DateTime(2025, 3, 28),
-      true,
-    ),
+    1: Competition(1, CompetitionStage.I, "03.02.2025", "12.02.2025", false),
+    2: Competition(2, CompetitionStage.II, "12.11.2025", "23.11.2025", true),
   };
 
   @override
@@ -310,7 +298,7 @@ class FakeServer implements Api {
   static final CompetitorFull lebedev = CompetitorFull(
     1,
     "Лебедев Антон",
-    DateTime(2000),
+    "2000",
     Gender.male,
     BowClass.classic,
     SportsRank.masterInternational,
@@ -321,7 +309,7 @@ class FakeServer implements Api {
   static final CompetitorFull piyavkin = CompetitorFull(
     2,
     "Пиявкин Антон",
-    DateTime(2000),
+    "2000",
     Gender.male,
     BowClass.block,
     SportsRank.master,
@@ -332,7 +320,7 @@ class FakeServer implements Api {
   static final CompetitorFull kozakova = CompetitorFull(
     3,
     "Козакова Анна",
-    DateTime(2000),
+    "2000",
     Gender.female,
     BowClass.classic3D,
     SportsRank.candidateForMaster,
@@ -343,7 +331,7 @@ class FakeServer implements Api {
   static final CompetitorFull dudkina = CompetitorFull(
     4,
     "Дудкина София",
-    DateTime(2000),
+    "2000",
     Gender.female,
     BowClass.classicNewbie,
     SportsRank.firstClass,
@@ -354,7 +342,7 @@ class FakeServer implements Api {
   static final CompetitorFull kravchenko = CompetitorFull(
     5,
     "Кравченко Никита",
-    DateTime(2000),
+    "2000",
     Gender.male,
     BowClass.compound3D,
     SportsRank.meritedMaster,
@@ -365,7 +353,7 @@ class FakeServer implements Api {
   static final CompetitorFull demidenko = CompetitorFull(
     6,
     "Демиденко Никита",
-    DateTime(2000),
+    "2000",
     Gender.male,
     BowClass.long3D,
     SportsRank.secondClass,
@@ -376,7 +364,7 @@ class FakeServer implements Api {
   static final CompetitorFull novokhatskiy = CompetitorFull(
     7,
     "Новохацкий Данил",
-    DateTime(2000),
+    "2000",
     Gender.male,
     BowClass.peripheral,
     SportsRank.thirdClass,
