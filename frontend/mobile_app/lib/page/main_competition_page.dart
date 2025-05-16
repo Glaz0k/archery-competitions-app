@@ -6,6 +6,21 @@ import 'package:mobile_app/page/widgets/CompetitionField.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 
+const months = [
+  'января',
+  'февраля',
+  'марта',
+  'апреля',
+  'мая',
+  'июня',
+  'июля',
+  'августа',
+  'сентября',
+  'октября',
+  'ноября',
+  'декабря',
+];
+
 class MainCompetitionPage extends StatefulWidget {
   const MainCompetitionPage({super.key});
 
@@ -84,50 +99,40 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     );
   }
 
-  String _formatCompetitionDate(DateTime? start, DateTime? end) {
-    if (start == null && end == null) {
-      return "соревнований не указаны";
+  String _formatCompetitionDate(String? startStr, String? endStr) {
+    if (startStr == null && endStr == null) {
+      return "даты соревнований не указаны";
     }
-    if (start == null) return 'до ${_formatDate(end!)}';
-    if (end == null) return 'с ${_formatDate(start)}';
+
+    DateTime? start = startStr != null ? DateTime.parse(startStr) : null;
+    DateTime? end = endStr != null ? DateTime.parse(endStr) : null;
+
+    if (start == null) return 'до ${formatDate(end!)}';
+    if (end == null) return 'с ${formatDate(start)}';
 
     if (start.day == end.day &&
         start.month == end.month &&
         start.year == end.year) {
-      return _formatDate(start);
+      return formatDate(start);
     }
 
     if (start.year == end.year && start.month == end.month) {
-      return '${start.day}-${end.day} ${_getMonth(start.month)} ${start.year} г.';
+      return '${start.day}-${end.day} ${getMonth(start.month)} ${start.year} г.';
     }
 
     if (start.year == end.year) {
-      return '${start.day} ${_getMonth(start.month)} - '
-          '${end.day} ${_getMonth(end.month)} ${start.year} г.';
+      return '${start.day} ${getMonth(start.month)} - '
+          '${end.day} ${getMonth(end.month)} ${start.year} г.';
     }
 
-    return '${_formatDate(start)} - ${_formatDate(end)}';
+    return '${formatDate(start)} - ${formatDate(end)}';
   }
+}
 
-  String _getMonth(int month) {
-    const months = [
-      'января',
-      'февраля',
-      'марта',
-      'апреля',
-      'мая',
-      'июня',
-      'июля',
-      'августа',
-      'сентября',
-      'октября',
-      'ноября',
-      'декабря',
-    ];
-    return months[month - 1];
-  }
+String getMonth(int month) {
+  return months[month - 1];
+}
 
-  String _formatDate(DateTime date) {
-    return '${date.day} ${_getMonth(date.month)} ${date.year} г.';
-  }
+String formatDate(DateTime date) {
+  return '${date.day} ${getMonth(date.month)} ${date.year} г.';
 }

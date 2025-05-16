@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/fake.dart';
+import 'package:mobile_app/page/edit_profile_page.dart';
 import 'package:mobile_app/page/login_page.dart';
 import 'package:mobile_app/page/main_competition_page.dart';
 import 'package:mobile_app/page/widgets/user.dart';
@@ -22,7 +23,7 @@ void main() => runApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
       ),
-      home: MainCompetitionPage()//MainCompetitionPage(),
+      home: EditProfilePage()//MainCompetitionPage(),
     ),
   ),
 );
