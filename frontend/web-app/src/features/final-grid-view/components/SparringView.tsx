@@ -1,4 +1,4 @@
-import { Card, Stack } from "@mantine/core";
+import { Card, Stack, useMantineTheme } from "@mantine/core";
 import type { Sparring } from "../../../entities";
 import { SPARRING_SIZE } from "../constants";
 import { SparringPlaceView } from "./SparringPlaceView";
@@ -8,11 +8,14 @@ export interface SparringViewProps {
   sparring?: Sparring | null;
   ordinal?: number;
   selectSparring: (sparring: Sparring) => unknown;
+  selected: Sparring | null;
 }
 
-export function SparringView({ sparring, ordinal, selectSparring }: SparringViewProps) {
+export function SparringView({ sparring, ordinal, selectSparring, selected }: SparringViewProps) {
+  const theme = useMantineTheme();
   const places = placesByOrdinal(ordinal);
   const isSelectable = sparring && sparring.top && sparring.bot;
+  const isSelected = sparring && sparring.id === selected?.id;
 
   return (
     <Card
@@ -24,7 +27,12 @@ export function SparringView({ sparring, ordinal, selectSparring }: SparringView
       }}
       onClick={isSelectable ? () => selectSparring(sparring) : undefined}
     >
-      <Stack gap={0} flex={1} className={isSelectable ? classes.sparringCard : undefined}>
+      <Stack
+        gap={0}
+        flex={1}
+        className={isSelectable ? classes.sparringCard : undefined}
+        bg={isSelected ? `${theme.colors.gray[0]}20` : undefined}
+      >
         <SparringPlaceView placeId={sparring?.top?.id} placeOrd={places?.top} />
         <SparringPlaceView placeId={sparring?.bot?.id} placeOrd={places?.bot} />
       </Stack>

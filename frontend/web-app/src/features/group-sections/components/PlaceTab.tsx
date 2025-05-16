@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { TextInput, useMantineTheme } from "@mantine/core";
+import { Stack, TextInput, useMantineTheme } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import {
   useCompletePlaceRange,
@@ -17,12 +17,12 @@ export interface PlaceTabProps {
 
 export function PlaceTab({ place: { id, rangeGroup, shootOut } }: PlaceTabProps) {
   return (
-    <>
+    <Stack>
       {[...rangeGroup.ranges]
-        .sort(({ ordinal: a }, { ordinal: b }) => a - b)
+        .sort((a, b) => a.ordinal - b.ordinal)
         .map((range) => (
           <PlaceRangeCard
-            key={`${id}$range${range.ordinal}`}
+            key={`${rangeGroup.id}$range${range.ordinal}`}
             placeId={id}
             range={range}
             rangeSize={rangeGroup.rangeSize}
@@ -30,7 +30,7 @@ export function PlaceTab({ place: { id, rangeGroup, shootOut } }: PlaceTabProps)
           />
         ))}
       {shootOut && <ShootOutCard placeId={id} shootOut={shootOut} type={rangeGroup.type} />}
-    </>
+    </Stack>
   );
 }
 

@@ -23,9 +23,10 @@ export interface FinalGridViewProps {
   grid: FinalGrid;
   loading: boolean;
   selectSparring: (sparring: Sparring) => unknown;
+  selected: Sparring | null;
 }
 
-export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewProps) {
+export function FinalGridView({ grid, loading, selectSparring, selected }: FinalGridViewProps) {
   return (
     <ScrollArea flex={1} style={{ overflow: "hidden" }} miw={500} offsetScrollbars>
       <LoadingOverlay visible={loading} />
@@ -44,11 +45,13 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
                     sparring={grid.quarterfinal.sparring1}
                     ordinal={1}
                     selectSparring={selectSparring}
+                    selected={selected}
                   />
                   <SparringView
                     sparring={grid.quarterfinal.sparring2}
                     ordinal={2}
                     selectSparring={selectSparring}
+                    selected={selected}
                   />
                 </Stack>
                 <GridMergeDivider
@@ -60,6 +63,7 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
                     <SparringView
                       sparring={grid.semifinal?.sparring5}
                       selectSparring={selectSparring}
+                      selected={selected}
                     />
                   </Center>
                 </Stack>
@@ -71,11 +75,13 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
                   sparring={grid.quarterfinal.sparring3}
                   ordinal={3}
                   selectSparring={selectSparring}
+                  selected={selected}
                 />
                 <SparringView
                   sparring={grid.quarterfinal.sparring4}
                   ordinal={4}
                   selectSparring={selectSparring}
+                  selected={selected}
                 />
               </Stack>
               <GridMergeDivider
@@ -86,6 +92,7 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
                 <SparringView
                   sparring={grid.semifinal?.sparring6}
                   selectSparring={selectSparring}
+                  selected={selected}
                 />
               </Center>
             </Group>
@@ -99,11 +106,19 @@ export function FinalGridView({ grid, loading, selectSparring }: FinalGridViewPr
           <Stack gap={0}>
             <Stack flex={1} />
             <Stack gap={GAP_HEADER}>
-              <SparringView sparring={grid.final?.sparringGold} selectSparring={selectSparring} />
+              <SparringView
+                sparring={grid.final?.sparringGold}
+                selectSparring={selectSparring}
+                selected={selected}
+              />
             </Stack>
             <Stack flex={1} gap={GAP_HEADER} justify="flex-end">
               <FinalHeader title="Финал за 3-е место" />
-              <SparringView sparring={grid.final?.sparringBronze} selectSparring={selectSparring} />
+              <SparringView
+                sparring={grid.final?.sparringBronze}
+                selectSparring={selectSparring}
+                selected={selected}
+              />
             </Stack>
           </Stack>
         </Group>

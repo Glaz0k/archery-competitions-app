@@ -120,6 +120,7 @@ export function FinalSection({ groupId }: { groupId: number }) {
               grid={grid}
               loading={isGrifFetching}
               selectSparring={setSelectedSparring}
+              selected={selectedSparring ?? null}
             />
             {selectedSparring && <SparringTab sparring={selectedSparring} />}
           </>
