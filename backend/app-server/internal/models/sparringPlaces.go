@@ -10,8 +10,10 @@ type SparringPlace struct {
 }
 
 type RangeScorePair struct {
-	CompScore int
-	OppScore  int
+	CompScore   int
+	OppScore    int
+	IsEndedComp bool
+	IsEndedOpp  bool
 }
 
 type Shot struct {

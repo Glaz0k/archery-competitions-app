@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Port     int             `yaml:"PORT" env:"PORT"`
-	Postgres postgres.Config `yaml:"POSTGRES"`
+	Port      int             `yaml:"PORT" env:"PORT"`
+	Postgres  postgres.Config `yaml:"POSTGRES"`
+	SecretKey string          `yaml:"SECRET_KEY" env:"SECRET_KEY"`
 }
 
 func New() (*Config, error) {
@@ -16,6 +17,5 @@ func New() (*Config, error) {
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
 		return nil, err
 	}
-
 	return &cfg, nil
 }

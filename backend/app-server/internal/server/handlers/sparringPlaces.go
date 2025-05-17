@@ -77,7 +77,6 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 	var opponentRangeGroupID int
 	err = conn.QueryRow(context.Background(), opponentRangeGroupQuery, opponentSparringPlaceID).Scan(&opponentRangeGroupID)
 	if err != nil {
-		fmt.Printf("err5: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}

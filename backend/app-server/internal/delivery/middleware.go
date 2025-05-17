@@ -2,13 +2,12 @@ package delivery
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 )
-
-var jwtKey = []byte("my_secret_key_my_secret_key_my_secret_key") // where to get
 
 type Claims struct {
 	UserID int    `json:"user_id"`
@@ -16,10 +15,11 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func JWTRoleMiddleware(roles string) func(next http.Handler) http.Handler {
+func JWTRoleMiddleware(roles string, secretKey string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
+			fmt.Println(secretKey)
+			jwtKey := []byte(secretKey)
 			tokenString := r.Header.Get("Authorization")
 			if tokenString == "" {
 				http.Error(w, "Missing authorization token", http.StatusUnauthorized)

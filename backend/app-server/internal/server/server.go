@@ -20,7 +20,7 @@ func New(cfg config.Config, logger *zap.Logger) *Server {
 }
 
 func (s *Server) Run() error {
-	router := rt.Create()
+	router := rt.Create(s.Config.SecretKey)
 
 	headers := handlers.AllowedHeaders([]string{"Content-Type"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})

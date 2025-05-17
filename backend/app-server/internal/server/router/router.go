@@ -9,18 +9,18 @@ import (
 	. "app-server/internal/server/router/routes"
 )
 
-func Create() *mux.Router {
+func Create(secretKey string) *mux.Router {
 	router := mux.NewRouter()
 	router.Use(logger.LogMiddleware)
 
 	adminRouter := router.NewRoute().Subrouter()
-	adminRouter.Use(delivery.JWTRoleMiddleware("admin"))
+	adminRouter.Use(delivery.JWTRoleMiddleware("admin", secretKey))
 
 	userRouter := router.NewRoute().Subrouter()
-	userRouter.Use(delivery.JWTRoleMiddleware("user"))
+	userRouter.Use(delivery.JWTRoleMiddleware("user", secretKey))
 
 	commonRouter := router.NewRoute().Subrouter()
-	commonRouter.Use(delivery.JWTRoleMiddleware("admin, user"))
+	commonRouter.Use(delivery.JWTRoleMiddleware("admin, user", secretKey))
 
 	CreateCupRoutes(adminRouter)
 	GetCupRoutes(commonRouter)

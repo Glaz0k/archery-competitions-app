@@ -277,38 +277,36 @@ func getOpponentPlaceID(spID int) (int, error) {
 }
 
 func calculateSparringPlaceScore(sparringPlace, opponentSparringPlace *models.SparringPlace, bowType string) {
-	maxRanges := max(len(sparringPlace.RangeGroup.Ranges), len(opponentSparringPlace.RangeGroup.Ranges))
-	rangeScores := make(map[int]*models.RangeScorePair, maxRanges)
-	for i := 1; i <= maxRanges; i++ {
-		rangeScores[i] = &models.RangeScorePair{
-			CompScore: 0,
-			OppScore:  0,
-		}
-	}
+	endedRanges := make(map[int]*models.RangeScorePair)
+
 	for _, r := range sparringPlace.RangeGroup.Ranges {
 		if !r.IsActive {
-			if pair, exists := rangeScores[r.RangeOrdinal]; exists {
-				pair.CompScore = r.RangeScore
+			if endedRanges[r.RangeOrdinal] == nil {
+				endedRanges[r.RangeOrdinal] = &models.RangeScorePair{}
 			}
+			endedRanges[r.RangeOrdinal].CompScore = r.RangeScore
+			endedRanges[r.RangeOrdinal].IsEndedComp = true
 		}
 	}
+
 	for _, r := range opponentSparringPlace.RangeGroup.Ranges {
 		if !r.IsActive {
-			if pair, exists := rangeScores[r.RangeOrdinal]; exists {
-				pair.OppScore = r.RangeScore
+			if endedRanges[r.RangeOrdinal] == nil {
+				endedRanges[r.RangeOrdinal] = &models.RangeScorePair{}
 			}
+			endedRanges[r.RangeOrdinal].OppScore = r.RangeScore
+			endedRanges[r.RangeOrdinal].IsEndedOpp = true
+		}
+	}
+	validRanges := make(map[int]*models.RangeScorePair)
+	for ord, pair := range endedRanges {
+		if pair.IsEndedOpp && pair.IsEndedComp {
+			validRanges[ord] = pair
 		}
 	}
 
-	endedRanges := make(map[int]*models.RangeScorePair)
-	for ord, pair := range rangeScores {
-		if pair.CompScore > 0 && pair.OppScore > 0 {
-			endedRanges[ord] = pair
-		}
-	}
-
-	if len(endedRanges) > 0 {
-		compScore, oppScore := tools.CalculatePoints(endedRanges, bowType)
+	if len(validRanges) > 0 {
+		compScore, oppScore := tools.CalculatePoints(validRanges, bowType)
 		sparringPlace.SparringScore = compScore
 		opponentSparringPlace.SparringScore = oppScore
 	} else {

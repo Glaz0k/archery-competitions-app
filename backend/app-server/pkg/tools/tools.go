@@ -58,14 +58,13 @@ func GetRoleFromContext(r *http.Request) (string, error) {
 func CalculatePoints(sp map[int]*models.RangeScorePair, bowType string) (int, int) {
 	totalTop := 0
 	totalBot := 0
+
 	switch bowType {
 	case "block":
-		for i := 0; i < len(sp); i++ {
-			totalTop += sp[i].CompScore
-			totalBot += sp[i].OppScore
+		for _, v := range sp {
+			totalTop += v.CompScore
+			totalBot += v.OppScore
 		}
-
-		//TODO: подсчет X при равном счете?
 	default:
 		for _, v := range sp {
 			if v.CompScore > v.OppScore {
@@ -73,13 +72,11 @@ func CalculatePoints(sp map[int]*models.RangeScorePair, bowType string) (int, in
 			} else if v.CompScore < v.OppScore {
 				totalBot += 2
 			} else {
-				if totalTop != 0 {
-					totalTop++
-					totalBot++
-				}
+				totalTop++
+				totalBot++
 			}
 		}
-
 	}
+
 	return totalTop, totalBot
 }
