@@ -73,8 +73,10 @@ func CalculatePoints(sp map[int]*models.RangeScorePair, bowType string) (int, in
 			} else if v.CompScore < v.OppScore {
 				totalBot += 2
 			} else {
-				totalTop++
-				totalBot++
+				if totalTop != 0 {
+					totalTop++
+					totalBot++
+				}
 			}
 		}
 

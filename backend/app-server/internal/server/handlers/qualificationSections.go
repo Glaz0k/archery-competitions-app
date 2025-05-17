@@ -148,7 +148,7 @@ func StartQualification(w http.ResponseWriter, r *http.Request) {
 			for rangeOrdinal := 1; rangeOrdinal <= req.RangesCount; rangeOrdinal++ {
 				var rangeID int
 				err = tx.QueryRow(context.Background(), `INSERT INTO ranges (group_id, range_ordinal, is_active) VALUES ($1, $2, $3) RETURNING id`,
-					rangeGroupID, rangeOrdinal, true).Scan(&rangeID)
+					rangeGroupID, rangeOrdinal, rangeOrdinal == 1 && roundOrdinal == 1).Scan(&rangeID)
 				if err != nil {
 					tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("unable to create range: %v", err)})
 					return
@@ -719,18 +719,6 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = getShotsFromRange(&rg)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-		return
-	}
-
-	rg.RangeScore, err = getRangeScore(rg.Shots)
-	if err != nil {
-		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
-		return
-	}
-
 	if !isRangeActive {
 		var individualGroupId int
 		query = `SELECT group_id FROM qualification_sections WHERE id = $1`
@@ -753,6 +741,17 @@ func EditQualificationSectionRanges(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = getShotsFromRange(&rg)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
+
+	rg.RangeScore, err = getRangeScore(rg.Shots)
+	if err != nil {
+		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
+		return
+	}
 	tools.WriteJSON(w, http.StatusOK, rg)
 }
 
@@ -778,9 +777,9 @@ func editRanges(tx pgx.Tx, changeRange dto.ChangeRange, sectionId int, round int
 func editCompetitorsPlaces(tx pgx.Tx, individualGroupId int) error {
 	type CompetitorResult struct {
 		ID    int
-		Total int
-		Tens  int
-		Nines int
+		Total sql.NullInt64
+		Tens  sql.NullInt64
+		Nines sql.NullInt64
 	}
 
 	var competitors []CompetitorResult
@@ -804,7 +803,7 @@ func editCompetitorsPlaces(tx pgx.Tx, individualGroupId int) error {
 
 	for rows.Next() {
 		var cr CompetitorResult
-		if err := rows.Scan(&cr.ID, &cr.Total, &cr.Tens, &cr.Nines); err != nil {
+		if err = rows.Scan(&cr.ID, &cr.Total, &cr.Tens, &cr.Nines); err != nil {
 			return fmt.Errorf("unable to scan competitor result: %v", err)
 		}
 		competitors = append(competitors, cr)
@@ -812,12 +811,12 @@ func editCompetitorsPlaces(tx pgx.Tx, individualGroupId int) error {
 
 	sort.Slice(competitors, func(i, j int) bool {
 		if competitors[i].Total != competitors[j].Total {
-			return competitors[i].Total > competitors[j].Total
+			return competitors[i].Total.Int64 > competitors[j].Total.Int64
 		}
 		if competitors[i].Tens != competitors[j].Tens {
-			return competitors[i].Tens > competitors[j].Tens
+			return competitors[i].Tens.Int64 > competitors[j].Tens.Int64
 		}
-		return competitors[i].Nines > competitors[j].Nines
+		return competitors[i].Nines.Int64 > competitors[j].Nines.Int64
 	})
 
 	for place, competitor := range competitors {

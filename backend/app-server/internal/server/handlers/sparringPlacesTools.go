@@ -261,6 +261,7 @@ func getOpponentPlaceID(spID int) (int, error) {
 		return 0, fmt.Errorf("failed Acquire")
 	}
 	defer conn.Release()
+
 	opponentQuery := `SELECT 
     CASE 
         WHEN top_place_id = $1 THEN bot_place_id 
@@ -284,6 +285,7 @@ func calculateSparringPlaceScore(sparringPlace, opponentSparringPlace *models.Sp
 				CompScore = sparringPlace.RangeGroup.Ranges[i].RangeScore
 		}
 	}
+
 	for i := 0; i < len(opponentSparringPlace.RangeGroup.Ranges); i++ {
 		if !opponentSparringPlace.RangeGroup.Ranges[i].IsActive {
 			_, exists := endedRanges[opponentSparringPlace.RangeGroup.Ranges[i].RangeOrdinal]

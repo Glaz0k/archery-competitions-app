@@ -46,6 +46,7 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !acs {
+		fmt.Printf("err2: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
@@ -54,6 +55,7 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 
 	err = getRangeGroup(&sparringPlace.RangeGroup)
 	if err != nil {
+		fmt.Printf("err3: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
@@ -63,8 +65,10 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 	if !shootOutExists {
 		sparringPlace.ShootOut = nil
 	}
+
 	opponentSparringPlaceID, err := getOpponentPlaceID(id)
 	if err != nil {
+		fmt.Printf("err4: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
@@ -73,6 +77,7 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 	var opponentRangeGroupID int
 	err = conn.QueryRow(context.Background(), opponentRangeGroupQuery, opponentSparringPlaceID).Scan(&opponentRangeGroupID)
 	if err != nil {
+		fmt.Printf("err5: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
@@ -81,10 +86,10 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 	opponentSparringPlace.RangeGroup.ID = opponentRangeGroupID
 	err = getRangeGroup(&opponentSparringPlace.RangeGroup)
 	if err != nil {
+		fmt.Printf("err6: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
-
 	calculateSparringPlaceScore(&sparringPlace, &opponentSparringPlace, bowType)
 	tools.WriteJSON(w, http.StatusOK, sparringPlace)
 }
@@ -243,6 +248,7 @@ func EndSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 
 	isRangeExist, err := checkRangeExist(sparringPlaceID, rangeOrdinal)
 	if err != nil {
+		fmt.Printf("err1: %v\n", err)
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
@@ -263,8 +269,9 @@ func EndSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 	}
 	curRange := models.Range{}
 	if !isRangeActive {
-		err := getRange(&curRange, sparringPlaceID, rangeOrdinal)
+		err = getRange(&curRange, sparringPlaceID, rangeOrdinal)
 		if err != nil {
+			fmt.Printf("err2: %v\n", err)
 			tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 			return
 		}
@@ -278,32 +285,40 @@ func EndSparringPlaceRange(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		fmt.Printf("err3: %v\n", err)
+
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
+
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	defer tx.Rollback(context.Background())
 
-	bowTypeQuery := `SELECT bow FROM competitors WHERE id = $1`
+	bowTypeQuery := `SELECT bow FROM competitors 
+    JOIN sparring_places ON competitors.id = sparring_places.competitor_id 
+           WHERE sparring_places.id = $1`
 	var bowType string
 	err = tx.QueryRow(context.Background(), bowTypeQuery, sparringPlaceID).Scan(&bowType)
 	if err != nil {
+		fmt.Printf("err5: %v\n", err)
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 
 	endedRange, err := endRange(context.Background(), tx, sparringPlaceID, rgID, rangeOrdinal, bowType)
 	if err != nil {
+		fmt.Printf("err6: %v\n", err)
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
 	err = tx.Commit(context.Background())
 	if err != nil {
+		fmt.Printf("err7: %v\n", err)
 		tools.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "DATABASE ERROR"})
 		return
 	}
