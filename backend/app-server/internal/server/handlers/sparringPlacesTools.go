@@ -407,11 +407,11 @@ func endRangeWinPoints(ctx context.Context, tx pgx.Tx, sparringPlaceID, rgID,
 	opRG := models.RangeGroup{}
 	opRG.Ranges = make([]models.Range, rangeSize)
 	for i := 1; i <= rangeOrdinal; i++ {
-		err = getRange(&opRG.Ranges[i], opPlaceID, i)
+		err = getRange(&opRG.Ranges[i-1], opPlaceID, i)
 		if err != nil {
 			return nil, err
 		}
-		if opRG.Ranges[i].IsActive {
+		if opRG.Ranges[i-1].IsActive {
 			err = getRange(&endedRange, sparringPlaceID, rangeOrdinal)
 			if err != nil {
 				return nil, err
