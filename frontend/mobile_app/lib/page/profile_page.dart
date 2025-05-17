@@ -22,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: OnionBar.withoutProfile("Профиль", context),
       body: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(), //BouncingScrollPhysics
+        physics: AlwaysScrollableScrollPhysics(),
         child: Container(
           padding: const EdgeInsets.all(8),
           child: Column(
@@ -30,7 +30,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Фамилия Имя", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Фамилия Имя",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.fullName ?? ""),
                   leading: Icon(
                     CupertinoIcons.person_alt,
@@ -42,7 +45,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Дата рождения", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Дата рождения",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.birthDate ?? ''),
                   leading: Icon(
                     Icons.date_range,
@@ -54,7 +60,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Пол", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Пол",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.identity.toString() ?? ''),
                   leading: Icon(
                     Icons.perm_identity,
@@ -65,7 +74,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Лук", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Лук",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.bow.toString() ?? ''),
                   leading: Icon(
                     Icons.subject,
@@ -76,7 +88,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Спортивный разряд", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Спортивный разряд",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.rank.toString() ?? ''),
                   leading: Icon(
                     Icons.star,
@@ -87,7 +102,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Город", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Город",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.region ?? ''),
                   leading: Icon(
                     Icons.location_city,
@@ -98,7 +116,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Федерация", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Федерация",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.federation ?? ''),
                   leading: Icon(
                     Icons.people_alt,
@@ -109,7 +130,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Card(
                 margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 25.0),
                 child: ListTile(
-                  title: const Text("Клуб", style: TextStyle(fontWeight: FontWeight.bold),),
+                  title: const Text(
+                    "Клуб",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(user?.club ?? ''),
                   leading: Icon(
                     CupertinoIcons.sportscourt_fill,
@@ -127,18 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         builder: (context) => EditProfilePage(),
                       ),
                     );
-                    // Navigator.pushNamed(
-                    //   context,
-                    //   '/edit_profile_page',
-                    //   arguments: user,
-                    // );
                   },
-                  // style: ElevatedButton.styleFrom(
-                  //   backgroundColor: Colors.green,
-                  //   side: BorderSide.none,
-                  //   shape: StadiumBorder(),
-                  //   minimumSize: Size(220, 50),
-                  // ),
                   child: const Text(
                     "Редактировать",
                     style: TextStyle(color: Colors.white),

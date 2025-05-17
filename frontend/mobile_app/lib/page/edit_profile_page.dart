@@ -4,6 +4,7 @@ import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
+
 import '../api/common.dart';
 import 'main_competition_page.dart';
 import 'widgets/user.dart';
@@ -23,7 +24,7 @@ class _EditProfilePage extends State<EditProfilePage> {
   Gender? chosenGender;
   BowClass? chosenBow;
   SportsRank? chosenRank;
-  String birthDate = "2015-02-22";
+  String? birthDate;
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _EditProfilePage extends State<EditProfilePage> {
     chosenGender = user?.identity;
     chosenBow = user?.bow;
     chosenRank = user?.rank;
-    //birthDate = user?.birthDate;
+    birthDate = user?.birthDate;
   }
 
   @override
@@ -114,14 +115,20 @@ class _EditProfilePage extends State<EditProfilePage> {
                           decoration: const InputDecoration(
                             labelText: 'Спортивный разряд',
                             isDense: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 8,
+                            ),
                             border: OutlineInputBorder(),
                           ),
                           items:
                               SportsRank.values.map((rank) {
                                 return DropdownMenuItem<SportsRank>(
                                   value: rank,
-                                  child: Text(rank.toString(), overflow: TextOverflow.ellipsis,),
+                                  child: Text(
+                                    rank.toString(),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 );
                               }).toList(),
                           onChanged: (newVal) {
@@ -143,7 +150,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                           child: OutlinedButton(
                             onPressed: () => chooseDate(context),
                             child: Text(
-                              birthDate.isEmpty
+                              birthDate == null
                                   ? "Установить дату рождения"
                                   : "Дата рождения: $birthDate",
                               style: TextStyle(
@@ -172,7 +179,6 @@ class _EditProfilePage extends State<EditProfilePage> {
                             ),
                             ElevatedButton(
                               onPressed: () async {
-
                                 final competitor = ChangeCompetitor(
                                   fullNameController.text,
                                   birthDate,
@@ -245,7 +251,12 @@ class _EditProfilePage extends State<EditProfilePage> {
   }
 
   Future chooseDate(BuildContext context) async {
-    final initialDate = DateTime.parse(birthDate);
+    DateTime? initialDate;
+    if (birthDate == null) {
+      initialDate = DateTime.now();
+    } else {
+      initialDate = DateTime.parse(birthDate!);
+    }
 
     final newDate = await showDatePicker(
       context: context,
