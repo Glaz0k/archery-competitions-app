@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -18,7 +17,6 @@ type Claims struct {
 func JWTRoleMiddleware(roles string, secretKey string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println(secretKey)
 			jwtKey := []byte(secretKey)
 			tokenString := r.Header.Get("Authorization")
 			if tokenString == "" {
