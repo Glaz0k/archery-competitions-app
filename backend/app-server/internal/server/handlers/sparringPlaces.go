@@ -86,10 +86,10 @@ func GetSparringPlace(w http.ResponseWriter, r *http.Request) {
 	opponentSparringPlace.RangeGroup.ID = opponentRangeGroupID
 	err = getRangeGroup(&opponentSparringPlace.RangeGroup)
 	if err != nil {
-		fmt.Printf("err6: %v\n", err)
 		tools.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "BAD ACTION"})
 		return
 	}
+
 	calculateSparringPlaceScore(&sparringPlace, &opponentSparringPlace, bowType)
 	tools.WriteJSON(w, http.StatusOK, sparringPlace)
 }

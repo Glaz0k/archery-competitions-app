@@ -277,28 +277,43 @@ func getOpponentPlaceID(spID int) (int, error) {
 }
 
 func calculateSparringPlaceScore(sparringPlace, opponentSparringPlace *models.SparringPlace, bowType string) {
-	endedRanges := make(map[int]*models.RangeScorePair)
-	for i := 0; i < len(sparringPlace.RangeGroup.Ranges); i++ {
-		if !sparringPlace.RangeGroup.Ranges[i].IsActive {
-			endedRanges[sparringPlace.RangeGroup.Ranges[i].RangeOrdinal] = &models.RangeScorePair{}
-			endedRanges[sparringPlace.RangeGroup.Ranges[i].RangeOrdinal].
-				CompScore = sparringPlace.RangeGroup.Ranges[i].RangeScore
+	maxRanges := max(len(sparringPlace.RangeGroup.Ranges), len(opponentSparringPlace.RangeGroup.Ranges))
+	rangeScores := make(map[int]*models.RangeScorePair, maxRanges)
+	for i := 1; i <= maxRanges; i++ {
+		rangeScores[i] = &models.RangeScorePair{
+			CompScore: 0,
+			OppScore:  0,
 		}
 	}
-
-	for i := 0; i < len(opponentSparringPlace.RangeGroup.Ranges); i++ {
-		if !opponentSparringPlace.RangeGroup.Ranges[i].IsActive {
-			_, exists := endedRanges[opponentSparringPlace.RangeGroup.Ranges[i].RangeOrdinal]
-			if exists {
-				endedRanges[opponentSparringPlace.RangeGroup.Ranges[i].RangeOrdinal].
-					OppScore = opponentSparringPlace.RangeGroup.Ranges[i].RangeScore
+	for _, r := range sparringPlace.RangeGroup.Ranges {
+		if !r.IsActive {
+			if pair, exists := rangeScores[r.RangeOrdinal]; exists {
+				pair.CompScore = r.RangeScore
 			}
 		}
 	}
-	if len(endedRanges) != 0 {
+	for _, r := range opponentSparringPlace.RangeGroup.Ranges {
+		if !r.IsActive {
+			if pair, exists := rangeScores[r.RangeOrdinal]; exists {
+				pair.OppScore = r.RangeScore
+			}
+		}
+	}
+
+	endedRanges := make(map[int]*models.RangeScorePair)
+	for ord, pair := range rangeScores {
+		if pair.CompScore > 0 && pair.OppScore > 0 {
+			endedRanges[ord] = pair
+		}
+	}
+
+	if len(endedRanges) > 0 {
 		compScore, oppScore := tools.CalculatePoints(endedRanges, bowType)
 		sparringPlace.SparringScore = compScore
 		opponentSparringPlace.SparringScore = oppScore
+	} else {
+		sparringPlace.SparringScore = 0
+		opponentSparringPlace.SparringScore = 0
 	}
 }
 
