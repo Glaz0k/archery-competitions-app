@@ -13,13 +13,23 @@ class OnionApp extends StatelessWidget {
   Widget build(BuildContext context) {
     var userProvider = context.watch<UserProvider>();
     var api = context.watch<Api>();
+    loadingScreen() => Center(child: CircularProgressIndicator());
     if (userProvider.loading) {
-      return SizedBox.shrink(); // Пустой экран
+      return loadingScreen();
     } else {
-      if (userProvider.getUser(api) == null) {
+      if (userProvider.getId() == null) {
         return LoginPage();
       } else {
-        return MainCompetitionPage();
+        return FutureBuilder(
+          future: userProvider.loadUser(api),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return MainCompetitionPage();
+            } else {
+              return loadingScreen();
+            }
+          },
+        );
       }
     }
   }
