@@ -11,7 +11,12 @@ class RangeModel with ChangeNotifier {
 
   RangeGroup rangeGroup;
 
-  RangeModel._(this.rangeGroup, this._getRangeGroup, this._putRange, this._endRange);
+  RangeModel._(
+    this.rangeGroup,
+    this._getRangeGroup,
+    this._putRange,
+    this._endRange,
+  );
   RangeModel(
     RangeGroup rangeGroup, {
     required Future<RangeGroup> Function() getRangeGroup,
@@ -20,16 +25,17 @@ class RangeModel with ChangeNotifier {
   }) : this._(rangeGroup, getRangeGroup, putRange, endRange);
 
   Future<void> registerAndEndRange(int rangeIdx) async {
-    var range = rangeGroup.ranges[rangeIdx-1];
+    var range = rangeGroup.ranges[rangeIdx - 1];
     if (range.shots!.any((shot) => shot.score == null)) {
       throw BadActionException("Нельзя закончить незаконченную серию");
     }
-    await _putRange(ChangeRange(rangeIdx,range.shots));
+    await _putRange(ChangeRange(rangeIdx, range.shots));
     await _endRange(rangeIdx);
     // Ибо сказал Господь: рефетчи.
     rangeGroup = await _getRangeGroup();
     notifyListeners();
   }
+
   Future<void> reloadRangeGroup() async {
     rangeGroup = await _getRangeGroup();
     notifyListeners();

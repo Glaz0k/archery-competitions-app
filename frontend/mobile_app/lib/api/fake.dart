@@ -155,14 +155,7 @@ class FakeServer implements Api {
   Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) {
     defineSparring(sparringId, top, bottom) => Sparring(
       sparringId,
-      SparringPlace(
-        top.id,
-        top.shrink(),
-        _rangeGroup,
-        false,
-        null,
-        0,
-      ),
+      SparringPlace(top.id, top.shrink(), _rangeGroup, false, null, 0),
       bottom != null
           ? SparringPlace(
             bottom.id,

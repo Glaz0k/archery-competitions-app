@@ -13,7 +13,6 @@ class LoginPage extends StatefulWidget {
   State<StatefulWidget> createState() => _LoginPageState();
 }
 
-
 class _LoginPageState extends State<LoginPage> {
   Future<int> _userId = Future(() => 0);
   String? _errorMessage;

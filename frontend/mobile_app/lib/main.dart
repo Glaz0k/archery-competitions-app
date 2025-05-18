@@ -21,9 +21,7 @@ void main() => runApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
       ),
-      home: MainCompetitionPage()//MainCompetitionPage(),
+      home: MainCompetitionPage(), //MainCompetitionPage(),
     ),
   ),
 );
-
-
