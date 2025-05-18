@@ -63,15 +63,32 @@ class RealServer implements Api {
     int sectionId,
     int roundOrdinal,
     int rangeOrdinal,
-  ) {
-    // TODO: implement endQualificationSectionsRoundsRange
-    throw UnimplementedError();
+  ) async {
+    final response = await client.post(
+      Uri.https(
+        backend,
+        "/qualification_sections/$sectionId/rounds/$roundOrdinal/ranges/$rangeOrdinal/end",
+      ),
+    );
+    validate(
+      response,
+      notFoundMessage: "Секция, раунд или серия не найдены",
+      badActionMessage: "Невозможно завершить неполную или неактивную серию",
+    );
+    return Range.fromJson(jsonDecode(response.body));
   }
 
   @override
-  Future<Range> endSparringPlacesRange(int placeId, int rangeOrdinal) {
-    // TODO: implement endSparringPlacesRange
-    throw UnimplementedError();
+  Future<Range> endSparringPlacesRange(int placeId, int rangeOrdinal) async {
+    final response = await client.post(
+      Uri.https(backend, "/sparring_places/$placeId/ranges/$rangeOrdinal/end"),
+    );
+    validate(
+      response,
+      notFoundMessage: "Место или серия не найдены",
+      badActionMessage: "Невозможно завершить неполную или неактивную серию",
+    );
+    return Range.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -194,9 +211,15 @@ class RealServer implements Api {
   Future<RangeGroup> getQualificationSectionsRoundsRanges(
     int sectionId,
     int roundOrdinal,
-  ) {
-    // TODO: implement getQualificationSectionsRoundsRanges
-    throw UnimplementedError();
+  ) async {
+    var response = await client.get(
+      Uri.https(
+        backend,
+        "/qualification_sections/$sectionId/rounds/$roundOrdinal/ranges",
+      ),
+    );
+    validate(response, notFoundMessage: "Секция или раунд не найдены");
+    return RangeGroup.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -206,9 +229,12 @@ class RealServer implements Api {
   }
 
   @override
-  Future<RangeGroup> getSparringPlacesRanges(int placeId) {
-    // TODO: implement getSparringPlacesRanges
-    throw UnimplementedError();
+  Future<RangeGroup> getSparringPlacesRanges(int placeId) async {
+    var response = await client.get(
+      Uri.https(backend, "/sparring_places/$placeId/ranges"),
+    );
+    validate(response, notFoundMessage: "Место или серия не найдены");
+    return RangeGroup.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -237,15 +263,36 @@ class RealServer implements Api {
     int sectionId,
     int roundOrdinal,
     ChangeRange request,
-  ) {
-    // TODO: implement putQualificationSectionsRoundsRange
-    throw UnimplementedError();
+  ) async {
+    var response = await client.put(
+      Uri.https(
+        backend,
+        "/qualification_sections/$sectionId/rounds/$roundOrdinal/ranges",
+      ),
+      body: jsonEncode(request.toJson()),
+    );
+    validate(
+      response,
+      notFoundMessage: "Секция, раунд или серия не найдены",
+      invalidParametersMessage: "Неверные параметры",
+      invalidScoreMessage: "Счет выстрела не соответствует типу серии",
+    );
+    return Range.fromJson(jsonDecode(response.body));
   }
 
   @override
-  Future<Range> putSparringPlacesRange(int placeId, ChangeRange request) {
-    // TODO: implement putSparringPlacesRange
-    throw UnimplementedError();
+  Future<Range> putSparringPlacesRange(int placeId, ChangeRange request) async {
+    var response = await client.put(
+      Uri.https(backend, "/sparring_places/$placeId/ranges"),
+      body: jsonEncode(request.toJson()),
+    );
+    validate(
+      response,
+      notFoundMessage: "Место или серия не найдены",
+      invalidParametersMessage: "Неверные параметры",
+      invalidScoreMessage: "Счет выстрела не соответствует типу серии",
+    );
+    return Range.fromJson(jsonDecode(response.body));
   }
 
   @override
