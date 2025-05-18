@@ -48,11 +48,13 @@ class Credentials {
 
 // "range_ordinal": <number>,
 // "shots": <[ <shot> ] | null>
+@JsonSerializable()
 class ChangeRange {
   int rangeOrdinal;
   List<Shot>? shots;
 
   ChangeRange(this.rangeOrdinal, this.shots);
+  Map<String, dynamic> toJson() => _$ChangeRangeToJson(this);
 }
 
 // "score": <string>,

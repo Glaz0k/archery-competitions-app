@@ -37,19 +37,24 @@ class _GroupCompetitorsPageState extends State<GroupCompetitorsPage> {
       onRefresh: _loadCompetitors,
       child: Scaffold(
         appBar: OnionBar("Участники", context),
-        body: ListView.builder(itemCount: _competitorsFuture.length, itemBuilder: (context, index) {
-          final competitor = _competitorsFuture[index].competitor;
-          return Card(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              title: Text(competitor.fullName), // TODO style of the text
-              subtitle: Text(competitor.rank?.toString().split('.').last ?? "Разряд не указан", style: TextStyle(color: Theme.of(context).primaryColorDark),),
-              leading: CircleAvatar(
-                child: Text((index + 1).toString()),
+        body: ListView.builder(
+          itemCount: _competitorsFuture.length,
+          itemBuilder: (context, index) {
+            final competitor = _competitorsFuture[index].competitor;
+            return Card(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                title: Text(competitor.fullName), // TODO style of the text
+                subtitle: Text(
+                  competitor.rank?.toString().split('.').last ??
+                      "Разряд не указан",
+                  style: TextStyle(color: Theme.of(context).primaryColorDark),
+                ),
+                leading: CircleAvatar(child: Text((index + 1).toString())),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ),
     );
   }

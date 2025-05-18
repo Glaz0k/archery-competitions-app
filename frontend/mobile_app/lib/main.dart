@@ -14,7 +14,6 @@ import 'model/range_model.dart';
 void main() => runApp(
   MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => RangeModel([], 3, 3, false)),
       ChangeNotifierProvider(create: (context) => UserProvider()),
       Provider<Api>(create: (context) => FakeServer()),
     ],
@@ -22,9 +21,7 @@ void main() => runApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
       ),
-      home: MainCompetitionPage()//MainCompetitionPage(),
+      home: MainCompetitionPage(), //MainCompetitionPage(),
     ),
   ),
 );
-
-

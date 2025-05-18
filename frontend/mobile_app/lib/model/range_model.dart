@@ -1,71 +1,43 @@
-import 'dart:collection';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_app/api/exceptions.dart';
+import 'package:mobile_app/api/responses.dart';
+
+import '../api/requests.dart';
 
 class RangeModel with ChangeNotifier {
-  final List<Range> _ranges;
-  final int maxRanges;
-  final int maxShots;
-  final bool isShort;
+  final Future<RangeGroup> Function() _getRangeGroup;
+  final Future<Range> Function(ChangeRange) _putRange;
+  final Future<Range> Function(int) _endRange;
 
-  UnmodifiableListView<Range> get ranges => UnmodifiableListView(_ranges);
+  RangeGroup rangeGroup;
 
-  RangeModel(this._ranges, this.maxRanges, this.maxShots, this.isShort);
+  RangeModel._(
+    this.rangeGroup,
+    this._getRangeGroup,
+    this._putRange,
+    this._endRange,
+  );
+  RangeModel(
+    RangeGroup rangeGroup, {
+    required Future<RangeGroup> Function() getRangeGroup,
+    required Future<Range> Function(ChangeRange) putRange,
+    required Future<Range> Function(int) endRange,
+  }) : this._(rangeGroup, getRangeGroup, putRange, endRange);
 
-  void pushRange() {
-    _ranges.add(Range());
+  Future<void> registerAndEndRange(int rangeIdx) async {
+    var range = rangeGroup.ranges[rangeIdx - 1];
+    if (range.shots!.any((shot) => shot.score == null)) {
+      throw BadActionException("Нельзя закончить незаконченную серию");
+    }
+    await _putRange(ChangeRange(rangeIdx, range.shots));
+    await _endRange(rangeIdx);
+    // Ибо сказал Господь: рефетчи.
+    rangeGroup = await _getRangeGroup();
     notifyListeners();
   }
 
-  void popRange() {
-    _ranges.removeLast();
+  Future<void> reloadRangeGroup() async {
+    rangeGroup = await _getRangeGroup();
     notifyListeners();
   }
-}
-
-class Range with ChangeNotifier {
-  final List<ValueNotifier<Shot>> _shots;
-  final ValueNotifier<int> _score;
-
-  UnmodifiableListView<ValueListenable<Shot>> get shots =>
-      UnmodifiableListView(_shots);
-
-  ValueListenable<int> get score => _score;
-
-  Range._(this._shots, this._score);
-
-  Range() : this._([], ValueNotifier(0));
-
-  void pushShot(Shot shot) {
-    _shots.add(ValueNotifier(shot));
-    notifyListeners();
-  }
-
-  void popShot() {
-    _shots.last.dispose();
-    _shots.removeLast();
-    notifyListeners();
-  }
-
-  void changeShot(int index, Shot newValue) {
-    Shot old = _shots[index].value;
-    _score.value += newValue.algebraicValue - old.algebraicValue;
-    _shots[index].value = newValue;
-  }
-}
-
-class Shot {
-  final int rawValue;
-
-  const Shot(this.rawValue) : assert(0 <= rawValue || rawValue <= 11);
-
-  Shot.fromSlider(double sliderValue, bool isShort)
-    : this((isShort && sliderValue < 6.0) ? 0 : sliderValue.round());
-
-  @override
-  String toString() => switch (rawValue) {
-    0 => 'M',
-    11 => 'X',
-    _ => rawValue.toString(),
-  };
-  int get algebraicValue => rawValue == 11 ? 10 : rawValue;
 }
