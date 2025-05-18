@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class CompetitionField extends StatelessWidget {
   final String nameOfComp;
   final String date;
+
   const CompetitionField({
     super.key,
     required this.nameOfComp,

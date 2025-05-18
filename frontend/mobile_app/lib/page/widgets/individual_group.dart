@@ -1,5 +1,3 @@
-
-
 /*
 class IndividualGroup extends StatefulWidget {
   const IndividualGroup({super.key});

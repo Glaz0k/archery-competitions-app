@@ -11,6 +11,7 @@ class UserProvider with ChangeNotifier {
   bool loading = true;
   SharedPreferencesWithCache? _prefs;
   CompetitorFull? _user;
+
   UserProvider() {
     SharedPreferencesWithCache.create(
       cacheOptions: const SharedPreferencesWithCacheOptions(
@@ -22,6 +23,7 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     });
   }
+
   int? getId() {
     return _prefs?.getInt(userKey);
   }
