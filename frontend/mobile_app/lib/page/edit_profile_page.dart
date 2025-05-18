@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
-import 'package:mobile_app/page/widgets/onion_bar.dart';
-import 'package:provider/provider.dart';
-import 'widgets/user.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
