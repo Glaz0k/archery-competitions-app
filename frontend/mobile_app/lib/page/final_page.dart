@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/responses.dart';
+import 'package:mobile_app/model/range_model.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api.dart';
@@ -108,10 +109,51 @@ class SparringCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(sparring.topPlace?.competitor.fullName ?? "Нет соперника"),
+        CompetitorButton(place: sparring.topPlace),
         Text("vs"),
-        Text(sparring.botPlace?.competitor.fullName ?? "Нет соперника"),
+        CompetitorButton(place: sparring.botPlace),
       ],
     );
+  }
+}
+
+class CompetitorButton extends StatelessWidget {
+  final SparringPlace? place;
+
+  const CompetitorButton({super.key, required this.place});
+
+  @override
+  Widget build(BuildContext context) {
+    var api = context.watch<Api>();
+    if (place == null) {
+      return ElevatedButton(onPressed: null, child: Text("Нет соперника"));
+    } else {
+      return ElevatedButton(
+        onPressed:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => ChangeNotifierProvider(
+                      create:
+                          (context) => RangeModel(
+                            place!.rangeGroup,
+                            getRangeGroup:
+                                () => api.getSparringPlacesRanges(place!.id),
+                            putRange:
+                                (request) => api.putSparringPlacesRange(
+                                  place!.id,
+                                  request,
+                                ),
+                            endRange:
+                                (idx) =>
+                                    api.endSparringPlacesRange(place!.id, idx),
+                          ),
+                    ),
+              ),
+            ),
+        child: Text(place!.competitor.fullName),
+      );
+    }
   }
 }

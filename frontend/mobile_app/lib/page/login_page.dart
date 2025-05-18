@@ -23,11 +23,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     var userProvider = context.watch<UserProvider>();
     var api = context.watch<Api>();
-    return Scaffold(
-      appBar: OnionBar.withoutProfile("Вход", context),
-      body: GestureDetector(
-        onTap: () => Focus.of(context).unfocus(),
-        child: Form(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: OnionBar.withoutProfile("Вход", context),
+        body: Form(
           child: Padding(
             padding: EdgeInsets.all(50),
             child: Column(
