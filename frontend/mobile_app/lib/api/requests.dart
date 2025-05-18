@@ -15,7 +15,7 @@ part 'requests.g.dart';
 @JsonSerializable()
 class ChangeCompetitor {
   String fullName;
-  String? birthDate;
+  String birthDate;
   Gender identity;
   BowClass? bow;
   SportsRank? rank;

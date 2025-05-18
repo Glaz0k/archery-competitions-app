@@ -24,21 +24,22 @@ class _EditProfilePage extends State<EditProfilePage> {
   Gender? chosenGender;
   BowClass? chosenBow;
   SportsRank? chosenRank;
-  String? birthDate;
+  String birthDate = '';
 
   @override
   void initState() {
     super.initState();
     final api = Provider.of<Api>(context, listen: false);
-    final user = Provider.of<UserProvider>(context, listen: false).getUser(api);
-    fullNameController = TextEditingController(text: user?.fullName ?? '');
-    regionController = TextEditingController(text: user?.region ?? '');
-    clubController = TextEditingController(text: user?.club ?? '');
-    federationController = TextEditingController(text: user?.federation ?? '');
-    chosenGender = user?.identity;
-    chosenBow = user?.bow;
-    chosenRank = user?.rank;
-    birthDate = user?.birthDate;
+    final user =
+        Provider.of<UserProvider>(context, listen: false).getUser(api)!;
+    fullNameController = TextEditingController(text: user.fullName);
+    regionController = TextEditingController(text: user.region);
+    clubController = TextEditingController(text: user.club);
+    federationController = TextEditingController(text: user.federation);
+    chosenGender = user.identity;
+    chosenBow = user.bow;
+    chosenRank = user.rank;
+    birthDate = user.birthDate;
   }
 
   @override
@@ -53,7 +54,7 @@ class _EditProfilePage extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     final api = Provider.of<Api>(context);
-    final userProvider = Provider.of<UserProvider>(context);
+    final userProvider = context.watch<UserProvider>();
     return KeyboardDismisser(
       gestures: [GestureType.onTap],
       child: GestureDetector(
@@ -150,9 +151,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                           child: OutlinedButton(
                             onPressed: () => chooseDate(context),
                             child: Text(
-                              birthDate == null
-                                  ? "Установить дату рождения"
-                                  : "Дата рождения: $birthDate",
+                              "Дата рождения: $birthDate",
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -251,12 +250,8 @@ class _EditProfilePage extends State<EditProfilePage> {
   }
 
   Future chooseDate(BuildContext context) async {
-    DateTime? initialDate;
-    if (birthDate == null) {
-      initialDate = DateTime.now();
-    } else {
-      initialDate = DateTime.parse(birthDate!);
-    }
+    DateTime initialDate;
+    initialDate = DateTime.parse(birthDate!);
 
     final newDate = await showDatePicker(
       context: context,
