@@ -190,8 +190,14 @@ class FakeServer implements Api {
 
   @override
   Future<QualificationTable> getIndividualGroupQualificationTable(int groupId) {
-    // TODO: implement getIndividualGroupQualificationTable
-    throw UnimplementedError();
+    return Future.delayed(delay, () {
+      switch (groupId) {
+        case 1:
+          return QualificationTable(1, "70m", 3, [_section]);
+        default:
+          throw NotFoundException("Группа или таблица не найдены");
+      }
+    });
   }
 
   @override

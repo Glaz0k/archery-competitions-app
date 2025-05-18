@@ -167,9 +167,14 @@ class RealServer implements Api {
   }
 
   @override
-  Future<QualificationTable> getIndividualGroupQualificationTable(int groupId) {
-    // TODO: implement getIndividualGroupQualificationTable
-    throw UnimplementedError();
+  Future<QualificationTable> getIndividualGroupQualificationTable(
+    int groupId,
+  ) async {
+    var response = await client.get(
+      Uri.https(backend, "/individual_groups/$groupId/qualification"),
+    );
+    validate(response);
+    return QualificationTable.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -185,18 +190,30 @@ class RealServer implements Api {
   Future<QualificationRoundFull> getQualificationSectionsRound(
     int sectionId,
     int roundOrdinal,
-  ) {
-    // TODO: implement getQualificationSectionsRound
-    throw UnimplementedError();
+  ) async {
+    var response = await client.get(
+      Uri.https(
+        backend,
+        "/qualification_sections/$sectionId/rounds/$roundOrdinal",
+      ),
+    );
+    validate(response);
+    return QualificationRoundFull.fromJson(jsonDecode(response.body));
   }
 
   @override
   Future<RangeGroup> getQualificationSectionsRoundsRanges(
     int sectionId,
     int roundOrdinal,
-  ) {
-    // TODO: implement getQualificationSectionsRoundsRanges
-    throw UnimplementedError();
+  ) async {
+    var response = await client.get(
+      Uri.https(
+        backend,
+        "/qualification_sections/$sectionId/rounds/$roundOrdinal/ranges",
+      ),
+    );
+    validate(response);
+    return RangeGroup.fromJson(jsonDecode(response.body));
   }
 
   @override

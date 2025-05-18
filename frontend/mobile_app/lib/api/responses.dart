@@ -157,6 +157,7 @@ class CompetitorGroupDetail {
 // "distance": <string>,
 // "round_count": <number>,
 // "sections": [ <section> ]
+@JsonSerializable()
 class QualificationTable {
   int groupId;
   String distance;
@@ -169,6 +170,9 @@ class QualificationTable {
     this.roundCount,
     this.sections,
   );
+
+  factory QualificationTable.fromJson(Map<String, dynamic> json) =>
+      _$QualificationTableFromJson(json);
 }
 
 // "id": <number>,
@@ -403,6 +407,7 @@ class ShootOut {
 // "round_ordinal": <number>,
 // "is_active": <bool>,
 // "range_group": <range_group>
+@JsonSerializable()
 class QualificationRoundFull {
   int sectionId;
   int roundOrdinal;
@@ -415,6 +420,9 @@ class QualificationRoundFull {
     this.isActive,
     this.rangeGroup,
   );
+
+  factory QualificationRoundFull.fromJson(Map<String, dynamic> json) =>
+      _$QualificationRoundFullFromJson(json);
 }
 
 // "id": <number>,
