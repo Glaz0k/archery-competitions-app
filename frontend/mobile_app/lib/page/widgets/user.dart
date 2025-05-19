@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
@@ -10,7 +12,7 @@ const String userKey = "user";
 class UserProvider with ChangeNotifier {
   bool loading = true;
   SharedPreferencesWithCache? _prefs;
-  CompetitorFull? _user;
+  CompetitorFull? user;
 
   UserProvider() {
     SharedPreferencesWithCache.create(
@@ -36,21 +38,15 @@ class UserProvider with ChangeNotifier {
     _prefs?.remove(userKey).then((_) => notifyListeners());
   }
 
-  CompetitorFull? getUser(Api api) {
-    return _user;
-  }
-
   Future<CompetitorFull> loadUser(Api api) async {
-    var user = await api.getCompetitor(getId()!);
-    _user = user;
+    user = await api.getCompetitor(getId()!);
     notifyListeners();
-    return user;
+    return user!;
   }
 
   Future<CompetitorFull> setUser(Api api, ChangeCompetitor request) async {
-    var user = await api.putCompetitor(getId()!, request);
-    _user = user;
+    user = await api.putCompetitor(getId()!, request);
     notifyListeners();
-    return user;
+    return user!;
   }
 }
