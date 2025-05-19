@@ -28,6 +28,7 @@ enum SportsRank {
     "Второй разряд",
     "Третий разряд",
   ];
+
   factory SportsRank.fromString(String str) =>
       values[stringValues.indexOf(str)];
 
@@ -85,6 +86,7 @@ enum BowClass {
     "Периферийный лук",
     "Периферийный лук(с кольцом)",
   ];
+
   factory BowClass.fromString(String str) => values[stringValues.indexOf(str)];
 
   @override
@@ -138,5 +140,28 @@ class Shot {
   String? score;
 
   Shot(this.shotOrdinal, this.score);
+
   factory Shot.fromJson(Map<String, dynamic> json) => _$ShotFromJson(json);
+
+  void changeBySlider(double sliderValue, RangeType type) {
+    if (type == RangeType.six2ten && sliderValue < 6.0) {
+      score = "M";
+    } else {
+      var temp = sliderValue.round();
+      if (temp == 11) {
+        score = "X";
+      } else {
+        score = temp.toString();
+      }
+    }
+  }
+
+  double toSliderValue(RangeType type) {
+    return switch (score) {
+      "M" => type == RangeType.six2ten ? 5.0 : 0.0,
+      "X" => 11.0,
+      null => type == RangeType.six2ten ? 8.0 : 5.0,
+      _ => double.parse(score!),
+    };
+  }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/page/edit_profile_page.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';

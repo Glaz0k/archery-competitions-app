@@ -6,10 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../api/api.dart';
 
 const String userKey = "user";
+
 class UserProvider with ChangeNotifier {
   bool loading = true;
   SharedPreferencesWithCache? _prefs;
   CompetitorFull? _user;
+
   UserProvider() {
     SharedPreferencesWithCache.create(
       cacheOptions: const SharedPreferencesWithCacheOptions(
@@ -21,12 +23,15 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     });
   }
+
   int? getId() {
     return _prefs?.getInt(userKey);
   }
+
   void setId(int userId) {
     _prefs?.setInt(userKey, userId).then((_) => notifyListeners());
   }
+
   void clearId() {
     _prefs?.remove(userKey).then((_) => notifyListeners());
   }

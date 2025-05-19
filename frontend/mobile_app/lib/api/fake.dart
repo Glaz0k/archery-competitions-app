@@ -28,6 +28,11 @@ class FakeServer implements Api {
     2: Competition(2, CompetitionStage.II, "12.11.2025", "23.11.2025", true),
   };
 
+  final RangeGroup _rangeGroup = RangeGroup(1, 3, 3, RangeType.one2ten, [
+    Range(1, 1, false, [Shot(1, "4"), Shot(2, "3"), Shot(3, "M")], 7),
+    Range(1, 1, true, [Shot(1, "X"), Shot(2, null), Shot(3, null)], null),
+  ], 17);
+
   @override
   Future<CompetitorCompetitionDetail> changeCompetitorStatus(
     int competitionId,
@@ -44,14 +49,16 @@ class FakeServer implements Api {
     int roundOrdinal,
     int rangeOrdinal,
   ) {
-    // TODO: implement endQualificationSectionsRoundsRange
-    throw UnimplementedError();
+    var range = _rangeGroup.ranges[rangeOrdinal - 1];
+    range.isActive = false;
+    return Future.delayed(delay, () => range);
   }
 
   @override
   Future<Range> endSparringPlacesRange(int placeId, int rangeOrdinal) {
-    // TODO: implement endSparringPlacesRange
-    throw UnimplementedError();
+    var range = _rangeGroup.ranges[rangeOrdinal - 1];
+    range.isActive = false;
+    return Future.delayed(delay, () => range);
   }
 
   @override
@@ -136,19 +143,12 @@ class FakeServer implements Api {
   Future<FinalGrid> getIndividualGroupFinalGrid(int groupId) {
     defineSparring(sparringId, top, bottom) => Sparring(
       sparringId,
-      SparringPlace(
-        top.id,
-        top.shrink(),
-        RangeGroup(1, 3, 3, RangeType.one2ten, [], 0),
-        false,
-        null,
-        0,
-      ),
+      SparringPlace(top.id, top.shrink(), _rangeGroup, false, null, 0),
       bottom != null
           ? SparringPlace(
             bottom.id,
             bottom.shrink(),
-            RangeGroup(1, 3, 3, RangeType.one2ten, [], 0),
+            _rangeGroup,
             false,
             null,
             0,
@@ -225,8 +225,7 @@ class FakeServer implements Api {
     int sectionId,
     int roundOrdinal,
   ) {
-    // TODO: implement getQualificationSectionsRoundsRanges
-    throw UnimplementedError();
+    return Future.delayed(delay, () => _rangeGroup);
   }
 
   @override
@@ -237,8 +236,7 @@ class FakeServer implements Api {
 
   @override
   Future<RangeGroup> getSparringPlacesRanges(int placeId) {
-    // TODO: implement getSparringPlacesRanges
-    throw UnimplementedError();
+    return Future.delayed(delay, () => _rangeGroup);
   }
 
   @override
@@ -270,14 +268,16 @@ class FakeServer implements Api {
     int roundOrdinal,
     ChangeRange request,
   ) {
-    // TODO: implement putQualificationSectionsRoundsRange
-    throw UnimplementedError();
+    var range = _rangeGroup.ranges[request.rangeOrdinal - 1];
+    range.shots = request.shots;
+    return Future.delayed(delay, () => range);
   }
 
   @override
   Future<Range> putSparringPlacesRange(int placeId, ChangeRange request) {
-    // TODO: implement putSparringPlacesRange
-    throw UnimplementedError();
+    var range = _rangeGroup.ranges[request.rangeOrdinal - 1];
+    range.shots = request.shots;
+    return Future.delayed(delay, () => range);
   }
 
   @override

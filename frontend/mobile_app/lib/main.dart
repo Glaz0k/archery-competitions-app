@@ -7,11 +7,10 @@ import 'package:provider/provider.dart';
 
 import 'api/api.dart';
 import 'model/range_model.dart';
-
+import 'app.dart';
 void main() => runApp(
   MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => RangeModel([], 3, 3, false)),
       ChangeNotifierProvider(create: (context) => UserProvider()),
       Provider<Api>(create: (context) => FakeServer()),
     ],
@@ -19,7 +18,7 @@ void main() => runApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
       ),
-      home: MainCompetitionPage(), //MainCompetitionPage(),
+      home: OnionApp(), //MainCompetitionPage(),
     ),
   ),
 );

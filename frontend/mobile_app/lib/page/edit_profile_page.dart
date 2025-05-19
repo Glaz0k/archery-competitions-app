@@ -9,6 +9,7 @@ import '../api/common.dart';
 import 'main_competition_page.dart';
 import 'widgets/user.dart';
 
+
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 

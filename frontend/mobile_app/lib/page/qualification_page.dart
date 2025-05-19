@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:mobile_app/page/widgets/qualification_table.dart';
