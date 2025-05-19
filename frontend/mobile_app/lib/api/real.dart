@@ -184,9 +184,14 @@ class RealServer implements Api {
   }
 
   @override
-  Future<QualificationTable> getIndividualGroupQualificationTable(int groupId) {
-    // TODO: implement getIndividualGroupQualificationTable
-    throw UnimplementedError();
+  Future<QualificationTable> getIndividualGroupQualificationTable(
+    int groupId,
+  ) async {
+    var response = await client.get(
+      Uri.https(backend, "/individual_groups/$groupId/qualification"),
+    );
+    validate(response, notFoundMessage: "Группа или квалификация не найдена");
+    return QualificationTable.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -202,9 +207,15 @@ class RealServer implements Api {
   Future<QualificationRoundFull> getQualificationSectionsRound(
     int sectionId,
     int roundOrdinal,
-  ) {
-    // TODO: implement getQualificationSectionsRound
-    throw UnimplementedError();
+  ) async {
+    var response = await client.get(
+      Uri.https(
+        backend,
+        "/qualification_sections/$sectionId/rounds/$roundOrdinal",
+      ),
+    );
+    validate(response, notFoundMessage: "Секция или раунд не найдены");
+    return QualificationRoundFull.fromJson(jsonDecode(response.body));
   }
 
   @override
@@ -224,7 +235,7 @@ class RealServer implements Api {
 
   @override
   Future<SparingPlace> getSparringPlace(int placeId) {
-    // TODO: implement getSparringPlace
+    // Мы и так их получаем, когда тянем сетку.
     throw UnimplementedError();
   }
 
@@ -300,19 +311,19 @@ class RealServer implements Api {
     int placeId,
     ChangeShootOut request,
   ) {
-    // TODO: implement putSparringPlacesShootOut
+    // Мы не занимаемся перестрелками
     throw UnimplementedError();
   }
 
   @override
   Future<void> register(Credentials credentials) {
-    // TODO: implement register
+    // Мы не занимаемся регистрацией
     throw UnimplementedError();
   }
 
   @override
   Future<CompetitorFull> registerCompetitor(ChangeCompetitor request) {
-    // TODO: implement registerCompetitor
+    // Мы не занимаемся регистрацией
     throw UnimplementedError();
   }
 }
