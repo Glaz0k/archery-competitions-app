@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:mobile_app/api/api.dart';
+import 'package:mobile_app/api/requests.dart';
+import 'package:mobile_app/page/widgets/onion_bar.dart';
+import 'package:provider/provider.dart';
+
+import '../api/common.dart';
+import 'main_competition_page.dart';
+import 'widgets/user.dart';
+
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -8,25 +18,29 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePage extends State<EditProfilePage> {
-  /*late TextEditingController fullNameController;
+  late TextEditingController fullNameController;
   late TextEditingController regionController;
   late TextEditingController clubController;
-  String? chosenGender;
-  String? chosenBow;
-  String? chosenRank;
-  late DateTime chosenTime;
+  late TextEditingController federationController;
+  Gender? chosenGender;
+  BowClass? chosenBow;
+  SportsRank? chosenRank;
+  String birthDate = '';
 
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<UserProvider>(context, listen: false).userPref;
+    final api = Provider.of<Api>(context, listen: false);
+    final user =
+        Provider.of<UserProvider>(context, listen: false).getUser(api)!;
     fullNameController = TextEditingController(text: user.fullName);
     regionController = TextEditingController(text: user.region);
     clubController = TextEditingController(text: user.club);
-    chosenGender = user.identity.getGender;
-    chosenBow = user.bow?.getBowClass;
-    chosenRank = user.rank?.getSportsRank;
-    chosenTime = user.dateOfBirth;
+    federationController = TextEditingController(text: user.federation);
+    chosenGender = user.identity;
+    chosenBow = user.bow;
+    chosenRank = user.rank;
+    birthDate = user.birthDate;
   }
 
   @override
@@ -34,243 +48,223 @@ class _EditProfilePage extends State<EditProfilePage> {
     fullNameController.dispose();
     regionController.dispose();
     clubController.dispose();
+    federationController.dispose();
     super.dispose();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
-    /*final userProvider = Provider.of<UserProvider>(context);
+    final api = Provider.of<Api>(context);
+    final userProvider = context.watch<UserProvider>();
     return KeyboardDismisser(
       gestures: [GestureType.onTap],
       child: GestureDetector(
         child: Scaffold(
           appBar: OnionBar.withoutProfile("Редактирование профиля", context),
-          body: KeyboardDismisser(
-            gestures: [GestureType.onTap],
-            child: GestureDetector(
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
+          body: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        buildMyField(),
+                        SizedBox(height: 7),
+                        DropdownButtonFormField<Gender>(
+                          value: chosenGender,
+                          decoration: const InputDecoration(
+                            labelText: 'Пол',
+                            border: OutlineInputBorder(),
+                          ),
+                          items:
+                              Gender.values.map((gender) {
+                                return DropdownMenuItem<Gender>(
+                                  value: gender,
+                                  child: Text(gender.toString()),
+                                );
+                              }).toList(),
+                          onChanged: (newVal) {
+                            setState(() {
+                              chosenGender = newVal;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 7),
+                        DropdownButtonFormField<BowClass>(
+                          value: chosenBow,
+                          decoration: const InputDecoration(
+                            labelText: 'Класс лука',
+                            border: OutlineInputBorder(),
+                          ),
+                          items:
+                              BowClass.values.map((bow) {
+                                return DropdownMenuItem<BowClass>(
+                                  value: bow,
+                                  child: Text(bow.toString()),
+                                );
+                              }).toList(),
+                          onChanged: (newVal) {
+                            setState(() {
+                              chosenBow = newVal;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 7),
+                        DropdownButtonFormField<SportsRank>(
+                          value: chosenRank,
+                          decoration: const InputDecoration(
+                            labelText: 'Спортивный разряд',
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 8,
+                            ),
+                            border: OutlineInputBorder(),
+                          ),
+                          items:
+                              SportsRank.values.map((rank) {
+                                return DropdownMenuItem<SportsRank>(
+                                  value: rank,
+                                  child: Text(
+                                    rank.toString(),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              }).toList(),
+                          onChanged: (newVal) {
+                            setState(() {
+                              chosenRank = newVal;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 7),
+                        SizedBox(height: 7),
+                        buildRegion(),
+                        SizedBox(height: 7),
+                        buildFederation(),
+                        SizedBox(height: 7),
+                        buildClub(),
+                        SizedBox(height: 7),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => chooseDate(context),
+                            child: Text(
+                              "Дата рождения: $birthDate",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 7),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            buildMyField(),
-                            SizedBox(height: 7),
-                            DropdownButtonFormField<String>(
-                              value: chosenGender,
-                              decoration: InputDecoration(
-                                labelText: 'Пол',
-                                border: OutlineInputBorder(),
-                              ),
-                              items:
-                                  ['Мужчина', 'Женщина'].map((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                              onChanged: (newVal) {
-                                setState(() {
-                                  chosenGender = newVal;
-                                });
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
                               },
-                            ),
-                            SizedBox(height: 7),
-                            DropdownButtonFormField<String>(
-                              value: chosenBow,
-                              decoration: InputDecoration(
-                                labelText: 'Класс лука',
-                                border: OutlineInputBorder(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                shape: StadiumBorder(),
                               ),
-                              items:
-                                  [
-                                    'Классический',
-                                    'Блочный',
-                                    "КЛ(новички)",
-                                    "3Д-классический лук",
-                                    "3Д-составной лук",
-                                    "3Д-длинный лук",
-                                    "Периферийный лук",
-                                    "Периферийный лук(с кольцом)",
-                                  ].map((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                              onChanged: (newVal) {
-                                setState(() {
-                                  chosenBow = newVal;
-                                });
-                              },
-                            ),
-                            SizedBox(height: 7),
-                            DropdownButtonFormField<String>(
-                              value: chosenRank,
-                              decoration: InputDecoration(
-                                labelText: 'Спортивный разряд/звание',
-                                border: OutlineInputBorder(),
+                              child: const Text(
+                                "Отменить",
+                                style: TextStyle(color: Colors.white),
                               ),
-                              items:
-                                  [
-                                    'Мастер спорта',
-                                    'Кандидат мастера спорта',
-                                    "Первый разряд",
-                                    "Второй разряд",
-                                    "Третий разряд",
-                                    "Международный магистр",
-                                    "Периферийный лук",
-                                    "Заслуженный мастер спорта",
-                                  ].map((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                              onChanged: (newVal) {
-                                setState(() {
-                                  chosenRank = newVal;
-                                });
-                              },
                             ),
-                            SizedBox(height: 7),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final competitor = ChangeCompetitor(
+                                  fullNameController.text,
+                                  birthDate,
+                                  chosenGender!,
+                                  chosenBow,
+                                  chosenRank,
+                                  regionController.text,
+                                  federationController.text,
+                                  clubController.text,
+                                );
 
-                            SizedBox(height: 7),
-                            buildRegion(),
-                            SizedBox(height: 7),
-                            buildClub(),
-                            SizedBox(height: 7),
-                            SizedBox(
-                              width: double.infinity,
-                              // Растягивает на всю ширину
-                              child: OutlinedButton(
-                                onPressed: () => chooseDate(context),
-                                child: Text(
-                                  'Изменить дату рождения',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 7),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.redAccent,
-                                    side: BorderSide.none,
-                                    shape: StadiumBorder(),
-                                  ),
-                                  child: const Text(
-                                    "Отменить",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    userProvider.updateFullName(
-                                      fullNameController.text,
-                                    );
-                                    userProvider.updateRegion(
-                                      regionController.text,
-                                    );
-                                    userProvider.updateClub(
-                                      clubController.text,
-                                    );
-                                    chosenGender == "Мужчина"
-                                        ? userProvider.updateGender(Gender.male)
-                                        : userProvider.updateGender(
-                                          Gender.female,
-                                        );
-                                    userProvider.updateBow(
-                                      BowExtension.setBowClass(chosenBow),
-                                    );
-                                    userProvider.updateRank(
-                                      SportsRankExtension.setSportsRank(
-                                        chosenRank,
-                                      ),
-                                    );
-                                    userProvider.updateDateOfBirth(chosenTime);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        showCloseIcon: true,
-                                        behavior: SnackBarBehavior.floating,
-                                        backgroundColor: Colors.green,
-                                        content: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.green,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.check_circle,
-                                                // color: Colors.white,
-                                                size: 40,
-                                              ),
-                                              SizedBox(width: 30),
-                                              Expanded(
-                                                child: Text(
-                                                  "Изменения сохранены!",
-                                                  style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                    Navigator.pop(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
+                                await userProvider.setUser(api, competitor);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    showCloseIcon: true,
+                                    behavior: SnackBarBehavior.floating,
                                     backgroundColor: Colors.green,
-                                    side: BorderSide.none,
-                                    shape: StadiumBorder(),
+                                    content: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.check_circle,
+                                            // color: Colors.white,
+                                            size: 40,
+                                          ),
+                                          SizedBox(width: 30),
+                                          Expanded(
+                                            child: Text(
+                                              "Изменения сохранены!",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  child: const Text(
-                                    "Сохранить",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
+                                );
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                side: BorderSide.none,
+                                shape: const StadiumBorder(),
+                              ),
+                              child: const Text(
+                                "Сохранить",
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
         ),
       ),
-    );*/
+    );
   }
 
-  /*Future chooseDate(BuildContext context) async {
+  Future chooseDate(BuildContext context) async {
+    DateTime initialDate;
+    initialDate = DateTime.parse(birthDate!);
+
     final newDate = await showDatePicker(
       context: context,
-      initialDate: chosenTime,
+      initialDate: initialDate,
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
     );
+
     if (newDate == null) return;
+
     setState(() {
-      chosenTime = newDate;
+      birthDate = formatDate(newDate);
     });
   }
 
@@ -300,6 +294,19 @@ class _EditProfilePage extends State<EditProfilePage> {
     );
   }
 
+  Widget buildFederation() {
+    return TextFormField(
+      controller: federationController,
+      decoration: InputDecoration(
+        label: Text("Федерация", style: TextStyle()),
+        prefixIcon: Icon(Icons.people_alt),
+        border: OutlineInputBorder(),
+      ),
+      textInputAction: TextInputAction.done,
+      keyboardType: TextInputType.text,
+    );
+  }
+
   Widget buildClub() {
     return TextFormField(
       controller: clubController,
@@ -311,5 +318,5 @@ class _EditProfilePage extends State<EditProfilePage> {
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.text,
     );
-  }*/
+  }
 }
