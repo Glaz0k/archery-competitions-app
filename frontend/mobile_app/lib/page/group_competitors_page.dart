@@ -7,6 +7,7 @@ import '../api/responses.dart';
 
 class GroupCompetitorsPage extends StatefulWidget {
   final int groupId;
+
   const GroupCompetitorsPage({super.key, required this.groupId});
 
   @override

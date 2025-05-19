@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/api.dart';
-import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:mobile_app/page/widgets/CompetitionField.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';

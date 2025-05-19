@@ -17,6 +17,7 @@ class RangeModel with ChangeNotifier {
     this._putRange,
     this._endRange,
   );
+
   RangeModel(
     RangeGroup rangeGroup, {
     required Future<RangeGroup> Function() getRangeGroup,

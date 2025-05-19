@@ -54,6 +54,7 @@ class ChangeRange {
   List<Shot>? shots;
 
   ChangeRange(this.rangeOrdinal, this.shots);
+
   Map<String, dynamic> toJson() => _$ChangeRangeToJson(this);
 }
 

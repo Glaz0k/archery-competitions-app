@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
@@ -13,6 +11,7 @@ class UserProvider with ChangeNotifier {
   bool loading = true;
   SharedPreferencesWithCache? _prefs;
   CompetitorFull? _user;
+
   UserProvider() {
     SharedPreferencesWithCache.create(
       cacheOptions: const SharedPreferencesWithCacheOptions(
@@ -24,6 +23,7 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     });
   }
+
   int? getId() {
     return _prefs?.getInt(userKey);
   }

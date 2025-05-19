@@ -1,8 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'user.dart';
-
 /*
 class IndividualGroup extends StatefulWidget {
   const IndividualGroup({super.key});
