@@ -10,12 +10,6 @@ export default defineConfig({
   },
   server: {
     allowedHosts: [".trycloudflare.com"],
-    proxy: {
-      "/api": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-      },
-    },
   },
   plugins: [react()],
   build: {
@@ -24,27 +18,20 @@ export default defineConfig({
         manualChunks: {
           react: ["react", "react-dom", "react-router"],
 
-          data: ["@tanstack/react-query"],
+          api: ["@tanstack/react-query", "axios", "zod", "mantine-form-zod-resolver"],
 
           mantine: [
             "@mantine/core",
             "@mantine/dates",
             "@mantine/form",
             "@mantine/hooks",
-            "@tabler/core",
-            "@tabler/icons-react",
+            "@mantine/notifications",
             "postcss-preset-mantine",
           ],
 
-          dates: ["date-fns", "date-fns-tz", "dayjs"],
+          icons: ["@tabler/core", "@tabler/icons-react"],
 
-          devtools: [
-            "@eslint/js",
-            "eslint",
-            "prettier",
-            "@ianvs/prettier-plugin-sort-imports",
-            "prettier-plugin-organize-imports",
-          ],
+          dates: ["date-fns", "date-fns-tz", "dayjs"],
         },
       },
     },
