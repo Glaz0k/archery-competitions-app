@@ -15,9 +15,8 @@ archery-competitions-app/
 │   │   └── Dockerfile
 │   ├── auth-server/
 │   │   ├── src/
-│   │   └── Dockerfile
-│   ├── postgres-auth/
-│   │   └── Dockerfile
+│   │   ├── Dockerfile
+│   │   └── docker-compose.yml
 │   ├── app-server/
 │   │   ├── src/
 │   │   └── Dockerfile
