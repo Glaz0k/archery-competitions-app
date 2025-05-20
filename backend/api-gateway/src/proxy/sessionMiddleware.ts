@@ -48,8 +48,8 @@ export const sessionMiddleware: RequestHandler = createProxyMiddleware({
       res
         .cookie(SESSION_NAME, cookie, {
           httpOnly: true,
-          secure: true,
-          sameSite: true,
+          secure: false,
+          sameSite: "lax",
         })
         .json(auth_data);
     } catch (err) {
