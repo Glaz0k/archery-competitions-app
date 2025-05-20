@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
   config:
     import: optional:file:.env[.properties]
@@ -8,8 +11,14 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jws-algorithms: HS256
 
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
+superuser-password: ${SUPERUSER_PASSWORD}
+jwt-secret-key: ${JWT_SECRET_KEY}

@@ -1,5 +1,6 @@
 package com.DevBow.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,6 +32,7 @@ public class UserEntity {
         USER;
 
         @Override
+        @JsonValue
         public String toString() {
             return this.name().toLowerCase();
         }
