@@ -24,8 +24,20 @@ class FakeServer implements Api {
   );
 
   final Map<int, Competition> _competitions = {
-    1: Competition(1, CompetitionStage.I, DateTime(2025, 2, 3).toIso8601String(), DateTime(2025, 2, 12).toIso8601String(), false),
-    2: Competition(2, CompetitionStage.II, DateTime(2025, 11, 12).toIso8601String(), DateTime(2025, 11, 23).toIso8601String(), true),
+    1: Competition(
+      1,
+      CompetitionStage.I,
+      DateTime(2025, 2, 3).toIso8601String(),
+      DateTime(2025, 2, 12).toIso8601String(),
+      false,
+    ),
+    2: Competition(
+      2,
+      CompetitionStage.II,
+      DateTime(2025, 11, 12).toIso8601String(),
+      DateTime(2025, 11, 23).toIso8601String(),
+      true,
+    ),
   };
 
   final RangeGroup _rangeGroup = RangeGroup(1, 3, 3, RangeType.one2ten, [

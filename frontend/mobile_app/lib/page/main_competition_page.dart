@@ -43,9 +43,13 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
     log("Загружаем данные");
     for (var cup in await api.getCups()) {
       for (var competition in await api.getCupsCompetitions(cup.id)) {
-        for (var individualGroup in await api.getCompetitionsIndividualGroups(competition.id)) {
+        for (var individualGroup in await api.getCompetitionsIndividualGroups(
+          competition.id,
+        )) {
           setState(() {
-            _competitions.add(FullCompetitionData(cup, competition, individualGroup));
+            _competitions.add(
+              FullCompetitionData(cup, competition, individualGroup),
+            );
           });
         }
       }
@@ -73,7 +77,7 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
                   data.competition.startDate,
                   data.competition.endDate,
                 ),
-                groupId: data.individualGroup.id
+                groupId: data.individualGroup.id,
               );
             },
           ),
@@ -126,5 +130,4 @@ class FullCompetitionData {
   final IndividualGroup individualGroup;
 
   FullCompetitionData(this.cup, this.competition, this.individualGroup);
-
 }

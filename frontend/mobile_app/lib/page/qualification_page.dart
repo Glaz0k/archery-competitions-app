@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/page/widgets/onion_bar.dart';
+import 'package:mobile_app/model/user_model.dart';
 import 'package:mobile_app/page/widgets/qualification_table.dart';
-import 'package:mobile_app/page/widgets/user.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api.dart';
@@ -27,7 +26,7 @@ class _QualificationPageState extends State<QualificationPage> {
 
   Future<void> _loadData() async {
     var api = context.read<Api>();
-    int userId = context.read<UserProvider>().getId()!;
+    int userId = context.read<UserModel>().getId()!;
     QualificationTable table = await api.getIndividualGroupQualificationTable(
       widget.groupId,
     );
@@ -40,25 +39,22 @@ class _QualificationPageState extends State<QualificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: OnionBar("Квалификация", context),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Секция ${_section?.id}",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                MyQualificationTable(section: _section),
-              ],
-            ),
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Секция ${_section?.id}",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              MyQualificationTable(section: _section),
+            ],
           ),
         ),
       ),

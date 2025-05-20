@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/exceptions.dart';
 import 'package:mobile_app/api/requests.dart';
+import 'package:mobile_app/model/user_model.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
-import 'package:mobile_app/page/widgets/user.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api.dart';
@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var userProvider = context.watch<UserProvider>();
+    var userProvider = context.watch<UserModel>();
     var api = context.watch<Api>();
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

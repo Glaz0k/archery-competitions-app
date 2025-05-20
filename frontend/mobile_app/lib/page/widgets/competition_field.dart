@@ -25,7 +25,16 @@ class CompetitionField extends StatelessWidget {
         subtitle: Text('Даты проведения $date'),
         trailing: IconButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HubPage(individualGroupId: groupId, title: "Группа $groupId")));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => HubPage(
+                      individualGroupId: groupId,
+                      title: "Группа $groupId",
+                    ),
+              ),
+            );
           },
           icon: Icon(Icons.arrow_forward),
         ),

@@ -1,20 +1,18 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../api/api.dart';
+import '../api/api.dart';
 
 const String userKey = "user";
 
-class UserProvider with ChangeNotifier {
+class UserModel with ChangeNotifier {
   bool loading = true;
   SharedPreferencesWithCache? _prefs;
   CompetitorFull? user;
 
-  UserProvider() {
+  UserModel() {
     SharedPreferencesWithCache.create(
       cacheOptions: const SharedPreferencesWithCacheOptions(
         allowList: {userKey},

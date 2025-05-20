@@ -3,7 +3,7 @@ import 'package:mobile_app/page/edit_profile_page.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 
-import 'widgets/user.dart';
+import '../model/user_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,7 +15,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    var user = context.watch<UserProvider>().user;
+    var user = context.watch<UserModel>().user;
     return Scaffold(
       appBar: OnionBar.withoutProfile("Профиль", context),
       body: SingleChildScrollView(
@@ -133,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   subtitle: Text(user?.club ?? ''),
                   leading: Icon(
-                   Icons.scoreboard,
+                    Icons.scoreboard,
                     color: Theme.of(context).primaryColor,
                   ),
                 ),
