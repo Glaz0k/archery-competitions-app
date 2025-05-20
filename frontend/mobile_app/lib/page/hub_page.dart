@@ -34,8 +34,7 @@ class HubPage extends StatelessWidget {
         body: TabBarView(
           children: [
             GroupCompetitorsPage(groupId: individualGroupId),
-            QualificationPage(sectionId: 0),
-            // TODO: У этой страницы не должно быть параметра
+            QualificationPage(groupId: individualGroupId),
             FinalPage(groupId: individualGroupId),
           ],
         ),

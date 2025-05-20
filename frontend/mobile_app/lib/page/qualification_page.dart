@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:mobile_app/page/widgets/qualification_table.dart';
+import 'package:mobile_app/page/widgets/user.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api.dart';
 import '../api/responses.dart';
 
 class QualificationPage extends StatefulWidget {
-  final int sectionId;
+  final int groupId;
 
-  const QualificationPage({super.key, required this.sectionId});
+  const QualificationPage({super.key, required this.groupId});
 
   @override
   State<QualificationPage> createState() => _QualificationPageState();
@@ -26,9 +27,14 @@ class _QualificationPageState extends State<QualificationPage> {
 
   Future<void> _loadData() async {
     var api = context.read<Api>();
-    final section = await api.getQualificationSection(widget.sectionId);
+    int userId = context.read<UserProvider>().getId()!;
+    QualificationTable table = await api.getIndividualGroupQualificationTable(
+      widget.groupId,
+    );
     setState(() {
-      _section = section;
+      _section = table.sections.firstWhere(
+        (section) => section.competitor.id == userId,
+      );
     });
   }
 

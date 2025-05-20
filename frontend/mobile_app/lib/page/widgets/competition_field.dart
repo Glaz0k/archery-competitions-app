@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/page/hub_page.dart';
 
 class CompetitionField extends StatelessWidget {
   final String nameOfComp;
   final String date;
+  final int groupId;
 
   const CompetitionField({
     super.key,
     required this.nameOfComp,
     required this.date,
+    required this.groupId,
   });
 
   @override
@@ -20,18 +23,11 @@ class CompetitionField extends StatelessWidget {
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         subtitle: Text('Даты проведения $date'),
-        leading: IconButton(
-          icon: Icon(Icons.info_outline),
-          color: Theme.of(context).primaryColor,
-          onPressed: () {
-            Navigator.pushNamed(context, '/individual_group');
-          },
-        ),
         trailing: IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, "/profile_page");
+            Navigator.push(context, MaterialPageRoute(builder: (context) => HubPage(individualGroupId: groupId, title: "Группа $groupId")));
           },
-          icon: Icon(Icons.person),
+          icon: Icon(Icons.arrow_forward),
         ),
       ),
     );

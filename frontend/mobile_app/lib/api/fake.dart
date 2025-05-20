@@ -65,22 +65,43 @@ class FakeServer implements Api {
   Future<List<CompetitorCompetitionDetail>> getCompetitionsCompetitors(
     int competitionId,
   ) {
-    // TODO: implement getCompetitionsCompetitors
-    throw UnimplementedError();
+    return Future.delayed(
+      delay,
+      () =>
+          _competitors
+              .map(
+                (competitor) => CompetitorCompetitionDetail(
+                  competitionId,
+                  competitor,
+                  true,
+                  "Когда-то там",
+                ),
+              )
+              .toList(),
+    );
   }
 
   @override
   Future<List<IndividualGroup>> getCompetitionsIndividualGroups(
     int competitionId,
   ) {
-    // TODO: implement getCompetitionsIndividualGroups
-    throw UnimplementedError();
+    return Future.delayed(
+      delay,
+      () => [
+        IndividualGroup(
+          1,
+          competitionId,
+          BowClass.block,
+          Gender.female,
+          GroupState.created,
+        ),
+      ],
+    );
   }
 
   @override
   Future<CompetitorFull> getCompetitor(int competitorId) {
-    // TODO: implement getCompetitor
-    throw UnimplementedError();
+    return Future.delayed(delay, () => _competitors[competitorId - 1]);
   }
 
   @override
@@ -113,8 +134,16 @@ class FakeServer implements Api {
 
   @override
   Future<IndividualGroup> getIndividualGroup(int groupId) {
-    // TODO: implement getIndividualGroup
-    throw UnimplementedError();
+    return Future.delayed(
+      delay,
+      () => IndividualGroup(
+        1,
+        1,
+        BowClass.block,
+        Gender.female,
+        GroupState.created,
+      ),
+    );
   }
 
   @override
@@ -125,13 +154,8 @@ class FakeServer implements Api {
       switch (groupId) {
         case 1:
           return [
-            CompetitorGroupDetail(1, lebedev),
-            CompetitorGroupDetail(1, piyavkin),
-            CompetitorGroupDetail(1, kozakova),
-            CompetitorGroupDetail(1, dudkina),
-            CompetitorGroupDetail(1, kravchenko),
-            CompetitorGroupDetail(1, demidenko),
-            CompetitorGroupDetail(1, novokhatskiy),
+            for (var i = 0; i < _competitors.length; i++)
+              CompetitorGroupDetail(i + 1, _competitors[i]),
           ];
         default:
           throw NotFoundException("Группа не найдена");
@@ -190,14 +214,25 @@ class FakeServer implements Api {
 
   @override
   Future<QualificationTable> getIndividualGroupQualificationTable(int groupId) {
-    return Future.delayed(delay, () {
-      switch (groupId) {
-        case 1:
-          return QualificationTable(1, "70m", 3, [_section]);
-        default:
-          throw NotFoundException("Группа или таблица не найдены");
-      }
-    });
+    return Future.delayed(
+      delay,
+      () => QualificationTable(groupId, "Дистанция", 3, [
+        Section(
+          1,
+          novokhatskiy.shrink(),
+          2,
+          [
+            QualificationRoundShrinked(1, false, 5),
+            QualificationRoundShrinked(2, true, 0),
+          ],
+          10,
+          1,
+          1,
+          null,
+        ),
+        Section(2, demidenko.shrink(), 1, [], 10, 1, 1, null),
+      ]),
+    );
   }
 
   @override
@@ -213,6 +248,7 @@ class FakeServer implements Api {
 
   @override
   Future<QualificationRoundFull> getQualificationSectionsRound(
+    //
     int sectionId,
     int roundOrdinal,
   ) {
@@ -230,7 +266,7 @@ class FakeServer implements Api {
 
   @override
   Future<SparingPlace> getSparringPlace(int placeId) {
-    // TODO: implement getSparringPlace
+    // Мы и так их получаем, когда тянем сетку.
     throw UnimplementedError();
   }
 
@@ -285,21 +321,31 @@ class FakeServer implements Api {
     int placeId,
     ChangeShootOut request,
   ) {
-    // TODO: implement putSparringPlacesShootOut
+    // Мы не занимаемся перестрелками
     throw UnimplementedError();
   }
 
   @override
   Future<void> register(Credentials credentials) {
-    // TODO: implement register
+    // Мы не занимаемся регистрацией
     throw UnimplementedError();
   }
 
   @override
   Future<CompetitorFull> registerCompetitor(ChangeCompetitor request) {
-    // TODO: implement registerCompetitor
+    // Мы не занимаемся регистрацией
     throw UnimplementedError();
   }
+
+  static final List<CompetitorFull> _competitors = [
+    lebedev,
+    piyavkin,
+    kozakova,
+    dudkina,
+    kravchenko,
+    demidenko,
+    novokhatskiy,
+  ];
 
   static final CompetitorFull lebedev = CompetitorFull(
     1,

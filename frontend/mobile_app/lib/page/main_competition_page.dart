@@ -1,7 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/responses.dart';
-import 'package:mobile_app/page/widgets/CompetitionField.dart';
+import 'package:mobile_app/page/widgets/competition_field.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -90,6 +92,8 @@ class _MainCompetitionPage extends State<MainCompetitionPage> {
                   competition.startDate,
                   competition.endDate,
                 ),
+                // Todo: Как-нибудь достань мне этот айдишник. Этот способ не работает, выкидывает NullPointerException
+                groupId: _individualGroups[index]!.first.id
               );
             },
           ),
