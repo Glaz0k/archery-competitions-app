@@ -1,29 +1,21 @@
 package com.DevBow.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public record CredentialsDto(
 
-    @NotNull
-    @Size(
-        message = "Invalid login size",
-        min = 6,
-        max = 20)
-    @Pattern(
-        message = "Invalid login characters",
-        regexp = "^[a-zA-Z0-9._-]+$")
+    @NotNull(message = "Login must be non-null")
+    @Pattern(regexp = "^[a-zA-Z0-9._-]{6,20}$", message = "Invalid login")
+    @JsonProperty("login")
     String login,
 
-    @NotNull
-    @Size(
-        message = "Invalid password size",
-        min = 6,
-        max = 20)
-    @Pattern(
-        message = "Invalid password characters",
-        regexp = "^[a-zA-Z0-9._-]+$")
-    String password) {
+    @NotNull(message = "Password must be non-null")
+    @Pattern(regexp = "^[a-zA-Z0-9._-]{6,20}$", message = "Invalid password")
+    @JsonProperty("password")
+    String password
+
+) {
 
 }
