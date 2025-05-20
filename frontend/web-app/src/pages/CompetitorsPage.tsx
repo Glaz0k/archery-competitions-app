@@ -25,7 +25,7 @@ import { useCompetitors } from "../api";
 import { APP_NAME } from "../constants";
 import type { Competitor } from "../entities";
 import { getBowClassDescription, getGenderDescription, getSportsRankDescription } from "../utils";
-import { CenterCard, ControlsCard, SideBar, TopBar } from "../widgets";
+import { CenterCard, TopBar } from "../widgets";
 
 const COMPETITORS_PER_PAGE = 10;
 
@@ -90,11 +90,6 @@ export default function CompetitorsPage() {
 
   return (
     <Flex direction="row" flex={1} gap="lg">
-      <SideBar>
-        <ControlsCard>
-          <Text>PLACEHOLDER</Text>
-        </ControlsCard>
-      </SideBar>
       <Stack flex={1} gap="lg">
         <TopBar title="Пользователи" onRefresh={refetchCompetitors}>
           <TextInput
