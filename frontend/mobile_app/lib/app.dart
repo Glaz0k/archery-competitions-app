@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_app/model/user_model.dart';
 import 'package:mobile_app/page/login_page.dart';
@@ -21,11 +19,9 @@ class OnionApp extends StatelessWidget {
       body: Center(child: CircularProgressIndicator()),
     );
     if (userProvider.loading) {
-      log("Ещё не загрузилось хранилище");
       return loadingScreen();
     } else {
       if (userProvider.getId() == null) {
-        log("Нету id");
         return LoginPage();
       } else {
         if (userProvider.user == null) {

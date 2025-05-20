@@ -14,7 +14,7 @@ void main() => runApp(
     ],
     child: MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
       home: OnionApp(), //MainCompetitionPage(),
     ),

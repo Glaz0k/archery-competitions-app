@@ -46,7 +46,7 @@ class _GroupCompetitorsPageState extends State<GroupCompetitorsPage> {
               subtitle: Text(
                 competitor.rank?.toString().split('.').last ??
                     "Разряд не указан",
-                style: TextStyle(color: Theme.of(context).primaryColorDark),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               leading: CircleAvatar(child: Text((index + 1).toString())),
             ),

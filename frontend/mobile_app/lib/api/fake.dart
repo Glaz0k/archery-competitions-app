@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/common.dart';
 import 'package:mobile_app/api/exceptions.dart';
@@ -14,9 +16,12 @@ class FakeServer implements Api {
 
   final Section _section = Section(
     1,
-    novokhatskiy.shrink(),
+    lebedev.shrink(),
     1,
-    [],
+    [
+      QualificationRoundShrinked(1, false, 8),
+      QualificationRoundShrinked(2, true, 4),
+    ],
     100,
     23,
     24,
@@ -229,19 +234,7 @@ class FakeServer implements Api {
     return Future.delayed(
       delay,
       () => QualificationTable(groupId, "Дистанция", 3, [
-        Section(
-          1,
-          novokhatskiy.shrink(),
-          2,
-          [
-            QualificationRoundShrinked(1, false, 5),
-            QualificationRoundShrinked(2, true, 0),
-          ],
-          10,
-          1,
-          1,
-          null,
-        ),
+        _section,
         Section(2, demidenko.shrink(), 1, [], 10, 1, 1, null),
       ]),
     );
@@ -260,12 +253,16 @@ class FakeServer implements Api {
 
   @override
   Future<QualificationRoundFull> getQualificationSectionsRound(
-    //
     int sectionId,
     int roundOrdinal,
-  ) {
-    // TODO: implement getQualificationSectionsRound
-    throw UnimplementedError();
+  ) async {
+    log("getting rounds");
+    return QualificationRoundFull(
+      sectionId,
+      roundOrdinal,
+      true,
+      await getQualificationSectionsRoundsRanges(sectionId, roundOrdinal),
+    );
   }
 
   @override
