@@ -1,0 +1,39 @@
+name: main-service-server
+services:
+  main-service:
+    build: .
+    container_name: main-service
+    environment:
+      SECRET_KEY: ${AUTH_SECRET_KEY}
+      PORT: 8080
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root_password
+      POSTGRES_DB: BowCompetitions
+      POSTGRES_HOST: main-service-db
+      POSTGRES_POOL_SIZE: 20
+      POSTGRES_PORT: 5432
+    ports:
+      - "8080:8080"
+    depends_on:
+      main-service-db:
+        condition: service_healthy
+
+  main-service-db:
+    image: postgres
+    container_name: main-service-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root_password
+      POSTGRES_DB: BowCompetitions
+    volumes:
+      - main-service-db-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d BowCompetitions"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  main-service-db-data:
