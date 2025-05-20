@@ -24,8 +24,8 @@ class FakeServer implements Api {
   );
 
   final Map<int, Competition> _competitions = {
-    1: Competition(1, CompetitionStage.I, "03.02.2025", "12.02.2025", false),
-    2: Competition(2, CompetitionStage.II, "12.11.2025", "23.11.2025", true),
+    1: Competition(1, CompetitionStage.I, DateTime(2025, 2, 3).toIso8601String(), DateTime(2025, 2, 12).toIso8601String(), false),
+    2: Competition(2, CompetitionStage.II, DateTime(2025, 11, 12).toIso8601String(), DateTime(2025, 11, 23).toIso8601String(), true),
   };
 
   final RangeGroup _rangeGroup = RangeGroup(1, 3, 3, RangeType.one2ten, [
@@ -350,18 +350,18 @@ class FakeServer implements Api {
   static final CompetitorFull lebedev = CompetitorFull(
     1,
     "Лебедев Антон",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.male,
     BowClass.classic,
     SportsRank.masterInternational,
     "Минск",
-    "Федерация водоплавающих",
+    null,
     null,
   );
   static final CompetitorFull piyavkin = CompetitorFull(
     2,
     "Пиявкин Антон",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.male,
     BowClass.block,
     SportsRank.master,
@@ -372,7 +372,7 @@ class FakeServer implements Api {
   static final CompetitorFull kozakova = CompetitorFull(
     3,
     "Козакова Анна",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.female,
     BowClass.classic3D,
     SportsRank.candidateForMaster,
@@ -383,7 +383,7 @@ class FakeServer implements Api {
   static final CompetitorFull dudkina = CompetitorFull(
     4,
     "Дудкина София",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.female,
     BowClass.classicNewbie,
     SportsRank.firstClass,
@@ -394,7 +394,7 @@ class FakeServer implements Api {
   static final CompetitorFull kravchenko = CompetitorFull(
     5,
     "Кравченко Никита",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.male,
     BowClass.compound3D,
     SportsRank.meritedMaster,
@@ -405,7 +405,7 @@ class FakeServer implements Api {
   static final CompetitorFull demidenko = CompetitorFull(
     6,
     "Демиденко Никита",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.male,
     BowClass.long3D,
     SportsRank.secondClass,
@@ -416,12 +416,12 @@ class FakeServer implements Api {
   static final CompetitorFull novokhatskiy = CompetitorFull(
     7,
     "Новохацкий Данил",
-    "2000",
+    DateTime(2000).toIso8601String(),
     Gender.male,
     BowClass.peripheral,
     SportsRank.thirdClass,
     "Владивосток",
-    "Федерация фронтеда",
+    "Федерация фронтенда",
     null,
   );
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/requests.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
@@ -30,9 +29,7 @@ class _EditProfilePage extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    final api = Provider.of<Api>(context, listen: false);
-    final user =
-        Provider.of<UserProvider>(context, listen: false).getUser(api)!;
+    final user = context.read<UserProvider>().user!;
     fullNameController = TextEditingController(text: user.fullName);
     regionController = TextEditingController(text: user.region);
     clubController = TextEditingController(text: user.club);
@@ -56,9 +53,8 @@ class _EditProfilePage extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     final api = Provider.of<Api>(context);
     final userProvider = context.watch<UserProvider>();
-    return KeyboardDismisser(
-      gestures: [GestureType.onTap],
-      child: GestureDetector(
+    return GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: OnionBar.withoutProfile("Редактирование профиля", context),
           body: SingleChildScrollView(
@@ -82,7 +78,7 @@ class _EditProfilePage extends State<EditProfilePage> {
                               Gender.values.map((gender) {
                                 return DropdownMenuItem<Gender>(
                                   value: gender,
-                                  child: Text(gender.toString()),
+                                  child: Text(gender.toString(), overflow: TextOverflow.ellipsis,),
                                 );
                               }).toList(),
                           onChanged: (newVal) {
@@ -191,40 +187,42 @@ class _EditProfilePage extends State<EditProfilePage> {
                                 );
 
                                 await userProvider.setUser(api, competitor);
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    showCloseIcon: true,
-                                    behavior: SnackBarBehavior.floating,
-                                    backgroundColor: Colors.green,
-                                    content: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.check_circle,
-                                            // color: Colors.white,
-                                            size: 40,
-                                          ),
-                                          SizedBox(width: 30),
-                                          Expanded(
-                                            child: Text(
-                                              "Изменения сохранены!",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      showCloseIcon: true,
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: Colors.green,
+                                      content: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle,
+                                              // color: Colors.white,
+                                              size: 40,
+                                            ),
+                                            SizedBox(width: 30),
+                                            Expanded(
+                                              child: Text(
+                                                "Изменения сохранены!",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                                Navigator.pop(context);
+                                  );
+                                  Navigator.pop(context);
+                                }
+
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
@@ -246,13 +244,12 @@ class _EditProfilePage extends State<EditProfilePage> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Future chooseDate(BuildContext context) async {
     DateTime initialDate;
-    initialDate = DateTime.parse(birthDate!);
+    initialDate = DateTime.parse(birthDate);
 
     final newDate = await showDatePicker(
       context: context,
