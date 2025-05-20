@@ -1,8 +1,10 @@
+name: web-app-server
 services:
-  app:
+  web-spa:
+    container_name: web-nginx
     build: .
     environment:
-      VITE_BASE_API_URL: ${API_URL}/api
+      VITE_BASE_API_URL: ${API_URL}
     ports:
-      - "8080:80"
+      - "5173:5173"
     restart: unless-stopped
