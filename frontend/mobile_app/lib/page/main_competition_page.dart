@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/api.dart';
 import 'package:mobile_app/api/responses.dart';
-import 'package:mobile_app/page/widgets/CompetitionField.dart';
+import 'package:mobile_app/page/widgets/competition_field.dart';
 import 'package:mobile_app/page/widgets/onion_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -28,68 +31,53 @@ class MainCompetitionPage extends StatefulWidget {
 }
 
 class _MainCompetitionPage extends State<MainCompetitionPage> {
-  Map<int, List<Competition>> _competitions = {};
-  List<Cup> _cups = [];
-  Map<int, List<IndividualGroup>> _individualGroups = {};
-
+  final List<FullCompetitionData> _competitions = [];
   @override
   void initState() {
     super.initState();
-    _loadData();
+    var api = context.read<Api>();
+    _loadData(api);
   }
 
-  Future<void> _loadData() async {
-    final api = context.read<Api>();
-    final cups = await api.getCups();
-    if (cups.isEmpty) return;
-
-    final competitionsFuture = cups.map(
-      (cup) => api.getCupsCompetitions(cup.id),
-    );
-    final allCompetitions = await Future.wait(competitionsFuture);
-
-    final cupCompetitions = {
-      for (int i = 0; i < cups.length; i++) cups[i].id: allCompetitions[i],
-    };
-
-    final allGroups = await Future.wait(
-      allCompetitions
-          .expand((competitions) => competitions)
-          .map(
-            (competition) =>
-                api.getCompetitionsIndividualGroups(competition.id),
-          ),
-    );
-    final individualGroups = {
-      for (int i = 0; i < allCompetitions.expand((c) => c).length; i++)
-        allCompetitions.expand((c) => c).elementAt(i).id: allGroups[i],
-    };
-    setState(() {
-      _cups = cups;
-      _competitions = cupCompetitions;
-      _individualGroups = individualGroups;
-    });
+  Future<void> _loadData(Api api) async {
+    log("Загружаем данные");
+    for (var cup in await api.getCups()) {
+      for (var competition in await api.getCupsCompetitions(cup.id)) {
+        for (var individualGroup in await api.getCompetitionsIndividualGroups(
+          competition.id,
+        )) {
+          setState(() {
+            _competitions.add(
+              FullCompetitionData(cup, competition, individualGroup),
+            );
+          });
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final allCompetitions =
-        _competitions.values.expand((list) => list).toList();
+    var api = context.watch<Api>();
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: () {
+        _competitions.clear();
+        return _loadData(api);
+      },
       child: Scaffold(
         appBar: OnionBar("Соревнования", context),
         body: Center(
           child: ListView.builder(
-            itemCount: allCompetitions.length,
+            itemCount: _competitions.length,
             itemBuilder: (context, index) {
-              final competition = allCompetitions[index];
+              final data = _competitions[index];
               return CompetitionField(
-                nameOfComp: competition.stage.name,
+                nameOfComp: data.competition.stage.name,
                 date: _formatCompetitionDate(
-                  competition.startDate,
-                  competition.endDate,
+                  data.competition.startDate,
+                  data.competition.endDate,
                 ),
+                groupId: data.individualGroup.id,
               );
             },
           ),
@@ -134,4 +122,12 @@ String getMonth(int month) {
 
 String formatDate(DateTime date) {
   return '${date.day} ${getMonth(date.month)} ${date.year} г.';
+}
+
+class FullCompetitionData {
+  final Cup cup;
+  final Competition competition;
+  final IndividualGroup individualGroup;
+
+  FullCompetitionData(this.cup, this.competition, this.individualGroup);
 }

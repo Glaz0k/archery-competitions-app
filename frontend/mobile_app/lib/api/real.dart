@@ -190,7 +190,7 @@ class RealServer implements Api {
     var response = await client.get(
       Uri.https(backend, "/individual_groups/$groupId/qualification"),
     );
-    validate(response);
+    validate(response, notFoundMessage: "Группа или квалификация не найдена");
     return QualificationTable.fromJson(jsonDecode(response.body));
   }
 
@@ -214,7 +214,7 @@ class RealServer implements Api {
         "/qualification_sections/$sectionId/rounds/$roundOrdinal",
       ),
     );
-    validate(response);
+    validate(response, notFoundMessage: "Секция или раунд не найдены");
     return QualificationRoundFull.fromJson(jsonDecode(response.body));
   }
 
@@ -235,7 +235,7 @@ class RealServer implements Api {
 
   @override
   Future<SparingPlace> getSparringPlace(int placeId) {
-    // TODO: implement getSparringPlace
+    // Мы и так их получаем, когда тянем сетку.
     throw UnimplementedError();
   }
 
@@ -311,19 +311,19 @@ class RealServer implements Api {
     int placeId,
     ChangeShootOut request,
   ) {
-    // TODO: implement putSparringPlacesShootOut
+    // Мы не занимаемся перестрелками
     throw UnimplementedError();
   }
 
   @override
   Future<void> register(Credentials credentials) {
-    // TODO: implement register
+    // Мы не занимаемся регистрацией
     throw UnimplementedError();
   }
 
   @override
   Future<CompetitorFull> registerCompetitor(ChangeCompetitor request) {
-    // TODO: implement registerCompetitor
+    // Мы не занимаемся регистрацией
     throw UnimplementedError();
   }
 }

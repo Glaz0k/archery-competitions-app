@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/api/responses.dart';
 import 'package:mobile_app/model/range_model.dart';
+import 'package:mobile_app/page/range_input_page.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api.dart';
@@ -36,6 +37,7 @@ class _FinalPageState extends State<FinalPage> {
     var grid = _grid;
     return RefreshIndicator(
       child: ListView(
+        padding: EdgeInsets.all(8.0),
         scrollDirection: Axis.vertical,
         children: [
           if (grid?.fina1?.sparringGold != null)
@@ -89,10 +91,14 @@ class FinalCard extends StatelessWidget {
     return Card(
       child: Column(
         children: [
-          Text(title),
+          Text(title, style: Theme.of(context).textTheme.headlineSmall),
           Divider(),
           for (var sparring in sparringList)
-            if (sparring != null) SparringCard(sparring: sparring),
+            if (sparring != null)
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: SparringCard(sparring: sparring),
+              ),
         ],
       ),
     );
@@ -110,7 +116,7 @@ class SparringCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         CompetitorButton(place: sparring.topPlace),
-        Text("vs"),
+        Padding(padding: const EdgeInsets.all(8.0), child: Text("vs")),
         CompetitorButton(place: sparring.botPlace),
       ],
     );
@@ -125,35 +131,43 @@ class CompetitorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var api = context.watch<Api>();
-    if (place == null) {
-      return ElevatedButton(onPressed: null, child: Text("Нет соперника"));
-    } else {
-      return ElevatedButton(
+    return Expanded(
+      child: FilledButton.tonal(
         onPressed:
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => ChangeNotifierProvider(
-                      create:
-                          (context) => RangeModel(
-                            place!.rangeGroup,
-                            getRangeGroup:
-                                () => api.getSparringPlacesRanges(place!.id),
-                            putRange:
-                                (request) => api.putSparringPlacesRange(
-                                  place!.id,
-                                  request,
-                                ),
-                            endRange:
-                                (idx) =>
-                                    api.endSparringPlacesRange(place!.id, idx),
-                          ),
-                    ),
-              ),
-            ),
-        child: Text(place!.competitor.fullName),
-      );
-    }
+            place == null
+                ? null
+                : () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ChangeNotifierProvider(
+                          child: SeriesPage(),
+                          create:
+                              (context) => RangeModel(
+                                place!.rangeGroup,
+                                getRangeGroup:
+                                    () =>
+                                        api.getSparringPlacesRanges(place!.id),
+                                putRange:
+                                    (request) => api.putSparringPlacesRange(
+                                      place!.id,
+                                      request,
+                                    ),
+                                endRange:
+                                    (idx) => api.endSparringPlacesRange(
+                                      place!.id,
+                                      idx,
+                                    ),
+                              ),
+                        ),
+                  ),
+                ),
+        child: Text(
+          place?.competitor.fullName.splitMapJoin(" ", onMatch: (s) => '\n') ??
+              "Нет соперника",
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
   }
 }

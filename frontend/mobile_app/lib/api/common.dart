@@ -144,7 +144,7 @@ class Shot {
   factory Shot.fromJson(Map<String, dynamic> json) => _$ShotFromJson(json);
 
   void changeBySlider(double sliderValue, RangeType type) {
-    if (type == RangeType.six2ten && sliderValue < 6.0) {
+    if (type == RangeType.six2ten && sliderValue < 6.0 || sliderValue == 0.0) {
       score = "M";
     } else {
       var temp = sliderValue.round();
