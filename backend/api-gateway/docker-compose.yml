@@ -1,0 +1,39 @@
+name: api-gateway-server
+services:
+  api-gateway:
+    container_name: api-gateway
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      REDIS_HOST: session-redis
+      REDIS_PORT: 6379
+      REDIS_PASS: ${GATEWAY_REDIS_PASS}
+      REDIS_DB: 0
+      MAIN_URL: ${MAIN_SERVICE_URL}
+      AUTH_URL: ${AUTH_SERVICE_URL}
+      WEB_URL: ${WEB_APP_URL}
+      SESSION_NAME: AUTHSESSIONID
+    depends_on:
+      session-redis:
+        condition: service_healthy
+
+  session-redis:
+    container_name: session-redis
+    image: redis:7-alpine
+    command: redis-server --requirepass ${GATEWAY_REDIS_PASS}
+    ports:
+      - "6379:6379"
+    volumes:
+      - session-redis-data:/data
+    environment:
+      REDIS_PASSWORD: ${GATEWAY_REDIS_PASS}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  session-redis-data:

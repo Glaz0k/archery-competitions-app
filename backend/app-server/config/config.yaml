@@ -1,0 +1,9 @@
+PORT: 8080
+POSTGRES:
+  POSTGRES_USER: root
+  POSTGRES_PASSWORD: root_password
+  POSTGRES_DB: BowCompetitions
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: 5432
+  POSTGRES_POOL_SIZE: 20
+SECRET_KEY: my_secret_key_my_secret_key_my_secret_key
