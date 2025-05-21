@@ -1,30 +1,34 @@
 package com.DevBow.auth.service;
 
 import com.DevBow.auth.entity.UserEntity;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-
+@RequiredArgsConstructor
 @Component
 public class JwtProvider {
 
-    private final SecretKey jwtSecretKey;
-
-    public JwtProvider(@Value("${jwt.secret-key}") String jwtSecretKeyBase64) {
-        this.jwtSecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretKeyBase64));
-    }
+    private final JwtEncoder jwtEncoder;
 
     public String generateToken(@NonNull UserEntity user) {
-        return Jwts.builder()
+        JwtClaimsSet claims = JwtClaimsSet.builder()
             .claim("user_id", user.getId())
             .claim("role", user.getRole().toString())
-            .signWith(jwtSecretKey, Jwts.SIG.HS256)
-            .compact();
+            .build();
+
+        JwsHeader header = JwsHeader
+            .with(MacAlgorithm.HS256)
+            .type("JWT")
+            .build();
+
+        return jwtEncoder
+            .encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
 
 }
