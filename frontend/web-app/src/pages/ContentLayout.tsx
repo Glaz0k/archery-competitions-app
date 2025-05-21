@@ -1,9 +1,12 @@
 import { IconHome, IconLogout, IconUsers } from "@tabler/icons-react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigate } from "react-router";
 import { ActionIcon, AppShell, Box, Flex, Group, Text, Title, Tooltip } from "@mantine/core";
+import { useLogout } from "../api";
 import { APP_NAME } from "../constants";
 
 export default function ContentLayout() {
+  const navigate = useNavigate();
+  const { mutate: logout, isPending: isLoggingOut } = useLogout(() => navigate("/sign-in"));
   return (
     <AppShell header={{ height: 100 }} padding={0}>
       <AppShell.Header>
@@ -23,7 +26,7 @@ export default function ContentLayout() {
               </ActionIcon>
             </Tooltip>
             <Tooltip label="Выйти">
-              <ActionIcon>
+              <ActionIcon onClick={() => logout()} loading={isLoggingOut}>
                 <IconLogout />
               </ActionIcon>
             </Tooltip>
