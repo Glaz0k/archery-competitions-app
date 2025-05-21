@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1991110056/android.path_provider_android.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/1991110056/android.path_provider_android.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1991110056/android.path_provider_android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/1991110056/android.path_provider_android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1991110056/android.path_provider_android.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/1991110056/android.path_provider_android.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/archery-competitions-app.iml" filepath="$PROJECT_DIR$/.idea/archery-competitions-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1004671178/gradle.iml" filepath="$PROJECT_DIR$/.idea/modules/-1004671178/gradle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1004671178/gradle.main.iml" filepath="$PROJECT_DIR$/.idea/modules/-1004671178/gradle.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1004671178/gradle.test.iml" filepath="$PROJECT_DIR$/.idea/modules/-1004671178/gradle.test.iml" />
+    </modules>
+  </component>
+</project>
