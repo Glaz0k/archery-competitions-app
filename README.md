@@ -9,84 +9,67 @@ archery-competitions-app/
 │
 ├── backend/
 │   ├── api-gateway/
-│   │   ├── nginx.conf
-│   │   └── Dockerfile
-│   ├── redis-session-storage/
-│   │   └── Dockerfile
-│   ├── auth-server/
-│   │   ├── src/
-│   │   └── Dockerfile
-│   ├── postgres-auth/
-│   │   └── Dockerfile
+│   │   ├── Dockerfile
+│   │   ├── docker-compose.yml
+│   │   └── ...
 │   ├── app-server/
-│   │   ├── src/
-│   │   └── Dockerfile
-│   ├── postgres-app/
-│   │   └── Dockerfile
-│   └── docker-compose.yml
+│   │   ├── Dockerfile
+│   │   ├── docker-compose.yml
+│   │   └── ...
+│   └── auth-server/
+│       ├── Dockerfile
+│       ├── docker-compose.yml
+│       └── ...
 │
 ├── frontend/
 │   ├── web-app/
-│   │   ├── src/
-│   │   └── Dockerfile
-│   ├── mobile-app/
-│   └── docker-compose.yml
+│   │   ├── Dockerfile
+│   │   ├── docker-compose.yml
+│   │   └── ...
+│   └── mobile-app/
 │
 ├── docs/
 │   ├── api/
-│   └── models/
+│   ├── enums/
+│   ├── models/
+│   ├── policies/
+│   └── requests/
 │
 ├── README.md
-└── .gitignore
+└── LICENSE
 ```
 
 - backend/:
-  - api-gateway/: Содержит конфигурацию Nginx и Dockerfile для создания образа API Gateway.
-  - redis-session-storage/: Конфигурация Docker для Redis.
-  - auth-server/: Java проект для сервера аутентификации.
-  - postgres-auth/: Конфигурация Docker для базы данных Postgres, используемой сервером аутентификации.
+  - api-gateway/: Содержит Node.js сервер в качестве API Gateway.
   - app-server/: Go проект для монолитного сервиса, реализующего бизнес-логику.
-  - postgres-app/: Конфигурация Docker для базы данных Postgres, используемой приложением.
-  - docker-compose.yml: Файл для оркестрации всех бэкенд сервисов.
+  - auth-server/: Java проект для сервера аутентификации.
 - frontend/
   - web-app/: React проект для SPA админ-приложения.
   - mobile-app/: Flutter проект для мобильного приложения.
-  - docker-compose.yml: Файл для оркестрации фронтенд приложений.
 - docs/
   - api/: Документация для REST API
-  - models/: Модели для документации
+  - enums/: Используемые перечисления
+  - models/: Используемые модели
+  - policies/: Используемые при работе с REST API политики
+  - requests/: Используемые ответы API
 - README.md: Основная документация проекта.
-- .gitignore: Файл для исключения ненужных файлов из Git, может содержаться в каждой из поддиректорий.
+- LICENSE: Файл лицензии.
 
 ### 1.2. Ветки
 
 - **master** — основная ветка, содержащая стабильную версию кода. Прямые коммиты в эту ветку запрещены.
 - **develop** — ветка для разработки. Все изменения должны быть слиты сюда перед тем, как попасть в `master`.
 - **feature/** — ветки для разработки новых функций. Название ветки должно соответствовать формату `feature/<название-функционала>`.
-- **bugfix/** — ветки для исправления багов. Название ветки должно соответствовать формату `bugfix/<описание-бага>`.
-
-Путь кода в `master` ветку:
-
-```
-master
-└─< develop
-    ├─< feature/*
-    └─< bugfix/*
-```
 
 ### 1.3. Процедура добавления кода
 
 1. Перед началом работы над новой функцией или исправлением создайте новую ветку от `develop`:
 2. После завершения работы над веткой создайте Pull Request в ветку `develop`.
-3. Название PR должно соответствовать названию ветки.
-4. После закрытия PR можно продолжать так же пользоваться веткой, подтягивая другие изменения из `develop`.
-
-> [!IMPORTANT]
-> Было бы хорошо иметь unit-тесты на важные компоненты, например логику перехода состояний.
+3. После закрытия PR можно продолжать так же пользоваться веткой, подтягивая другие изменения из `develop`.
 
 ## 2. Документация
 
-1. Докуметнация внешнего REST API должна находится в `docs/api/`, оформленная в виде Markdown-файлов с названием `<название-сервиса>.md`
+1. Докуметнация REST API должна находится в `docs/api/`, оформленная в виде Markdown-файлов с названием `<название-сервиса>.md`
 2. Модели для документации должны лежать в `docs/models/`, в виде `<название-модели>.json`
 3. Документация каждого сервиса должна содержать:
    - Функциональное название endpoint-а
@@ -98,21 +81,13 @@ master
      - HTTP-код ответа
      - Тело ответа (при наличии)
 
-- [Пример документации](docs/example.md)
+## 3. Команда разработки
 
-## 3. Зоны ответсвенности
-
-- Project Manager — Лебедев Антон
-- Backend:
-  - app-server — Пиявкин Антон, Козакова Анна, Дудкина София
-  - auth-server — Кравченко Никита
-  - api-gateway — Кравченко Никита
-- Frontend:
-  - web — Кравченко Никита
-  - mobile — Демиденко Никита, Новохацкий Данил
-- CI/CD — Лебедев Антон, Пиявкин Антон
-
-## 4. Полезные материалы
-
-- [Графические материалы](https://drive.google.com/drive/folders/1xE3skqLdafwkhKQWRsG8dghXoY-ITycv?usp=sharing)
-- [Схема базы данных основного приложения](https://dbdiagram.io/d/Bow-Competitions-67c6ce5d263d6cf9a0279758)
+- DevBow Team:
+  - [Демиденко Никита](https://github.com/TheOneFoxAgo)
+  - [Дудкина София](https://github.com/sssidkn)
+  - [Козакова Анна](https://github.com/nutochk)
+  - [Кравченко Никита](https://github.com/Glaz0k)
+  - [Лебедев Антон](https://github.com/IastWish)
+  - [Новохацкий Данил](https://github.com/katagiriwhy)
+  - [Пиявкин Антон](https://github.com/Piyavva)
